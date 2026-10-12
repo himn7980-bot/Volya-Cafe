@@ -198,6 +198,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .el-card.fire b { color: #ff8a5c; }
 .el-card.ice b { color: #7fe3ff; }
 .el-card.bolt b { color: #ffd84d; }
+.el-card.poison b { color: #8ff06a; }
+.el-card.heal b { color: #ff8fc8; }
+.el-card.nova b { color: #d9a8ff; }
 .tips { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .tips li {
   display: flex; align-items: center; gap: 12px;
@@ -305,11 +308,16 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
           <div class="el-card fire"><img class="die-img" data-el="fire" alt=""><b data-i18n="fire"></b><small data-i18n="fireNote"></small></div>
           <div class="el-card ice"><img class="die-img" data-el="ice" alt=""><b data-i18n="ice"></b><small data-i18n="iceNote"></small></div>
           <div class="el-card bolt"><img class="die-img" data-el="bolt" alt=""><b data-i18n="bolt"></b><small data-i18n="boltNote"></small></div>
+          <div class="el-card poison"><img class="die-img" data-el="poison" alt=""><b data-i18n="poison"></b><small data-i18n="poisonNote"></small></div>
+          <div class="el-card heal"><img class="die-img" data-el="heal" alt=""><b data-i18n="heal"></b><small data-i18n="healNote"></small></div>
+          <div class="el-card nova"><img class="die-img" data-el="nova" alt=""><b data-i18n="nova"></b><small data-i18n="novaNote"></small></div>
         </div>
         <ul class="tips">
+          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="5" cy="13" r="4" fill="#ff5a3d"/><circle cx="13" cy="13" r="4" fill="#ff5a3d"/><circle cx="21" cy="13" r="4" fill="#ff5a3d"/><circle cx="3.8" cy="11.6" r="1.2" fill="#fff"/><circle cx="11.8" cy="11.6" r="1.2" fill="#fff"/><circle cx="19.8" cy="11.6" r="1.2" fill="#fff"/><path d="M9 22h8" stroke="#ffd84d" stroke-width="2.2" stroke-linecap="round"/></svg></span><span data-i18n="tipMatch"></span></li>
           <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="9" r="6" fill="none" stroke="#ffd84d" stroke-width="2" opacity=".6"/><path d="M11 9.5a2 2 0 014 0V15l3.2.8a2 2 0 011.5 2.3l-.8 4.4H11l-3.4-4.3a1.7 1.7 0 012.4-2.3l1 .8z" fill="#fff" stroke="#3a2a7a" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span data-i18n="tipTap"></span></li>
           <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="12" width="10" height="10" rx="3" fill="#ff5a3d"/><rect x="14" y="4" width="10" height="10" rx="3" fill="#ff5a3d"/><path d="M8 9c0-3 2-5 5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M11 2.5l2.3 1.5-1.6 2.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-i18n="tipMerge"></span></li>
           <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="8" width="7.5" height="10" rx="2.5" fill="#36b7ff"/><rect x="9.25" y="8" width="7.5" height="10" rx="2.5" fill="#36b7ff"/><rect x="17.5" y="8" width="7.5" height="10" rx="2.5" fill="#36b7ff"/><path d="M4 23l18-20" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span data-i18n="tipRage"></span></li>
+          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2l2.6 7.2L23 10l-6 4.6L19.2 22 13 17.6 6.8 22 9 14.6 3 10l7.4-.8z" fill="#c77dff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span data-i18n="tipSpecial"></span></li>
         </ul>
       </div>
     </div>
@@ -363,7 +371,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const BEST_KEY = "dice-chain-best-v1";
 
   const SLOT_COUNT = 5;
-  const DROP_EVERY = 3;
+  const COLS = 6, ROWS = 5;
   const RAGE_TIME = 5;
   const RAGE_SLOWMO = 0.28;
   const COMBO_WINDOW = 2.5;
@@ -374,16 +382,24 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const FONT = '"Baloo 2", "Vazirmatn", "Nunito", system-ui, sans-serif';
 
   const EL = {
-    fire: { c: "#ff5a2f", c2: "#ffd84d", top: "#ffb08a", base: "#ff4a3d", dark: "#a8162a" },
-    ice:  { c: "#3fd0ff", c2: "#d9f8ff", top: "#c2f6ff", base: "#36b7ff", dark: "#1550b8" },
-    bolt: { c: "#ffd23f", c2: "#fff6c2", top: "#fff6b8", base: "#ffc21a", dark: "#b86200" }
+    fire:   { c: "#ff5a2f", c2: "#ffd84d", top: "#ffb08a", base: "#ff4a3d", dark: "#a8162a" },
+    ice:    { c: "#3fd0ff", c2: "#d9f8ff", top: "#c2f6ff", base: "#36b7ff", dark: "#1550b8" },
+    bolt:   { c: "#ffd23f", c2: "#fff6c2", top: "#fff6b8", base: "#ffc21a", dark: "#b86200" },
+    poison: { c: "#6ee03a", c2: "#d6ff9e", top: "#d2ff9a", base: "#56c42a", dark: "#1f6e14" },
+    heal:   { c: "#ff6fb5", c2: "#ffd1e8", top: "#ffc6e1", base: "#ff5aa8", dark: "#a3175f" },
+    nova:   { c: "#c77dff", c2: "#f3d9ff", top: "#efd0ff", base: "#a64dff", dark: "#4f1a99", special: true },
+    wind:   { c: "#5fe6d0", c2: "#e0fff9", top: "#d0fff6", base: "#39cdb5", dark: "#11705f", special: true }
   };
   const ELS = ["fire", "ice", "bolt"];
+  const GEMS = ["fire", "ice", "bolt", "poison", "heal"];
+  const ALL_ELS = Object.keys(EL);
   const ENEMY = {
-    crawler: { r: 16, hp: 30,  speed: 38, dmg: 8,  pts: 10, c: "#e04ff0" },
-    runner:  { r: 12, hp: 16,  speed: 78, dmg: 6,  pts: 15, c: "#62d84a" },
-    brute:   { r: 26, hp: 150, speed: 22, dmg: 20, pts: 50, c: "#ff7a3d" }
+    crawler: { r: 16, hp: 30,  speed: 30, dmg: 8,  pts: 10, c: "#e04ff0" },
+    runner:  { r: 12, hp: 16,  speed: 60, dmg: 6,  pts: 15, c: "#62d84a" },
+    brute:   { r: 26, hp: 150, speed: 18, dmg: 20, pts: 50, c: "#ff7a3d" }
   };
+  const POISON = { R: [0, 80, 115, 165], dur: [0, 4, 5, 6], dps: [0, 14, 30, 70] };
+  const HEAL = { hp: [0, 15, 30, 60], guard: [0, 2.5, 3.5, 5] };
   const FIRE = { R: [0, 72, 108, 168], dmg: [0, 38, 95, 260] };
   const ICE  = { R: [0, 88, 132, 212], dmg: [0, 10, 26, 70], freeze: [0, 1.6, 2.6, 4.2] };
   const BOLT = { chains: [0, 3, 6, 12], dmg: [0, 30, 72, 180], range: [0, 150, 175, 220] };
@@ -555,6 +571,33 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       done: "Xong", dice: "Xúc xắc phép thuật", full: "Đầy", tapHint: "Chạm!", mergeHint: "Kéo để gộp!", powerUp: "Mạnh hơn!", chain: "Chuỗi ×{n}" }
   };
 
+  // New strings for the match-3 board and the extra powers.
+  const STR_MORE = {
+    en: { poison: "Poison", poisonNote: "Toxic cloud", heal: "Heal", healNote: "Health + shield", nova: "Nova", novaNote: "Clears the screen", wind: "Tornado", windNote: "Blows enemies away", tipMatch: "Swipe gems to match 3 or more. Each match becomes a magic die", tipSpecial: "5 in a row = Nova · L or T shape = Tornado", matchHint: "Swipe to match 3!" },
+    fa: { poison: "سم", poisonNote: "ابر سمی", heal: "شفا", healNote: "جان + سپر", nova: "ابرانفجار", novaNote: "کل صفحه را پاک می‌کند", wind: "گردباد", windNote: "دشمن‌ها را پرت می‌کند", tipMatch: "جواهرها را جابه‌جا کن تا ۳ تا یا بیشتر جور شوند. هر جور شدن یک تاس جادویی می‌دهد", tipSpecial: "۵ تا در یک ردیف = ابرانفجار · شکل L یا T = گردباد", matchHint: "بکش و ۳ تا جور کن!" },
+    ar: { poison: "سمّ", poisonNote: "سحابة سامة", heal: "شفاء", healNote: "صحة + درع", nova: "نوفا", novaNote: "يمسح الشاشة كلها", wind: "إعصار", windNote: "يطيح بالأعداء", tipMatch: "اسحب الجواهر لتطابق ٣ أو أكثر. كل تطابق يصبح نردًا سحريًا", tipSpecial: "٥ في صف = نوفا · شكل L أو T = إعصار", matchHint: "اسحب لتطابق ٣!" },
+    ru: { poison: "Яд", poisonNote: "Ядовитое облако", heal: "Лечение", healNote: "Здоровье + щит", nova: "Нова", novaNote: "Очищает весь экран", wind: "Торнадо", windNote: "Сдувает врагов", tipMatch: "Двигай камни, собирая 3 и больше. Каждая комбинация даёт магический кубик", tipSpecial: "5 в ряд = Нова · Форма L или T = Торнадо", matchHint: "Собери 3 в ряд!" },
+    uk: { poison: "Отрута", poisonNote: "Отруйна хмара", heal: "Лікування", healNote: "Здоров'я + щит", nova: "Нова", novaNote: "Очищає весь екран", wind: "Торнадо", windNote: "Здуває ворогів", tipMatch: "Рухай камінці, збираючи 3 і більше. Кожен збіг дає магічний кубик", tipSpecial: "5 у ряд = Нова · Форма L або T = Торнадо", matchHint: "Збери 3 в ряд!" },
+    tr: { poison: "Zehir", poisonNote: "Zehirli bulut", heal: "Şifa", healNote: "Can + kalkan", nova: "Nova", novaNote: "Tüm ekranı temizler", wind: "Kasırga", windNote: "Düşmanları savurur", tipMatch: "3 veya daha fazlasını eşleştirmek için taşları kaydır. Her eşleşme bir sihirli zar olur", tipSpecial: "Sırada 5 = Nova · L veya T şekli = Kasırga", matchHint: "Kaydır, 3'lü eşleştir!" },
+    az: { poison: "Zəhər", poisonNote: "Zəhərli bulud", heal: "Şəfa", healNote: "Can + qalxan", nova: "Nova", novaNote: "Bütün ekranı təmizləyir", wind: "Qasırğa", windNote: "Düşmənləri sovurur", tipMatch: "3 və ya daha çoxunu uyğunlaşdırmaq üçün daşları sürüşdür. Hər uyğunluq sehrli zər olur", tipSpecial: "Sırada 5 = Nova · L və ya T forması = Qasırğa", matchHint: "Sürüşdür, 3-ü uyğunlaşdır!" },
+    uz: { poison: "Zahar", poisonNote: "Zaharli bulut", heal: "Shifo", healNote: "Jon + qalqon", nova: "Nova", novaNote: "Butun ekranni tozalaydi", wind: "Tornado", windNote: "Dushmanlarni uchirib yuboradi", tipMatch: "3 yoki undan ko'pini moslash uchun toshlarni sur. Har bir moslik sehrli zarga aylanadi", tipSpecial: "Qatorda 5 ta = Nova · L yoki T shakli = Tornado", matchHint: "Sur va 3 tasini mosla!" },
+    kk: { poison: "У", poisonNote: "Улы бұлт", heal: "Емдеу", healNote: "Денсаулық + қалқан", nova: "Нова", novaNote: "Бүкіл экранды тазалайды", wind: "Торнадо", windNote: "Жауларды ұшырады", tipMatch: "3 не одан көпті сәйкестендіру үшін тастарды жылжыт. Әр сәйкестік сиқырлы кубик береді", tipSpecial: "Қатарда 5 = Нова · L не T пішіні = Торнадо", matchHint: "Жылжытып 3-ін сәйкестендір!" },
+    es: { poison: "Veneno", poisonNote: "Nube tóxica", heal: "Curar", healNote: "Vida + escudo", nova: "Nova", novaNote: "Limpia la pantalla", wind: "Tornado", windNote: "Expulsa enemigos", tipMatch: "Desliza gemas para juntar 3 o más. Cada combinación se convierte en un dado mágico", tipSpecial: "5 en línea = Nova · Forma L o T = Tornado", matchHint: "¡Desliza y junta 3!" },
+    pt: { poison: "Veneno", poisonNote: "Nuvem tóxica", heal: "Cura", healNote: "Vida + escudo", nova: "Nova", novaNote: "Limpa a tela", wind: "Tornado", windNote: "Arremessa inimigos", tipMatch: "Deslize gemas para juntar 3 ou mais. Cada combinação vira um dado mágico", tipSpecial: "5 em linha = Nova · Formato L ou T = Tornado", matchHint: "Deslize e junte 3!" },
+    fr: { poison: "Poison", poisonNote: "Nuage toxique", heal: "Soin", healNote: "Vie + bouclier", nova: "Nova", novaNote: "Nettoie l'écran", wind: "Tornade", windNote: "Repousse les ennemis", tipMatch: "Glisse les gemmes pour en aligner 3 ou plus. Chaque alignement donne un dé magique", tipSpecial: "5 alignées = Nova · Forme en L ou T = Tornade", matchHint: "Glisse pour aligner 3 !" },
+    de: { poison: "Gift", poisonNote: "Giftwolke", heal: "Heilung", healNote: "Leben + Schild", nova: "Nova", novaNote: "Räumt den Bildschirm", wind: "Tornado", windNote: "Schleudert Gegner weg", tipMatch: "Wische Edelsteine, um 3 oder mehr zu verbinden. Jede Kombi wird zu einem Zauberwürfel", tipSpecial: "5 in einer Reihe = Nova · L- oder T-Form = Tornado", matchHint: "Wische für 3 in einer Reihe!" },
+    it: { poison: "Veleno", poisonNote: "Nube tossica", heal: "Cura", healNote: "Vita + scudo", nova: "Nova", novaNote: "Ripulisce lo schermo", wind: "Tornado", windNote: "Spazza via i nemici", tipMatch: "Scorri le gemme per allinearne 3 o più. Ogni combinazione diventa un dado magico", tipSpecial: "5 in fila = Nova · Forma a L o T = Tornado", matchHint: "Scorri e allinea 3!" },
+    nl: { poison: "Gif", poisonNote: "Gifwolk", heal: "Genezen", healNote: "Leven + schild", nova: "Nova", novaNote: "Wist het hele scherm", wind: "Tornado", windNote: "Blaast vijanden weg", tipMatch: "Veeg edelstenen om er 3 of meer te matchen. Elke match wordt een magische dobbelsteen", tipSpecial: "5 op een rij = Nova · L- of T-vorm = Tornado", matchHint: "Veeg en match 3!" },
+    pl: { poison: "Trucizna", poisonNote: "Trująca chmura", heal: "Leczenie", healNote: "Życie + tarcza", nova: "Nova", novaNote: "Czyści cały ekran", wind: "Tornado", windNote: "Odrzuca wrogów", tipMatch: "Przesuwaj klejnoty, by ułożyć 3 lub więcej. Każde dopasowanie daje magiczną kość", tipSpecial: "5 w rzędzie = Nova · Kształt L lub T = Tornado", matchHint: "Przesuń i ułóż 3!" },
+    id: { poison: "Racun", poisonNote: "Awan beracun", heal: "Pulih", healNote: "Nyawa + perisai", nova: "Nova", novaNote: "Membersihkan layar", wind: "Tornado", windNote: "Menghempas musuh", tipMatch: "Geser permata untuk mencocokkan 3 atau lebih. Tiap kecocokan jadi dadu ajaib", tipSpecial: "5 berjajar = Nova · Bentuk L atau T = Tornado", matchHint: "Geser untuk cocokkan 3!" },
+    hi: { poison: "ज़हर", poisonNote: "ज़हरीला बादल", heal: "इलाज", healNote: "जान + ढाल", nova: "नोवा", novaNote: "पूरी स्क्रीन साफ़", wind: "बवंडर", windNote: "दुश्मनों को उड़ा देता है", tipMatch: "3 या ज़्यादा मिलाने के लिए रत्नों को स्वाइप करें। हर मैच एक जादुई पासा बनता है", tipSpecial: "एक लाइन में 5 = नोवा · L या T आकार = बवंडर", matchHint: "स्वाइप करके 3 मिलाएँ!" },
+    zh: { poison: "毒素", poisonNote: "毒云", heal: "治疗", healNote: "生命 + 护盾", nova: "新星", novaNote: "清空全屏", wind: "龙卷风", windNote: "吹飞敌人", tipMatch: "滑动宝石，连成 3 个或更多。每次消除都会变成魔法骰子", tipSpecial: "5 连 = 新星 · L 或 T 形 = 龙卷风", matchHint: "滑动连成 3 个！" },
+    ja: { poison: "毒", poisonNote: "毒の雲", heal: "回復", healNote: "HP + シールド", nova: "ノヴァ", novaNote: "画面の敵を一掃", wind: "竜巻", windNote: "敵を吹き飛ばす", tipMatch: "宝石をスワイプして3つ以上そろえよう。そろえるたびに魔法のダイスになる", tipSpecial: "5つ並び = ノヴァ · L字・T字 = 竜巻", matchHint: "スワイプで3つそろえて！" },
+    ko: { poison: "독", poisonNote: "독구름", heal: "회복", healNote: "체력 + 보호막", nova: "노바", novaNote: "화면 전체 정리", wind: "토네이도", windNote: "적을 날려 버림", tipMatch: "보석을 밀어 3개 이상 맞추세요. 맞출 때마다 마법 주사위가 됩니다", tipSpecial: "5개 일렬 = 노바 · L자·T자 = 토네이도", matchHint: "밀어서 3개 맞추기!" },
+    vi: { poison: "Độc", poisonNote: "Mây độc", heal: "Hồi máu", healNote: "Máu + khiên", nova: "Nova", novaNote: "Dọn sạch màn hình", wind: "Lốc xoáy", windNote: "Thổi bay kẻ địch", tipMatch: "Vuốt đá quý để ghép 3 viên trở lên. Mỗi lần ghép thành một xúc xắc phép thuật", tipSpecial: "5 viên thẳng hàng = Nova · Hình L hoặc T = Lốc xoáy", matchHint: "Vuốt để ghép 3!" }
+  };
+  for (const k in STR_MORE) Object.assign(STR[k], STR_MORE[k]);
+
   // ---- Setup -----------------------------------------------------------
   const $ = (id) => document.getElementById(id);
   const stage = $("stage");
@@ -596,7 +639,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const mk = (w, h) => { const c = document.createElement("canvas"); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
 
   // ---- Settings & language --------------------------------------------
-  const settings = { lang: "auto", sound: true, vib: true, tutTap: false, tutMerge: false };
+  const settings = { lang: "auto", sound: true, vib: true, tutTap: false, tutMerge: false, tutMatch: false };
   try { Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}")); } catch (e) {}
   const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {} };
   let best = 0;
@@ -709,6 +752,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         lastPop = ac ? ac.currentTime : 0;
         noise(0.12, 0.3, "highpass", 2500, 6000); tone(1800, 600, 0.1, "sine", 0.06); break;
       case "wave": [392, 523, 659].forEach((f, i) => tone(f, null, 0.18, "square", 0.05, i * 0.09)); break;
+      case "swap": tone(380, 520, 0.07, "triangle", 0.1); break;
+      case "nope": tone(260, 180, 0.14, "triangle", 0.12); break;
+      case "match": { const b = 520 * Math.pow(1.122, Math.min(tier, 8)); tone(b, b * 1.5, 0.12, "triangle", 0.14); tone(b * 1.5, b * 2, 0.1, "sine", 0.08, 0.05); break; }
+      case "poison": noise(0.35, 0.3, "lowpass", 700, 200); tone(300, 120, 0.25, "sine", 0.2); break;
+      case "heal": [660, 880, 1100, 1320].forEach((f, i) => tone(f, f * 1.02, 0.2, "sine", 0.1, i * 0.06)); break;
+      case "nova": noise(1.2, 0.6, "lowpass", 2000, 60); tone(90, 30, 1.0, "sine", 0.6); [880, 1320, 1760].forEach((f, i) => tone(f, f * 0.5, 0.6, "triangle", 0.08, i * 0.05)); break;
+      case "wind": noise(0.8, 0.35, "bandpass", 300, 2500); tone(200, 500, 0.6, "sine", 0.08); break;
       case "over": [523, 392, 330, 196].forEach((f, i) => tone(f, f * 0.98, 0.3, "triangle", 0.15, i * 0.16)); break;
     }
   }
@@ -759,7 +809,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     g.translate(size / 2, size / 2);
     g.lineJoin = "round"; g.lineCap = "round";
     paint(g);
-    return { img: c, white: silhouette(c, "#ffffff"), ice: silhouette(c, "#9fe8ff"), size };
+    return { img: c, white: silhouette(c, "#ffffff"), ice: silhouette(c, "#9fe8ff"), toxic: silhouette(c, "#7cff3a"), size };
   }
 
   function paintSlime(g, r) {
@@ -928,6 +978,38 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       g.strokeStyle = P.dark; g.lineWidth = r * 0.16; g.stroke();
     }
   }
+  function paintIconMore(g, el, r, P) {
+    g.lineJoin = "round"; g.lineCap = "round";
+    g.strokeStyle = P.dark; g.fillStyle = "#ffffff";
+    if (el === "poison") {
+      for (const [x, y, rr] of [[-r * 0.2, r * 0.25, r * 0.62], [r * 0.5, -r * 0.45, r * 0.32], [-r * 0.55, -r * 0.65, r * 0.22]]) {
+        g.beginPath(); g.arc(x, y, rr, 0, TAU); g.lineWidth = r * 0.16; g.stroke(); g.fill();
+      }
+      g.fillStyle = P.base; g.beginPath(); g.arc(-r * 0.38, r * 0.08, r * 0.14, 0, TAU); g.fill();
+    } else if (el === "heal") {
+      g.beginPath();
+      g.moveTo(0, r * 0.95);
+      g.bezierCurveTo(-r * 1.4, -r * 0.05, -r * 0.65, -r * 1.15, 0, -r * 0.45);
+      g.bezierCurveTo(r * 0.65, -r * 1.15, r * 1.4, -r * 0.05, 0, r * 0.95);
+      g.closePath();
+      g.lineWidth = r * 0.16; g.stroke(); g.fill();
+      g.fillStyle = P.base;
+      g.fillRect(-r * 0.09, -r * 0.35, r * 0.18, r * 0.75); g.fillRect(-r * 0.37, -r * 0.06, r * 0.74, r * 0.18);
+    } else if (el === "nova") {
+      g.beginPath();
+      for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU - Math.PI / 2, rr = i % 2 ? r * 0.45 : r * 1.1; g[i ? "lineTo" : "moveTo"](Math.cos(a) * rr, Math.sin(a) * rr); }
+      g.closePath(); g.lineWidth = r * 0.16; g.stroke(); g.fill();
+      g.fillStyle = "#ffe066"; g.beginPath(); g.arc(0, 0, r * 0.3, 0, TAU); g.fill();
+    } else if (el === "wind") {
+      const swirl = (lw, col) => {
+        g.strokeStyle = col; g.lineWidth = lw;
+        g.beginPath();
+        for (let i = 0; i <= 40; i++) { const t = i / 40, a = t * TAU * 1.6, rr = r * (0.15 + t * 0.9); g[i ? "lineTo" : "moveTo"](Math.cos(a) * rr, Math.sin(a) * rr * 0.8); }
+        g.stroke();
+      };
+      swirl(r * 0.42, P.dark); swirl(r * 0.24, "#ffffff");
+    }
+  }
   function paintDie(g, s, el, tier) {
     const P = EL[el], r = s * 0.28;
     g.fillStyle = "rgba(0,0,30,0.35)";
@@ -940,7 +1022,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const gl = g.createLinearGradient(0, s * 0.04, 0, s * 0.44);
     gl.addColorStop(0, "rgba(255,255,255,0.65)"); gl.addColorStop(1, "rgba(255,255,255,0)");
     rrPath(g, s * 0.1, s * 0.06, s * 0.8, s * 0.36, r * 0.7); g.fillStyle = gl; g.fill();
-    g.save(); g.translate(s / 2, s * 0.4); paintIcon(g, el, s * (0.17 + tier * 0.012), P); g.restore();
+    g.save(); g.translate(s / 2, s * 0.4); (ELS.includes(el) ? paintIcon : paintIconMore)(g, el, s * (0.17 + tier * 0.012), P); g.restore();
     for (let k = 0; k < tier; k++) {
       starPath(g, s / 2 + (k - (tier - 1) / 2) * s * 0.2, s * 0.73, s * 0.09, -Math.PI / 2);
       g.fillStyle = "#ffe066"; g.fill();
@@ -951,7 +1033,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function buildDiceSprites() {
     DICE = {};
     const s = slotSize, pad = s * 0.12, res = dpr * 1.15;
-    for (const el of ELS) for (let t = 1; t <= MAX_TIER; t++) {
+    for (const el of ALL_ELS) for (let t = 1; t <= MAX_TIER; t++) {
       const c = mk((s + pad * 2) * res, (s + pad * 2) * res), g = c.getContext("2d");
       g.scale(res, res); g.translate(pad, pad);
       paintDie(g, s, el, t);
@@ -965,24 +1047,92 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     return c.toDataURL();
   }
 
+  function roundPoly(g, pts, rad) {
+    const n = pts.length;
+    g.beginPath();
+    g.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
+    for (let i = 0; i < n; i++) { const p = pts[i], q = pts[(i + 1) % n]; g.arcTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2, rad); }
+    g.closePath();
+  }
+  function gemPath(g, el, r) {
+    if (el === "fire") { g.beginPath(); g.arc(0, 0, r * 0.95, 0, TAU); }
+    else if (el === "ice") roundPoly(g, [[0, -r * 1.05], [r * 0.95, 0], [0, r * 1.05], [-r * 0.95, 0]], r * 0.28);
+    else if (el === "bolt") roundPoly(g, [0, 1, 2, 3, 4, 5].map((i) => { const a = (i / 6) * TAU - Math.PI / 2; return [Math.cos(a) * r, Math.sin(a) * r]; }), r * 0.25);
+    else if (el === "poison") {
+      g.beginPath();
+      g.moveTo(0, -r * 1.05);
+      g.bezierCurveTo(r * 0.45, -r * 0.5, r * 0.95, -r * 0.05, r * 0.9, r * 0.35);
+      g.bezierCurveTo(r * 0.85, r * 1.0, -r * 0.85, r * 1.0, -r * 0.9, r * 0.35);
+      g.bezierCurveTo(-r * 0.95, -r * 0.05, -r * 0.45, -r * 0.5, 0, -r * 1.05);
+      g.closePath();
+    } else {
+      g.beginPath();
+      g.moveTo(0, r * 0.95);
+      g.bezierCurveTo(-r * 1.45, -r * 0.05, -r * 0.7, -r * 1.15, 0, -r * 0.48);
+      g.bezierCurveTo(r * 0.7, -r * 1.15, r * 1.45, -r * 0.05, 0, r * 0.95);
+      g.closePath();
+    }
+  }
+  function paintGem(g, s, el) {
+    const P = EL[el], r = s * 0.42;
+    g.save(); g.translate(0, s * 0.07); gemPath(g, el, r); g.fillStyle = "rgba(0,0,30,0.4)"; g.fill(); g.restore();
+    gemPath(g, el, r);
+    const gr = g.createRadialGradient(-r * 0.35, -r * 0.45, r * 0.08, 0, 0, r * 1.25);
+    gr.addColorStop(0, P.top); gr.addColorStop(0.5, P.base); gr.addColorStop(1, P.dark);
+    g.fillStyle = gr; g.fill();
+    g.save(); g.clip();
+    g.fillStyle = "rgba(0,0,40,0.22)";
+    g.beginPath(); g.ellipse(r * 0.15, r * 1.0, r * 1.2, r * 0.6, 0, 0, TAU); g.fill();
+    g.strokeStyle = rgba(P.c2, 0.75); g.lineWidth = s * 0.05;
+    g.beginPath(); g.arc(0, 0, r * 0.85, 0.15 * Math.PI, 0.65 * Math.PI); g.stroke();
+    g.restore();
+    gemPath(g, el, r);
+    g.lineWidth = s * 0.055; g.strokeStyle = P.dark; g.lineJoin = "round"; g.stroke();
+    g.save();
+    g.translate(-r * 0.3, -r * 0.42); g.rotate(-0.55);
+    const gl = g.createLinearGradient(0, -r * 0.2, 0, r * 0.2);
+    gl.addColorStop(0, "rgba(255,255,255,0.9)"); gl.addColorStop(1, "rgba(255,255,255,0)");
+    g.beginPath(); g.ellipse(0, 0, r * 0.38, r * 0.19, 0, 0, TAU); g.fillStyle = gl; g.fill();
+    g.restore();
+    g.fillStyle = "rgba(255,255,255,0.9)";
+    g.beginPath(); g.arc(r * 0.25, -r * 0.5, r * 0.07, 0, TAU); g.fill();
+  }
+  let GEMSPR = {};
+  function buildGemSprites() {
+    GEMSPR = {};
+    const res = dpr * 1.2, s = cell, pad = s * 0.1;
+    for (const el of GEMS) {
+      const c = mk((s + pad * 2) * res, (s + pad * 2) * res), g = c.getContext("2d");
+      g.scale(res, res); g.translate(s / 2 + pad, s / 2 + pad);
+      paintGem(g, s, el);
+      GEMSPR[el] = { img: c, full: s + pad * 2 };
+    }
+  }
+
   // ---- Layout ----------------------------------------------------------
   let W, H, dpr, S, cx, cy, coreR, hudH, trayTop, slotSize, slotGap, slotX0, slotY, bg, starsBg = [];
+  let cell, boardX, boardY, trayH;
   function layout() {
     W = stage.clientWidth; H = stage.clientHeight;
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     hudH = 84;
+    cell = Math.floor(Math.min(54, (W - 36) / COLS, H * 0.068));
+    boardX = (W - cell * COLS) / 2;
+    boardY = H - cell * ROWS - 20;
     slotGap = 8;
-    slotSize = Math.min(70, (W - 44 - slotGap * (SLOT_COUNT - 1)) / SLOT_COUNT);
-    trayTop = H - (slotSize + 62);
+    slotSize = Math.floor(Math.min(54, (W - 44 - slotGap * (SLOT_COUNT - 1)) / SLOT_COUNT, H * 0.068));
+    trayH = slotSize + 20;
+    trayTop = boardY - 8 - 14 - trayH;
     slotX0 = (W - (SLOT_COUNT * slotSize + (SLOT_COUNT - 1) * slotGap)) / 2;
-    slotY = trayTop + 38;
+    slotY = trayTop + 10;
     cx = W / 2;
-    cy = (hudH + trayTop) / 2 + 8;
-    S = clamp(Math.min(W, trayTop - hudH) / 400, 0.8, 1.5);
-    coreR = clamp(Math.min(W, trayTop - hudH) * 0.085, 28, 42);
+    cy = (hudH + trayTop) / 2 + 14;
+    S = clamp(Math.min(W, trayTop - hudH) / 400, 0.75, 1.4);
+    coreR = clamp(Math.min(W, trayTop - hudH) * 0.09, 24, 38);
     buildBg();
     buildDiceSprites();
+    buildGemSprites();
   }
   function buildBg() {
     bg = mk(canvas.width, canvas.height);
@@ -1016,7 +1166,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
   // ---- State -----------------------------------------------------------
   let state = "title", stateT = 0, now = 0;
-  let hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, dropT;
+  let hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, guard = 0, zones = [], flyers = [];
+  let grid = [], boardState = "idle", cascade = 0, selected = null, idleT = 0, hintMove = null, gemId = 0;
   let slots, enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, coreTurn = 0, shieldT, newBest, banner, castFx;
   const ptr = { down: false, id: null, x: 0, y: 0, sx: 0, sy: 0, slot: -1, dragging: false, lx: 0, ly: 0, lastBuzz: 0 };
   let hudCache = {};
@@ -1025,9 +1176,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
   function reset() {
     hp = MAX_HP; score = 0; shownScore = 0; combo = 0; comboT = 0; comboPop = 0; bestCombo = 0; kills = 0;
-    elapsed = 0; wave = 1; spawnT = 1.4; dropT = 0;
+    elapsed = 0; wave = 1; spawnT = 2.5; guard = 0; zones = []; flyers = [];
     slots = new Array(SLOT_COUNT).fill(null);
-    slots[0] = die("fire"); slots[1] = die("fire");
+    initBoard();
     enemies = []; projectiles = []; particles = []; texts = []; rings = []; bolts = []; decals = []; blade = [];
     rage = null; timeScale = 1; shake = 0; flash = 0; flashColor = "#ffffff"; coreKick = 0; coreTurn = 0; shieldT = 0; newBest = false;
     banner = { text: tr("wave", 1), t: 1.8 };
@@ -1107,11 +1258,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     return bestE;
   }
-  function damage(e, amt, fromX, fromY, push = 0) {
+  function damage(e, amt, fromX, fromY, push = 0, quiet = false) {
     if (e.dead) return;
     e.hp -= amt;
-    e.flash = 0.14;
-    e.hit = 1;
+    if (!quiet) { e.flash = 0.14; e.hit = 1; }
     if (push && fromX != null) {
       const dx = e.x - fromX, dy = e.y - fromY, d = Math.hypot(dx, dy) || 1;
       e.kx += (dx / d) * push; e.ky += (dy / d) * push;
@@ -1135,6 +1285,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
   function hitCore(e) {
+    if (guard > 0) {
+      e.dead = true; kills++;
+      poof(e);
+      ring(cx, cy, coreR * 2.2, "#ff9fd0", 0.35, 6);
+      sfx("pop");
+      return;
+    }
     e.dead = true;
     hp = Math.max(0, hp - e.dmg);
     poof(e);
@@ -1159,7 +1316,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (!settings.tutTap) { settings.tutTap = true; saveSettings(); }
     haptic(d.tier >= 3 ? "heavy" : d.tier === 2 ? "medium" : "light");
     if (d.el === "bolt") { lightning(d.tier, tx, ty); return; }
-    sfx(d.el === "fire" ? "castFire" : "castIce");
+    if (d.el === "heal") { healUp(d.tier); return; }
+    if (d.el === "nova") { novaBlast(); return; }
+    if (d.el === "wind") { tornado(); return; }
+    sfx(d.el === "fire" ? "castFire" : d.el === "ice" ? "castIce" : "poison");
     const a = Math.atan2(ty - cy, tx - cx);
     projectiles.push({ el: d.el, tier: d.tier, x: cx + Math.cos(a) * coreR, y: cy + Math.sin(a) * coreR,
       tx, ty, speed: 680 * S, r: 7 + d.tier * 3, spin: 0 });
@@ -1179,6 +1339,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       addShake(4 + t * 4);
       doFlash("#ff7a3d", 0.07 * t);
       sfx("boom", t);
+    } else if (p.el === "poison") {
+      const R = POISON.R[t] * S;
+      zones.push({ x: p.x, y: p.y, R, t: POISON.dur[t], max: POISON.dur[t], dps: POISON.dps[t], spin: rand(0, TAU) });
+      emit("goo", p.x, p.y, { n: 14 + t * 5, spd: [120, 340], life: [0.5, 0.9], size: [3, 7], colors: ["#6ee03a", "#b8ff6a", "#2f9e1e"], g: 500, vy: -140 });
+      emit("glow", p.x, p.y, { n: 6 + t * 2, spd: [30, R * 1.2], life: [0.4, 0.7], size: [R * 0.3, R * 0.5], colors: ["#6ee03a", "#b8ff6a"], drag: 0.88 });
+      ring(p.x, p.y, R, "#9dff6a", 0.5, 10);
+      addShake(2 + t * 2);
+      sfx("boom", 1);
     } else {
       const R = ICE.R[t] * S, fz = ICE.freeze[t];
       for (const e of enemies) {
@@ -1197,6 +1365,49 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       doFlash("#3fd0ff", 0.06 * t);
       sfx("freeze");
     }
+  }
+  function healUp(t) {
+    const amt = Math.min(MAX_HP - hp, HEAL.hp[t]);
+    hp += amt;
+    guard = Math.max(guard, HEAL.guard[t]);
+    if (amt > 0) addText("+" + fmt(amt), cx, cy - coreR - 20, "#ff8fc8", 26, 1);
+    emit("heart", cx, cy, { n: 10 + t * 4, spd: [60, 180], life: [0.8, 1.3], size: [6, 11], colors: ["#ff6fb5", "#ff9fd0", "#ffd1e8"], vy: -120, drag: 0.94, vr: 2 });
+    emit("glow", cx, cy, { n: 8, spd: [30, 120], life: [0.4, 0.8], size: [20, 34], colors: ["#ff6fb5", "#ffd1e8"] });
+    ring(cx, cy, coreR * 3, "#ff9fd0", 0.6, 10);
+    hudCache.hp = -1;
+    sfx("heal");
+    haptic("success");
+  }
+  function novaBlast() {
+    const R = Math.hypot(W, H);
+    ring(cx, cy, R, "#f3d9ff", 0.9, 26);
+    ring(cx, cy, R * 0.7, "#c77dff", 0.7, 16);
+    emit("glow", cx, cy, { n: 1, spd: [0, 0], life: [0.5, 0.5], size: [coreR * 6, coreR * 6], colors: ["#ffffff"], grow: 3 });
+    emit("glow", cx, cy, { n: 30, spd: [200, 700], life: [0.6, 1.1], size: [16, 34], colors: ["#c77dff", "#f3d9ff", "#ffe066"], drag: 0.93 });
+    emit("star", cx, cy, { n: 30, spd: [250, 650], life: [0.8, 1.3], size: [7, 12], colors: ["#ffd84d"], drag: 0.95, g: 120, vr: 8 });
+    for (const e of enemies) if (!e.dead) kill(e, "spell");
+    addShake(22);
+    doFlash("#ffffff", 0.75);
+    sfx("nova");
+    haptic("heavy");
+  }
+  function tornado() {
+    for (const e of enemies) {
+      if (e.dead) continue;
+      const dx = e.x - cx, dy = e.y - cy, d = Math.hypot(dx, dy) || 1;
+      e.kx += (dx / d) * 560 * S; e.ky += (dy / d) * 560 * S;
+      e.slow = Math.max(e.slow, 2);
+      damage(e, 12, null, null, 0);
+    }
+    for (let k = 0; k < 3; k++) ring(cx, cy, coreR * (3 + k * 2.5), "#a8fff0", 0.5 + k * 0.15, 10 - k * 2);
+    for (let i = 0; i < 60 && particles.length < MAXP; i++) {
+      const a = rand(0, TAU), rr = rand(coreR, coreR * 4), sp = rand(200, 420);
+      particles.push({ kind: "spark", x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr, vx: -Math.sin(a) * sp + Math.cos(a) * 160, vy: Math.cos(a) * sp + Math.sin(a) * 160,
+        life: rand(0.4, 0.8), max: 0.8, size: rand(2, 4), c: pick(["#a8fff0", "#e0fff9", "#5fe6d0"]), g: 0, drag: 0.95, grow: 0, rot: 0, vr: 0 });
+    }
+    addShake(10);
+    sfx("wind");
+    haptic("heavy");
   }
   function lightning(t, tx, ty) {
     const hit = new Set(), pts = [{ x: cx, y: cy }];
@@ -1235,22 +1446,226 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     return -1;
   }
-  const canMerge = (a, b) => a && b && a !== b && a.el === b.el && a.tier === b.tier && a.tier < MAX_TIER;
-  function dropDie() {
-    const idx = slots.indexOf(null);
-    if (idx < 0) return false;
-    // A drop never completes a row of three by itself: Rage Mode is earned by arranging dice.
-    const makesTriple = (el) => {
-      for (let k = Math.max(0, idx - 2); k <= Math.min(idx, SLOT_COUNT - 3); k++) {
-        if ([k, k + 1, k + 2].every((j) => j === idx || (slots[j] && slots[j].el === el))) return true;
+  const canMerge = (a, b) => a && b && a !== b && a.el === b.el && a.tier === b.tier && a.tier < MAX_TIER && !EL[a.el].special && a.drop >= 0 && b.drop >= 0;
+  // ---- Match-3 board ---------------------------------------------------
+  const newGem = (el, fy) => ({ el, fy, vy: 0, ox: 0, oy: 0, pop: 0, id: gemId++ });
+  const gemAt = (r, c) => (r >= 0 && r < ROWS && c >= 0 && c < COLS ? grid[r][c] : null);
+  function lineAt(r, c) {
+    const g = gemAt(r, c); if (!g) return false;
+    let h = 1, v = 1;
+    for (let k = c - 1; gemAt(r, k) && gemAt(r, k).el === g.el; k--) h++;
+    for (let k = c + 1; gemAt(r, k) && gemAt(r, k).el === g.el; k++) h++;
+    for (let k = r - 1; gemAt(k, c) && gemAt(k, c).el === g.el; k--) v++;
+    for (let k = r + 1; gemAt(k, c) && gemAt(k, c).el === g.el; k++) v++;
+    return h >= 3 || v >= 3;
+  }
+  function fillNoMatch() {
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      let el, tries = 0;
+      do {
+        el = pick(GEMS); tries++;
+      } while (tries < 20 && ((c >= 2 && grid[r][c - 1].el === el && grid[r][c - 2].el === el) || (r >= 2 && grid[r - 1][c].el === el && grid[r - 2][c].el === el)));
+      grid[r][c] = newGem(el, r - ROWS - 1 - Math.random() * 0.5);
+    }
+  }
+  function initBoard() {
+    do {
+      grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(null));
+      fillNoMatch();
+    } while (!findMove());
+    boardState = "fall"; cascade = 0; selected = null; idleT = 0; hintMove = null;
+  }
+  function swapCells(a, b) {
+    const t = grid[a[0]][a[1]]; grid[a[0]][a[1]] = grid[b[0]][b[1]]; grid[b[0]][b[1]] = t;
+  }
+  function findMove() {
+    const order = [];
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) order.push([r, c]);
+    order.sort(() => Math.random() - 0.5);
+    for (const [r, c] of order) {
+      for (const [dr, dc] of [[0, 1], [1, 0]]) {
+        const r2 = r + dr, c2 = c + dc;
+        if (r2 >= ROWS || c2 >= COLS) continue;
+        swapCells([r, c], [r2, c2]);
+        const ok = lineAt(r, c) || lineAt(r2, c2);
+        swapCells([r, c], [r2, c2]);
+        if (ok) return [[r, c], [r2, c2]];
       }
-      return false;
-    };
-    const safe = ELS.filter((el) => !makesTriple(el));
-    slots[idx] = die(pick(safe.length ? safe : ELS));
-    sfx("drop");
-    checkRage();
-    return true;
+    }
+    return null;
+  }
+  function findGroups() {
+    const hLen = [], vLen = [];
+    for (let r = 0; r < ROWS; r++) { hLen.push(new Array(COLS).fill(0)); vLen.push(new Array(COLS).fill(0)); }
+    for (let r = 0; r < ROWS; r++) {
+      let c = 0;
+      while (c < COLS) {
+        let k = c + 1;
+        while (k < COLS && grid[r][k].el === grid[r][c].el) k++;
+        if (k - c >= 3) for (let j = c; j < k; j++) hLen[r][j] = k - c;
+        c = k;
+      }
+    }
+    for (let c = 0; c < COLS; c++) {
+      let r = 0;
+      while (r < ROWS) {
+        let k = r + 1;
+        while (k < ROWS && grid[k][c].el === grid[r][c].el) k++;
+        if (k - r >= 3) for (let j = r; j < k; j++) vLen[j][c] = k - r;
+        r = k;
+      }
+    }
+    const seen = new Set(), groups = [];
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (!(hLen[r][c] || vLen[r][c]) || seen.has(r * COLS + c)) continue;
+      const el = grid[r][c].el, cells = [], stack = [[r, c]];
+      let maxRun = 0, hasH = false, hasV = false;
+      seen.add(r * COLS + c);
+      while (stack.length) {
+        const [y, x] = stack.pop();
+        cells.push([y, x]);
+        maxRun = Math.max(maxRun, hLen[y][x], vLen[y][x]);
+        if (hLen[y][x]) hasH = true;
+        if (vLen[y][x]) hasV = true;
+        for (const [dy, dx] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const ny = y + dy, nx = x + dx, key = ny * COLS + nx;
+          if (ny < 0 || ny >= ROWS || nx < 0 || nx >= COLS || seen.has(key)) continue;
+          if (!(hLen[ny][nx] || vLen[ny][nx]) || grid[ny][nx].el !== el) continue;
+          seen.add(key); stack.push([ny, nx]);
+        }
+      }
+      groups.push({ el, cells, maxRun, lt: hasH && hasV });
+    }
+    return groups;
+  }
+  const cellCenter = (r, c) => ({ x: boardX + c * cell + cell / 2, y: boardY + r * cell + cell / 2 });
+  function trySwap(a, b) {
+    if (boardState !== "idle" || rage || state !== "play") return;
+    swapCells(a, b);
+    const ga = grid[a[0]][a[1]], gb = grid[b[0]][b[1]];
+    ga.ox = b[1] - a[1]; ga.oy = b[0] - a[0];
+    gb.ox = a[1] - b[1]; gb.oy = a[0] - b[0];
+    boardState = "swap"; swapPair = [a, b];
+    selected = null; idleT = 0; hintMove = null;
+    sfx("swap");
+  }
+  let swapPair = null;
+  function resolve(groups) {
+    cascade++;
+    for (const g of groups) {
+      let el = g.el, tier = 1;
+      if (g.maxRun >= 5) el = "nova";
+      else if (g.lt) el = "wind";
+      else if (g.maxRun === 4) tier = 2;
+      if (cascade >= 2 && !EL[el].special) tier = Math.min(MAX_TIER, tier + 1);
+      let sx = 0, sy = 0;
+      for (const [r, c] of g.cells) {
+        const gem = grid[r][c];
+        gem.pop = 0.001;
+        const p = cellCenter(r, c);
+        sx += p.x; sy += p.y;
+        emit("glow", p.x, p.y, { n: 2, spd: [20, 80], life: [0.25, 0.45], size: [cell * 0.35, cell * 0.55], colors: [EL[gem.el].c, EL[gem.el].c2] });
+        emit("star", p.x, p.y, { n: 1, spd: [80, 180], life: [0.5, 0.8], size: [4, 7], colors: ["#ffd84d"], g: 500, vy: -200, vr: 8 });
+      }
+      sx /= g.cells.length; sy /= g.cells.length;
+      const pts = g.cells.length * 5 * cascade;
+      score += pts;
+      if (el === "nova" || el === "wind") addText(tr(el) + "!", sx, sy - 10, EL[el].c2, 24, 1.1, -40);
+      else if (cascade >= 2) addText(tr("chain", cascade), sx, sy - 10, "#ffe066", 20, 0.9, -40);
+      awardDie(el, tier, sx, sy);
+    }
+    sfx("match", cascade);
+    haptic(cascade >= 2 ? "medium" : "light");
+    if (!settings.tutMatch) { settings.tutMatch = true; saveSettings(); }
+    boardState = "clear"; boardClearT = 0;
+  }
+  let boardClearT = 0;
+  function collapse() {
+    for (let c = 0; c < COLS; c++) {
+      const keep = [];
+      for (let r = ROWS - 1; r >= 0; r--) if (grid[r][c] && grid[r][c].pop === 0) keep.push(grid[r][c]);
+      const missing = ROWS - keep.length;
+      for (let k = 0; k < keep.length; k++) grid[ROWS - 1 - k][c] = keep[k];
+      // new gems start stacked just above the board and fall in
+      for (let r = 0; r < missing; r++) grid[r][c] = newGem(pick(GEMS), r - missing - 0.2);
+    }
+    boardState = "fall";
+  }
+  function shuffleBoard() {
+    const els = [];
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) els.push(grid[r][c].el);
+    let tries = 0;
+    do {
+      els.sort(() => Math.random() - 0.5);
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { grid[r][c].el = els[r * COLS + c]; grid[r][c].pop = 0; }
+      tries++;
+    } while (tries < 50 && (findGroups().length || !findMove()));
+    if (findGroups().length || !findMove()) initBoard();
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) grid[r][c].spawn = 1;
+  }
+  function updateBoard(dt) {
+    let moving = false;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const g = grid[r][c]; if (!g) continue;
+      if (g.ox || g.oy) {
+        moving = true;
+        const sp = dt * 7;
+        g.ox = Math.abs(g.ox) <= sp ? 0 : g.ox - Math.sign(g.ox) * sp;
+        g.oy = Math.abs(g.oy) <= sp ? 0 : g.oy - Math.sign(g.oy) * sp;
+      }
+      if (g.fy < r) {
+        moving = true;
+        g.vy += 38 * dt; g.fy += g.vy * dt;
+        if (g.fy >= r) { g.fy = r; g.vy = 0; g.land = 1; }
+      }
+      if (g.pop > 0) g.pop = Math.min(1, g.pop + dt * 5);
+      if (g.land) g.land = Math.max(0, g.land - dt * 5);
+      if (g.spawn) g.spawn = Math.max(0, g.spawn - dt * 3);
+    }
+    if (boardState === "swap" && !moving) {
+      const groups = findGroups();
+      if (groups.length) resolve(groups);
+      else {
+        const [a, b] = swapPair;
+        swapCells(a, b);
+        const ga = grid[a[0]][a[1]], gb = grid[b[0]][b[1]];
+        ga.ox = b[1] - a[1]; ga.oy = b[0] - a[0];
+        gb.ox = a[1] - b[1]; gb.oy = a[0] - b[0];
+        boardState = "back";
+        sfx("nope");
+      }
+    } else if (boardState === "back" && !moving) boardState = "idle";
+    else if (boardState === "clear") {
+      boardClearT += dt;
+      if (boardClearT >= 0.2) collapse();
+    } else if (boardState === "fall" && !moving) {
+      const groups = findGroups();
+      if (groups.length) resolve(groups);
+      else {
+        cascade = 0;
+        boardState = "idle";
+        if (!findMove()) shuffleBoard();
+      }
+    }
+    if (boardState === "idle" && state === "play") {
+      idleT += dt;
+      if (!hintMove && (idleT > 5 || !settings.tutMatch)) hintMove = findMove();
+    }
+  }
+
+  function awardDie(el, tier, x, y) {
+    if (state !== "play") return;
+    const idx = slots.indexOf(null);
+    if (idx < 0) {
+      // tray full: the power fires straight away instead of being wasted
+      flyers.push({ x, y, tx: cx, ty: cy, t: 0, dur: 0.35, c: EL[el].c, done: () => cast(die(el, tier)) });
+      return;
+    }
+    const d = die(el, tier);
+    d.drop = -1.4;
+    slots[idx] = d;
+    const r = slotRect(idx);
+    flyers.push({ x, y, tx: r.x + r.s / 2, ty: r.y + r.s / 2, t: 0, dur: 0.35, c: EL[el].c, done: () => { sfx("drop"); checkRage(); } });
   }
   function moveDie(from, to) {
     const a = slots[from], b = slots[to];
@@ -1279,7 +1694,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (rage || state !== "play") return;
     for (let i = 0; i <= SLOT_COUNT - 3; i++) {
       const a = slots[i], b = slots[i + 1], c = slots[i + 2];
-      if (a && b && c && a.el === b.el && b.el === c.el) { triggerRage(a.el, i); return; }
+      if (a && b && c && a.el === b.el && b.el === c.el && !EL[a.el].special && a.drop >= 0 && b.drop >= 0 && c.drop >= 0) { triggerRage(a.el, i); return; }
     }
   }
   function triggerRage(el, start) {
@@ -1390,10 +1805,21 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         rage.t -= dt;
         shake = Math.max(shake, reduceMotion ? 1.5 : 5);
         if (rage.t <= 0) { rage = null; blade = []; }
-      } else {
-        dropT += dt;
-        if (dropT >= DROP_EVERY) dropT = dropDie() ? 0 : DROP_EVERY;
       }
+      guard = Math.max(0, guard - dt);
+      for (const z of zones) {
+        z.t -= wdt; z.spin += wdt * 0.6;
+        for (const e of enemies) {
+          if (e.dead || Math.hypot(e.x - z.x, e.y - z.y) > z.R + e.r) continue;
+          e.poison = 0.3;
+          damage(e, z.dps * wdt, null, null, 0, true);
+        }
+        if (Math.random() < wdt * 14) {
+          const a = rand(0, TAU), rr = rand(0, z.R * 0.8);
+          emit("goo", z.x + Math.cos(a) * rr, z.y + Math.sin(a) * rr, { n: 1, spd: [0, 10], life: [0.6, 1], size: [2.5, 5], colors: ["#9dff6a", "#d6ff9e"], vy: -40 });
+        }
+      }
+      zones = zones.filter((z) => z.t > 0);
       elapsed += wdt;
       if (combo > 0) { comboT -= wdt; if (comboT <= 0) combo = 0; }
       spawnT -= wdt;
@@ -1420,6 +1846,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         e.x += e.kx * wdt; e.y += e.ky * wdt;
         const kd = Math.pow(0.02, wdt); e.kx *= kd; e.ky *= kd;
         e.slow -= wdt;
+        if (e.poison) e.poison = Math.max(0, e.poison - wdt);
         e.flash -= dt;
         e.hit = Math.max(0, e.hit - dt * 5);
         if (d < coreR + e.r * 0.7) hitCore(e);
@@ -1435,6 +1862,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         if (p.el === "fire") {
           emit("glow", p.x, p.y, { n: 2 + p.tier, spd: [10, 50], life: [0.2, 0.4], size: [p.r * 0.8, p.r * 1.4], colors: ["#ff5a1f", "#ff9a2f", "#ffd84d"], grow: -1.6, vy: -30, jit: 3 });
           if (Math.random() < 0.5) emit("spark", p.x, p.y, { n: 1, spd: [40, 120], life: [0.2, 0.35], size: [1.5, 2.5], colors: ["#ffd84d"] });
+        } else if (p.el === "poison") {
+          emit("glow", p.x, p.y, { n: 2, spd: [10, 40], life: [0.25, 0.4], size: [p.r * 0.6, p.r * 1.1], colors: ["#6ee03a", "#d6ff9e"], grow: -1.4, jit: 3 });
+          if (Math.random() < 0.5) emit("goo", p.x, p.y, { n: 1, spd: [10, 50], life: [0.3, 0.6], size: [2, 4], colors: ["#9dff6a"], g: 300 });
         } else {
           emit("glow", p.x, p.y, { n: 2, spd: [10, 40], life: [0.25, 0.4], size: [p.r * 0.6, p.r * 1.1], colors: ["#3fd0ff", "#bff4ff"], grow: -1.4, jit: 3 });
           if (Math.random() < 0.4) emit("flake", p.x, p.y, { n: 1, spd: [20, 60], life: [0.4, 0.7], size: [4, 6], colors: ["#ffffff"], vr: 4 });
@@ -1445,6 +1875,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       enemies = enemies.filter((e) => !e.dead);
     }
 
+    if (state !== "paused") updateBoard(dt);
+    for (const f of flyers) {
+      f.t += dt;
+      if (f.t >= f.dur && !f.fired) { f.fired = true; f.done(); }
+      const k = ease(f.t / f.dur), x = f.x + (f.tx - f.x) * k, y = f.y + (f.ty - f.y) * k - Math.sin(k * Math.PI) * 50;
+      emit("glow", x, y, { n: 1, spd: [0, 20], life: [0.2, 0.35], size: [8, 14], colors: [f.c] });
+      f.cx = x; f.cy = y;
+    }
+    flyers = flyers.filter((f) => !f.fired);
     for (const p of particles) {
       if (p.drag !== 1) { const f = Math.pow(p.drag, wdt * 60); p.vx *= f; p.vy *= f; }
       p.vy += p.g * wdt;
@@ -1535,6 +1974,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
     drawDecals();
+    drawZones();
 
     const sx = shake ? rand(-shake, shake) : 0, sy = shake ? rand(-shake, shake) : 0;
     ctx.save();
@@ -1552,6 +1992,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.restore();
 
     drawTray();
+    drawBoard();
+    ctx.globalCompositeOperation = "lighter";
+    for (const f of flyers) if (f.cx != null) ctx.drawImage(glow(f.c), f.cx - 16, f.cy - 16, 32, 32);
+    ctx.globalCompositeOperation = "source-over";
     if (ptr.dragging && ptr.slot >= 0 && slots[ptr.slot]) {
       drawDie(ptr.x - slotSize * 0.55, ptr.y - slotSize * 0.75, slotSize * 1.1, slots[ptr.slot], 1);
     }
@@ -1566,6 +2010,66 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
 
+  function drawZones() {
+    for (const z of zones) {
+      const a = clamp(z.t / z.max, 0, 1) * Math.min(1, (z.max - z.t) * 6);
+      const g = ctx.createRadialGradient(z.x, z.y, 0, z.x, z.y, z.R);
+      g.addColorStop(0, `rgba(110,224,58,${0.32 * a})`); g.addColorStop(0.8, `rgba(80,190,40,${0.22 * a})`); g.addColorStop(1, "rgba(80,190,40,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(z.x, z.y, z.R, 0, TAU); ctx.fill();
+      for (let k = 0; k < 7; k++) {
+        const an = z.spin + (k / 7) * TAU, rr = z.R * 0.62, s = z.R * (0.42 + 0.08 * Math.sin(now * 3 + k));
+        ctx.globalAlpha = 0.45 * a;
+        ctx.drawImage(soft(k % 2 ? "#6ee03a" : "#9dff6a"), z.x + Math.cos(an) * rr - s, z.y + Math.sin(an) * rr * 0.75 - s, s * 2, s * 2);
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+  function chunky(x, y, w, h, r, top, bot, edge) {
+    ctx.fillStyle = "rgba(0,0,20,0.45)"; rrPath(ctx, x, y + 11, w, h, r); ctx.fill();
+    ctx.fillStyle = edge; rrPath(ctx, x, y + 6, w, h, r); ctx.fill();
+    const g = ctx.createLinearGradient(0, y, 0, y + h);
+    g.addColorStop(0, top); g.addColorStop(1, bot);
+    rrPath(ctx, x, y, w, h, r); ctx.fillStyle = g; ctx.fill();
+    rrPath(ctx, x + 2, y + 2, w - 4, h - 4, Math.max(2, r - 2)); ctx.strokeStyle = "rgba(255,255,255,0.22)"; ctx.lineWidth = 2; ctx.stroke();
+    rrPath(ctx, x + 8, y + 4, w - 16, Math.min(16, h * 0.25), Math.min(8, r)); ctx.fillStyle = "rgba(255,255,255,0.08)"; ctx.fill();
+  }
+  function drawBoard() {
+    chunky(boardX - 8, boardY - 8, cell * COLS + 16, cell * ROWS + 16, 22, "#3a4fc4", "#1d2878", "#0c1145");
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const x = boardX + c * cell, y = boardY + r * cell;
+      rrPath(ctx, x + 2, y + 2, cell - 4, cell - 4, cell * 0.24);
+      ctx.fillStyle = (r + c) % 2 ? "rgba(8,12,48,0.5)" : "rgba(8,12,48,0.32)"; ctx.fill();
+    }
+    ctx.save();
+    rrPath(ctx, boardX - 4, boardY - 4, cell * COLS + 8, cell * ROWS + 8, 18); ctx.clip();
+    const hint = hintMove && boardState === "idle" && !rage ? hintMove : null;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const g = grid[r] && grid[r][c]; if (!g) continue;
+      const spr = GEMSPR[g.el]; if (!spr) continue;
+      const x = boardX + (c + g.ox) * cell + cell / 2, y = boardY + (g.fy + g.oy) * cell + cell / 2;
+      let sc = 1, rot = 0, sy = 1, alpha = 1;
+      if (g.pop > 0) { sc = 1 + g.pop * 0.45; alpha = 1 - g.pop; }
+      if (g.land) { sy = 1 - g.land * 0.18; sc *= 1 + g.land * 0.06; }
+      if (g.spawn) sc *= 1 - g.spawn;
+      if (selected && selected[0] === r && selected[1] === c) sc *= 1.12 + Math.sin(now * 10) * 0.05;
+      if (hint && ((hint[0][0] === r && hint[0][1] === c) || (hint[1][0] === r && hint[1][1] === c))) rot = Math.sin(now * 14) * 0.18;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(x, y + cell * 0.4); ctx.scale(sc, sc * sy); ctx.translate(0, -cell * 0.4); ctx.rotate(rot);
+      ctx.drawImage(spr.img, -spr.full / 2, -spr.full / 2, spr.full, spr.full);
+      if (g.pop > 0) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = (1 - g.pop) * 0.8;
+        ctx.drawImage(glow(EL[g.el].c2), -cell * 0.6, -cell * 0.6, cell * 1.2, cell * 1.2);
+      }
+      ctx.restore();
+    }
+    ctx.restore();
+    if (rage) {
+      rrPath(ctx, boardX - 8, boardY - 8, cell * COLS + 16, cell * ROWS + 16, 22);
+      ctx.fillStyle = "rgba(5,8,30,0.45)"; ctx.fill();
+    }
+  }
   function drawDecals() {
     for (const d of decals) {
       const a = d.a * clamp(d.life / d.max, 0, 1) * Math.min(1, (d.max - d.life) * 8);
@@ -1603,6 +2107,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       ctx.drawImage(spr.img, -z / 2, -z / 2, z, z);
       if (e.frozen > 0) { ctx.globalAlpha = 0.5; ctx.drawImage(spr.ice, -z / 2, -z / 2, z, z); }
       else if (e.slow > 0) { ctx.globalAlpha = 0.25; ctx.drawImage(spr.ice, -z / 2, -z / 2, z, z); }
+      if (e.poison > 0) { ctx.globalAlpha = 0.45; ctx.drawImage(spr.toxic, -z / 2, -z / 2, z, z); }
       if (e.flash > 0) { ctx.globalAlpha = clamp(e.flash / 0.14, 0, 1) * 0.85; ctx.drawImage(spr.white, -z / 2, -z / 2, z, z); }
       ctx.globalAlpha = 1;
       ctx.restore();
@@ -1650,7 +2155,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
 
-    const orbs = ELS.map((el, k) => { const a = now * 1.6 + (k / 3) * TAU; return { el, x: cx + Math.cos(a) * R * 1.75, y: cy + Math.sin(a) * R * 0.6 - R * 0.4, front: Math.sin(a) > 0 }; });
+    const orbs = GEMS.map((el, k) => { const a = now * 1.4 + (k / GEMS.length) * TAU; return { el, x: cx + Math.cos(a) * R * 1.75, y: cy + Math.sin(a) * R * 0.6 - R * 0.4, front: Math.sin(a) > 0 }; });
     const drawOrb = (o) => {
       ctx.globalCompositeOperation = "lighter";
       ctx.drawImage(glow(EL[o.el].c), o.x - 12, o.y - 12, 24, 24);
@@ -1734,6 +2239,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.beginPath(); ctx.arc(0, 0, R + R * 0.04, 1.1 * Math.PI, 1.65 * Math.PI); ctx.stroke();
     ctx.restore();
 
+    if (guard > 0) {
+      const gr2 = R * (1.85 + Math.sin(now * 5) * 0.04), a = Math.min(1, guard * 2);
+      const bub = ctx.createRadialGradient(cx - gr2 * 0.3, by - gr2 * 0.35, gr2 * 0.1, cx, by, gr2);
+      bub.addColorStop(0, `rgba(255,255,255,${0.12 * a})`); bub.addColorStop(0.75, `rgba(255,150,210,${0.12 * a})`); bub.addColorStop(1, `rgba(255,120,200,${0.45 * a})`);
+      ctx.beginPath(); ctx.arc(cx, by, gr2, 0, TAU); ctx.fillStyle = bub; ctx.fill();
+      ctx.strokeStyle = `rgba(255,220,240,${0.8 * a})`; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.strokeStyle = `rgba(255,255,255,${0.7 * a})`; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(cx, by, gr2 * 0.82, 1.15 * Math.PI, 1.45 * Math.PI); ctx.stroke();
+    }
     if (shieldT > 0) {
       const sr = R * (1.3 + (1 - shieldT) * 0.4);
       ctx.globalAlpha = shieldT * 0.8;
@@ -1751,6 +2265,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         ctx.drawImage(glow("#ff6a2f"), p.x - p.r * 3, p.y - p.r * 3, p.r * 6, p.r * 6);
         ctx.drawImage(glow("#fff2b0"), p.x - p.r * 1.2, p.y - p.r * 1.2, p.r * 2.4, p.r * 2.4);
         ctx.globalCompositeOperation = "source-over";
+      } else if (p.el === "poison") {
+        ctx.drawImage(glow("#6ee03a"), p.x - p.r * 2.6, p.y - p.r * 2.6, p.r * 5.2, p.r * 5.2);
+        ctx.globalCompositeOperation = "source-over";
+        const g = ctx.createRadialGradient(p.x - p.r * 0.35, p.y - p.r * 0.4, 1, p.x, p.y, p.r * 1.1);
+        g.addColorStop(0, "#e6ffbf"); g.addColorStop(0.5, "#6ee03a"); g.addColorStop(1, "#1f6e14");
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 1.05, 0, TAU); ctx.fillStyle = g; ctx.fill();
+        ctx.strokeStyle = "#164f0e"; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.beginPath(); ctx.arc(p.x - p.r * 0.35, p.y - p.r * 0.4, p.r * 0.25, 0, TAU); ctx.fill();
       } else {
         ctx.drawImage(glow("#3fd0ff"), p.x - p.r * 2.6, p.y - p.r * 2.6, p.r * 5.2, p.r * 5.2);
         ctx.globalCompositeOperation = "source-over";
@@ -1848,6 +2370,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         case "star":
           ctx.globalAlpha = a; starPath(ctx, p.x, p.y, p.size, p.rot);
           ctx.fillStyle = "#ffd84d"; ctx.fill(); ctx.strokeStyle = "#9a4f00"; ctx.lineWidth = 1.5; ctx.stroke(); break;
+        case "heart": {
+          ctx.globalAlpha = a; const r = p.size;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(Math.sin(p.rot) * 0.3);
+          ctx.beginPath(); ctx.moveTo(0, r * 0.95);
+          ctx.bezierCurveTo(-r * 1.45, -r * 0.05, -r * 0.7, -r * 1.15, 0, -r * 0.48);
+          ctx.bezierCurveTo(r * 0.7, -r * 1.15, r * 1.45, -r * 0.05, 0, r * 0.95);
+          ctx.fillStyle = p.c; ctx.fill(); ctx.strokeStyle = "#a3175f"; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.restore(); break;
+        }
         case "shard":
           ctx.globalAlpha = a; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
           ctx.beginPath(); ctx.moveTo(0, -p.size); ctx.lineTo(p.size * 0.4, 0); ctx.lineTo(0, p.size); ctx.lineTo(-p.size * 0.4, 0); ctx.closePath();
@@ -1918,41 +2449,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
 
   function drawTray() {
-    const x0 = 10, y0 = trayTop, w = W - 20, h = H - trayTop - 8;
-    ctx.fillStyle = "rgba(0,0,20,0.4)";
-    rrPath(ctx, x0, y0 + 4, w, h, 26); ctx.fill();
-    const g = ctx.createLinearGradient(0, y0, 0, y0 + h);
-    g.addColorStop(0, "#2d3d9e"); g.addColorStop(1, "#151c52");
-    rrPath(ctx, x0, y0, w, h, 26); ctx.fillStyle = g; ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,0.14)"; ctx.lineWidth = 2; ctx.stroke();
-
-    const full = slots.indexOf(null) < 0;
-    const prog = rage ? 0 : clamp(dropT / DROP_EVERY, 0, 1);
-    const startX = rtl ? W - 26 : 26, endX = rtl ? 30 : W - 30, hy = trayTop + 20;
-    font(800, 15);
-    ctx.textBaseline = "middle";
-    ctx.textAlign = rtl ? "right" : "left";
-    ctx.fillStyle = "#c9d3ff";
-    ctx.fillText(tr("dice"), startX, hy);
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-    ctx.beginPath(); ctx.arc(endX, hy, 10, 0, TAU); ctx.fill();
-    if (full) {
-      ctx.fillStyle = "#ff6b6b"; ctx.beginPath(); ctx.arc(endX, hy, 8, 0, TAU); ctx.fill();
-      font(800, 14); ctx.textAlign = rtl ? "left" : "right"; ctx.fillStyle = "#ff9a9a";
-      ctx.fillText(tr("full"), endX + (rtl ? 18 : -18), hy);
-    } else if (prog > 0) {
-      ctx.fillStyle = "#ffcf3d";
-      ctx.beginPath(); ctx.moveTo(endX, hy); ctx.arc(endX, hy, 8, -Math.PI / 2, -Math.PI / 2 + prog * TAU); ctx.closePath(); ctx.fill();
-    }
-
+    chunky(10, trayTop, W - 20, trayH, 20, "#5a47c9", "#33278a", "#160f4a");
     const dragged = ptr.dragging && ptr.slot >= 0 ? slots[ptr.slot] : null;
     for (let i = 0; i < SLOT_COUNT; i++) {
       const r = slotRect(i);
       rrPath(ctx, r.x, r.y, r.s, r.s, r.s * 0.28);
-      ctx.fillStyle = "rgba(5,8,35,0.55)"; ctx.fill();
-      ctx.strokeStyle = "rgba(0,0,0,0.25)"; ctx.lineWidth = 3; ctx.stroke();
+      ctx.fillStyle = "rgba(10,6,40,0.5)"; ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 3; ctx.stroke();
       const d = slots[i];
-      if (!d) continue;
+      if (!d || d.drop < 0) continue;
       if (dragged && ptr.slot === i) { drawDie(r.x, r.y, r.s, d, 0.25); continue; }
       drawDie(r.x, r.y, r.s, d, 1);
       if (dragged && canMerge(dragged, d)) {
@@ -1976,9 +2481,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function drawHints() {
     if (rage || ptr.dragging) return;
+    if (!settings.tutMatch && hintMove && boardState === "idle") {
+      const a = cellCenter(hintMove[0][0], hintMove[0][1]), b = cellCenter(hintMove[1][0], hintMove[1][1]);
+      bubble(tr("matchHint"), (a.x + b.x) / 2, Math.min(a.y, b.y) - cell * 0.45);
+      return;
+    }
     if (!settings.tutTap) {
       const i = slots.findIndex((d) => d);
-      if (i >= 0) { const r = slotRect(i); bubble(tr("tapHint"), r.x + r.s / 2, r.y - 4); return; }
+      if (i >= 0 && slots[i].drop >= 0) { const r = slotRect(i); bubble(tr("tapHint"), r.x + r.s / 2, r.y - 4); return; }
     }
     if (!settings.tutMerge && settings.tutTap) {
       for (let i = 0; i < SLOT_COUNT; i++) for (let j = i + 1; j < SLOT_COUNT; j++) {
@@ -2047,27 +2557,46 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
   // ---- Input -----------------------------------------------------------
   function pos(ev) { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+  const inBoard = (x, y) => x >= boardX - 6 && x <= boardX + cell * COLS + 6 && y >= boardY - 6 && y <= boardY + cell * ROWS + 6;
+  const boardCell = (x, y) => [clamp(Math.floor((y - boardY) / cell), 0, ROWS - 1), clamp(Math.floor((x - boardX) / cell), 0, COLS - 1)];
   canvas.addEventListener("pointerdown", (ev) => {
     ev.preventDefault();
     if (state !== "play" || ptr.down) return;
     const p = pos(ev);
     try { canvas.setPointerCapture(ev.pointerId); } catch (e) {}
-    Object.assign(ptr, { down: true, id: ev.pointerId, x: p.x, y: p.y, sx: p.x, sy: p.y, lx: p.x, ly: p.y, slot: -1, dragging: false });
+    Object.assign(ptr, { down: true, id: ev.pointerId, x: p.x, y: p.y, sx: p.x, sy: p.y, lx: p.x, ly: p.y, slot: -1, dragging: false, cell: null, swiped: false });
     if (rage) { blade = [{ x: p.x, y: p.y, age: 0 }]; return; }
+    if (inBoard(p.x, p.y)) { ptr.cell = boardCell(p.x, p.y); return; }
     const i = hitSlot(p.x, p.y, 6);
-    if (i >= 0 && slots[i]) ptr.slot = i;
+    if (i >= 0 && slots[i] && slots[i].drop >= 0) ptr.slot = i;
   });
   canvas.addEventListener("pointermove", (ev) => {
     if (!ptr.down || ev.pointerId !== ptr.id) return;
     const p = pos(ev);
     ptr.x = p.x; ptr.y = p.y;
     if (rage) slice(ptr.lx, ptr.ly, p.x, p.y);
+    else if (ptr.cell && !ptr.swiped) {
+      const dx = p.x - ptr.sx, dy = p.y - ptr.sy;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) > cell * 0.32) {
+        ptr.swiped = true;
+        const [r, c] = ptr.cell;
+        const t = Math.abs(dx) > Math.abs(dy) ? [r, c + Math.sign(dx)] : [r + Math.sign(dy), c];
+        if (t[0] >= 0 && t[0] < ROWS && t[1] >= 0 && t[1] < COLS) trySwap([r, c], t);
+      }
+    }
     else if (ptr.slot >= 0 && !ptr.dragging && Math.hypot(p.x - ptr.sx, p.y - ptr.sy) > 10) ptr.dragging = true;
     ptr.lx = p.x; ptr.ly = p.y;
   });
   function release(ev, cancelled) {
     if (!ptr.down || ev.pointerId !== ptr.id) return;
     ptr.down = false;
+    if (ptr.cell && !ptr.swiped && !cancelled && !rage && boardState === "idle") {
+      const [r, c] = ptr.cell;
+      if (selected && Math.abs(selected[0] - r) + Math.abs(selected[1] - c) === 1) trySwap(selected, [r, c]);
+      else if (selected && selected[0] === r && selected[1] === c) selected = null;
+      else { selected = [r, c]; sfx("click"); }
+    }
+    ptr.cell = null;
     const from = ptr.slot;
     if (from >= 0 && slots[from] && !rage && !cancelled && state === "play") {
       if (!ptr.dragging) useSlot(from);
