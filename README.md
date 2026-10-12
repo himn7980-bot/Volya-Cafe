@@ -75,3 +75,14 @@ Every run played inside Telegram is sent to a small API when the game ends. Play
 Command-line alternative: `cd server && npx wrangler d1 create volya-leaderboard` (put the id in `wrangler.toml`), `npx wrangler d1 execute volya-leaderboard --remote --file schema.sql`, `npx wrangler secret put BOT_TOKEN`, `npx wrangler deploy`.
 
 Until `LEADERBOARD_API` is set, the leaderboard screen explains that it works inside Telegram and the game-over screen shows no rank.
+
+## One-command deploy (game + leaderboard on Cloudflare)
+
+The Worker in `server/` can host the game itself, so GitHub Pages is optional. With `CLOUDFLARE_API_TOKEN` (permissions: Workers Scripts Edit, D1 Edit, Account Settings Read), `CLOUDFLARE_ACCOUNT_ID` and `TELEGRAM_BOT_TOKEN` in the environment:
+
+```sh
+./server/deploy.sh                                          # D1 + schema + Worker + BOT_TOKEN secret
+./server/setup-bot.sh https://volya-leaderboard.<subdomain>.workers.dev   # bot menu button + descriptions
+```
+
+The game detects that it runs on `*.workers.dev` and uses the same origin for the leaderboard, so nothing else needs editing. The Cloudflare account needs its `workers.dev` subdomain chosen once (open **Workers & Pages** in the dashboard).
