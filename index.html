@@ -129,10 +129,17 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   width: 132px; height: 132px; border-radius: 50%;
   padding: 5px;
   background: linear-gradient(var(--gold-hi), #e09a14);
-  box-shadow: 0 0 0 5px #c81e2a, 0 0 40px rgba(80,140,255,.8), 0 12px 24px rgba(0,0,0,.4);
+  box-shadow: inset 0 -6px 8px rgba(120,60,0,.6), 0 0 0 5px #c81e2a, 0 8px 0 5px #6a0a16, 0 0 40px rgba(80,140,255,.8), 0 22px 26px rgba(0,0,0,.5);
   animation: float 3s ease-in-out infinite;
 }
+.portrait { position: relative; }
 .portrait img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; background: #13206b; }
+.portrait::after {
+  content: ""; position: absolute; inset: 5px; border-radius: 50%; pointer-events: none;
+  background:
+    radial-gradient(ellipse 34% 20% at 34% 22%, rgba(255,255,255,.7), rgba(255,255,255,0) 100%),
+    radial-gradient(circle at 36% 30%, rgba(255,255,255,.12) 0, rgba(0,0,0,0) 50%, rgba(0,0,45,.55) 100%);
+}
 @keyframes float { 50% { transform: translateY(-8px); } }
 .logo {
   margin: 6px 0 0;
@@ -1019,7 +1026,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- State -----------------------------------------------------------
   let state = "title", stateT = 0, now = 0;
   let hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, dropT;
-  let slots, enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, shieldT, newBest, banner, castFx;
+  let slots, enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, coreTurn = 0, shieldT, newBest, banner, castFx;
   const ptr = { down: false, id: null, x: 0, y: 0, sx: 0, sy: 0, slot: -1, dragging: false, lx: 0, ly: 0, lastBuzz: 0 };
   let hudCache = {};
 
@@ -1031,7 +1038,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     slots = new Array(SLOT_COUNT).fill(null);
     slots[0] = die("fire"); slots[1] = die("fire");
     enemies = []; projectiles = []; particles = []; texts = []; rings = []; bolts = []; decals = []; blade = [];
-    rage = null; timeScale = 1; shake = 0; flash = 0; flashColor = "#ffffff"; coreKick = 0; shieldT = 0; newBest = false;
+    rage = null; timeScale = 1; shake = 0; flash = 0; flashColor = "#ffffff"; coreKick = 0; coreTurn = 0; shieldT = 0; newBest = false;
     banner = { text: tr("wave", 1), t: 1.8 };
     castFx = null;
     hudCache = {};
@@ -1156,6 +1163,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (t) { tx = t.x; ty = t.y; } else { tx = cx; ty = hudH + 30; }
     }
     coreKick = 0.7;
+    coreTurn = Math.cos(Math.atan2(ty - cy, tx - cx));
     castFx = { c: EL[d.el].c, t: 0.35 };
     if (!settings.tutTap) { settings.tutTap = true; saveSettings(); }
     haptic(d.tier >= 3 ? "heavy" : d.tier === 2 ? "medium" : "light");
@@ -1471,6 +1479,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     shake = Math.max(0, shake - dt * 30);
     flash = Math.max(0, flash - dt * 1.6);
     coreKick = Math.max(0, coreKick - dt * 3);
+    coreTurn *= Math.pow(0.15, dt);
     shieldT = Math.max(0, shieldT - dt * 2);
     comboPop = Math.max(0, comboPop - dt * 4);
     if (banner) { banner.t -= dt; if (banner.t <= 0) banner = null; }
@@ -1644,13 +1653,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const R = coreR * (1 + Math.sin(now * 2.5) * 0.03 + coreKick * 0.15);
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = 0.55 + Math.sin(now * 2) * 0.1;
-    ctx.drawImage(glow("#3d7bff"), cx - R * 3.4, cy - R * 3.4, R * 6.8, R * 6.8);
+    ctx.drawImage(glow("#3d7bff"), cx - R * 3.4, cy - R * 3.7, R * 6.8, R * 6.8);
     if (hp / MAX_HP <= 0.3) { ctx.globalAlpha = 0.35 + Math.sin(now * 10) * 0.25; ctx.drawImage(glow("#ff3b3b"), cx - R * 3, cy - R * 3, R * 6, R * 6); }
     if (castFx) { ctx.globalAlpha = castFx.t / 0.35; ctx.drawImage(glow(castFx.c), cx - R * 2.8, cy - R * 2.8, R * 5.6, R * 5.6); }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
 
-    const orbs = ELS.map((el, k) => { const a = now * 1.6 + (k / 3) * TAU; return { el, x: cx + Math.cos(a) * R * 1.7, y: cy + Math.sin(a) * R * 0.6 - R * 0.15, front: Math.sin(a) > 0 }; });
+    const orbs = ELS.map((el, k) => { const a = now * 1.6 + (k / 3) * TAU; return { el, x: cx + Math.cos(a) * R * 1.75, y: cy + Math.sin(a) * R * 0.6 - R * 0.4, front: Math.sin(a) > 0 }; });
     const drawOrb = (o) => {
       ctx.globalCompositeOperation = "lighter";
       ctx.drawImage(glow(EL[o.el].c), o.x - 12, o.y - 12, 24, 24);
@@ -1660,27 +1669,85 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     };
     orbs.filter((o) => !o.front).forEach(drawOrb);
 
-    ctx.fillStyle = "rgba(0,0,20,0.4)";
-    ctx.beginPath(); ctx.ellipse(cx, cy + R * 1.05, R * 0.9, R * 0.25, 0, 0, TAU); ctx.fill();
+    // 3D pedestal: a short glowing cylinder Volya hovers over
+    const pw = R * 1.3, ph = R * 0.4, pd = R * 0.32, py = cy + R * 1.05;
+    const side = ctx.createLinearGradient(cx - pw, 0, cx + pw, 0);
+    side.addColorStop(0, "#0d1650"); side.addColorStop(0.35, "#3552c4"); side.addColorStop(0.6, "#22339a"); side.addColorStop(1, "#0a1140");
+    ctx.beginPath();
+    ctx.moveTo(cx - pw, py); ctx.lineTo(cx - pw, py + pd);
+    ctx.ellipse(cx, py + pd, pw, ph, 0, Math.PI, 0, true);
+    ctx.lineTo(cx + pw, py); ctx.closePath();
+    ctx.fillStyle = side; ctx.fill();
+    const top = ctx.createRadialGradient(cx - pw * 0.3, py - ph * 0.4, 0, cx, py, pw);
+    top.addColorStop(0, "#7fa6ff"); top.addColorStop(0.6, "#3a5ad6"); top.addColorStop(1, "#2a3fae");
+    ctx.beginPath(); ctx.ellipse(cx, py, pw, ph, 0, 0, TAU); ctx.fillStyle = top; ctx.fill();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = "#9fe8ff"; ctx.stroke();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.5 + Math.sin(now * 3) * 0.15;
+    ctx.drawImage(glow("#58c8ff"), cx - pw * 1.2, py - ph * 1.6, pw * 2.4, ph * 3.2);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.beginPath(); ctx.ellipse(cx, py, pw * 0.72, ph * 0.62, 0, 0, TAU);
+    ctx.strokeStyle = "rgba(200,235,255,0.45)"; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // hover + gentle turn (like a medallion rotating in space)
+    const lift = R * (0.32 + Math.sin(now * 2.2) * 0.08);
+    const by = cy - lift;
+    const turn = Math.sin(now * 0.9) * 0.22 + coreTurn * 0.5;
+    const sx = Math.cos(turn), depth = R * 0.2;
+    const sh = 1 - (lift / R - 0.24) * 0.8;
+    ctx.fillStyle = "rgba(0,0,25,0.45)";
+    ctx.beginPath(); ctx.ellipse(cx, py, R * 0.8 * sh, ph * 0.55 * sh, 0, 0, TAU); ctx.fill();
 
     ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU);
+    ctx.translate(cx, by);
+    ctx.scale(sx, 1);
+    // thickness of the medallion
+    const ex = -Math.sin(turn) * depth * 1.6;
+    for (let k = 6; k >= 1; k--) {
+      const f = k / 6;
+      ctx.beginPath(); ctx.arc(ex * f, depth * 0.5 * f, R + R * 0.12, 0, TAU);
+      ctx.fillStyle = k > 3 ? "#5e0a14" : "#8a1220"; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(0, 0, R + R * 0.12, 0, TAU);
+    const outer = ctx.createLinearGradient(0, -R, 0, R);
+    outer.addColorStop(0, "#ff6a6a"); outer.addColorStop(1, "#a3121f");
+    ctx.fillStyle = outer; ctx.fill();
+    // portrait face with spherical shading
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU);
     ctx.fillStyle = "#13206b"; ctx.fill();
     ctx.clip();
-    if (coreImg && coreImg.complete && coreImg.naturalWidth) ctx.drawImage(coreImg, cx - R, cy - R, R * 2, R * 2);
-    if (shieldT > 0) { ctx.globalAlpha = shieldT * 0.5; ctx.fillStyle = "#ff3b3b"; ctx.fillRect(cx - R, cy - R, R * 2, R * 2); ctx.globalAlpha = 1; }
+    if (coreImg && coreImg.complete && coreImg.naturalWidth) ctx.drawImage(coreImg, -R, -R, R * 2, R * 2);
+    const shade = ctx.createRadialGradient(-R * 0.35, -R * 0.45, R * 0.15, 0, 0, R * 1.15);
+    shade.addColorStop(0, "rgba(255,255,255,0.14)"); shade.addColorStop(0.55, "rgba(0,0,0,0)"); shade.addColorStop(1, "rgba(0,0,45,0.6)");
+    ctx.fillStyle = shade; ctx.fillRect(-R, -R, R * 2, R * 2);
+    ctx.strokeStyle = "rgba(130,210,255,0.55)"; ctx.lineWidth = R * 0.08;
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.92, 0.1 * Math.PI, 0.7 * Math.PI); ctx.stroke();
+    if (shieldT > 0) { ctx.globalAlpha = shieldT * 0.5; ctx.fillStyle = "#ff3b3b"; ctx.fillRect(-R, -R, R * 2, R * 2); ctx.globalAlpha = 1; }
+    ctx.save();
+    ctx.translate(-R * 0.36, -R * 0.52); ctx.rotate(-0.6);
+    const gloss = ctx.createLinearGradient(0, -R * 0.22, 0, R * 0.22);
+    gloss.addColorStop(0, "rgba(255,255,255,0.75)"); gloss.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.beginPath(); ctx.ellipse(0, 0, R * 0.45, R * 0.2, 0, 0, TAU); ctx.fillStyle = gloss; ctx.fill();
     ctx.restore();
-    const rim = ctx.createLinearGradient(cx, cy - R, cx, cy + R);
-    rim.addColorStop(0, "#fff0b0"); rim.addColorStop(1, "#d98c10");
-    ctx.lineWidth = 4; ctx.strokeStyle = rim;
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
-    ctx.lineWidth = 3; ctx.strokeStyle = "#c81e2a";
-    ctx.beginPath(); ctx.arc(cx, cy, R + 3.5, 0, TAU); ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.beginPath(); ctx.arc(R * 0.05, -R * 0.7, R * 0.05, 0, TAU); ctx.fill();
+    ctx.restore();
+    // beveled gold rim
+    const rim = ctx.createLinearGradient(0, -R, 0, R);
+    rim.addColorStop(0, "#fff6cc"); rim.addColorStop(0.45, "#f2b62e"); rim.addColorStop(1, "#8f4f00");
+    ctx.lineWidth = R * 0.13; ctx.strokeStyle = rim;
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.stroke();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,0.8)";
+    ctx.beginPath(); ctx.arc(0, 0, R + R * 0.04, 1.1 * Math.PI, 1.65 * Math.PI); ctx.stroke();
+    ctx.restore();
+
     if (shieldT > 0) {
       const sr = R * (1.3 + (1 - shieldT) * 0.4);
       ctx.globalAlpha = shieldT * 0.8;
       ctx.strokeStyle = "#9fe8ff"; ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.arc(cx, cy, sr, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, by, sr, 0, TAU); ctx.stroke();
       ctx.globalAlpha = 1;
     }
     orbs.filter((o) => o.front).forEach(drawOrb);
