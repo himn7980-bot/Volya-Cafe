@@ -434,6 +434,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const RAGE_MAX = 60;          // gems to clear for Rage Mode
   const SPECIAL_CAP = 3;        // Nova / Tornado charges kept
   const SPECIALS = ["nova", "wind"];
+  const REFILL_BIAS = 0.3;      // chance a falling gem copies the colour below it (more cascades)
+  const DROP_SPECIAL = 0.06;    // chance a falling gem arrives as a rocket or bomb
+  const DROP_RAINBOW = 0.008;   // chance it arrives as a rainbow orb
   const RAGE_TIME = 5;
   const RAGE_SLOWMO = 0.28;
   const COMBO_WINDOW = 2.5;
@@ -709,6 +712,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: { tipAuto: "Ghép xong sẽ tự tấn công quái vật. Nova và Lốc xoáy chờ trong ô cho đến khi bạn chạm", tipBoard: "4 viên thẳng hàng = Tên lửa · Hình L hoặc T = Bom · 5 viên thẳng hàng = Cầu vồng. Chạm hoặc đổi chỗ để nổ", tipRageBar: "Ghép đá sẽ làm đầy thanh cuồng nộ. Khi đầy: CUỒNG NỘ, vuốt để chém!", tapSpecial: "Chạm để nổ!" }
   };
   for (const k in STR_AUTO) Object.assign(STR[k], STR_AUTO[k]);
+  const PRAISE = {
+    en: ["Good!", "Great!", "Awesome!", "Amazing!"], fa: ["خوبه!", "عالیه!", "فوق‌العاده!", "بی‌نظیر!"],
+    ar: ["جيد!", "رائع!", "مذهل!", "خرافي!"], ru: ["Хорошо!", "Отлично!", "Супер!", "Невероятно!"],
+    uk: ["Добре!", "Чудово!", "Супер!", "Неймовірно!"], tr: ["İyi!", "Harika!", "Müthiş!", "İnanılmaz!"],
+    az: ["Yaxşı!", "Əla!", "Möhtəşəm!", "İnanılmaz!"], uz: ["Yaxshi!", "Zo'r!", "Ajoyib!", "Aql bovar qilmas!"],
+    kk: ["Жақсы!", "Керемет!", "Ғажап!", "Таңғаларлық!"], es: ["¡Bien!", "¡Genial!", "¡Increíble!", "¡Asombroso!"],
+    pt: ["Bom!", "Ótimo!", "Incrível!", "Espetacular!"], fr: ["Bien !", "Génial !", "Super !", "Incroyable !"],
+    de: ["Gut!", "Super!", "Klasse!", "Unglaublich!"], it: ["Bene!", "Ottimo!", "Fantastico!", "Incredibile!"],
+    nl: ["Goed!", "Geweldig!", "Super!", "Ongelooflijk!"], pl: ["Dobrze!", "Świetnie!", "Super!", "Niesamowite!"],
+    id: ["Bagus!", "Hebat!", "Luar biasa!", "Menakjubkan!"], hi: ["बढ़िया!", "शानदार!", "ज़बरदस्त!", "कमाल!"],
+    zh: ["不错！", "很棒！", "太棒了！", "不可思议！"], ja: ["いいね！", "すごい！", "最高！", "神業！"],
+    ko: ["좋아요!", "훌륭해요!", "굉장해요!", "놀라워요!"], vi: ["Tốt!", "Tuyệt!", "Xuất sắc!", "Phi thường!"]
+  };
+  for (const k in PRAISE) PRAISE[k].forEach((w, i) => { STR[k]["praise" + (i + 2)] = w; });
 
   // ---- Setup -----------------------------------------------------------
   const $ = (id) => document.getElementById(id);
@@ -1371,7 +1388,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   let state = "title", stateT = 0, now = 0;
   let playTime = 0, hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, guard = 0, zones = [], flyers = [];
   let grid = [], boardState = "idle", cascade = 0, selected = null, idleT = 0, hintMove = null, gemId = 0;
-  let powers = { nova: 0, wind: 0 }, rageMeter = 0, castQueue = [], castCD = 0, carry = {}, danger = 0, lastWarn = 0, boardParts = [], boardFx = [], pendingCreates = [], moveSpecials = 0, moveNova = false, sparkleT = 0, clearWait = 0, specPop = { nova: 0, wind: 0 };
+  let powers = { nova: 0, wind: 0 }, rageMeter = 0, castQueue = [], castCD = 0, carry = {}, danger = 0, lastWarn = 0, boardParts = [], boardFx = [], pendingCreates = [], moveSpecials = 0, moveNova = false, sparkleT = 0, clearWait = 0, boardShake = 0, praise = null, moveBonus = false, specPop = { nova: 0, wind: 0 };
   let enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, coreTurn = 0, shieldT, newBest, banner, castFx;
   const ptr = { down: false, id: null, x: 0, y: 0, sx: 0, sy: 0, spec: -1, cell: null, swiped: false, lx: 0, ly: 0, lastBuzz: 0 };
   let hudCache = {};
@@ -1671,6 +1688,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(null));
       fillNoMatch();
     } while (!findMove());
+    const spots = [];
+    for (let r = 1; r < ROWS - 1; r++) for (let c = 1; c < COLS - 1; c++) spots.push([r, c]);
+    spots.sort(() => Math.random() - 0.5);
+    grid[spots[0][0]][spots[0][1]].sp = pick(["rocketH", "rocketV"]);
+    grid[spots[1][0]][spots[1][1]].sp = "bomb";
     boardState = "fall"; cascade = 0; selected = null; idleT = 0; hintMove = null;
   }
   function swapCells(a, b) {
@@ -1748,7 +1770,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     selected = null; idleT = 0; hintMove = null;
     sfx("swap");
   }
-  function startMove() { cascade = 1; moveSpecials = 0; moveNova = false; }
+  function startMove() { cascade = 1; moveSpecials = 0; moveNova = false; moveBonus = false; }
 
   // Clear a set of cells; specials caught in it go off too, chaining outwards.
   function blast(entries) {
@@ -1799,6 +1821,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     sfx("match", cascade);
     haptic(total >= 10 ? "heavy" : cascade >= 2 ? "medium" : "light");
+    boardShake = Math.min(14, boardShake + (reduceMotion ? 0.3 : 1) * (total >= 15 ? 10 : total >= 8 ? 6 : total >= 5 ? 3 : 1.2));
+    if (total >= 15 && cascade < 4) showPraise(5);
+    else if (total >= 9 && cascade < 3) showPraise(3);
     boardState = "clear"; boardClearT = 0; clearWait = maxD + 0.22;
   }
   function activate(r, c, d, add) {
@@ -1887,7 +1912,25 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       }
     }
     if (!settings.tutMatch) { settings.tutMatch = true; saveSettings(); }
+    if (cascade >= 2) showPraise(cascade);
+    if (cascade >= 3 && !moveBonus) {
+      moveBonus = true;
+      const inGroup = new Set(entries.map(([r, c]) => r * COLS + c));
+      const free = [];
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!inGroup.has(r * COLS + c) && grid[r][c] && !grid[r][c].sp && grid[r][c].pop === 0) free.push([r, c]);
+      if (free.length) {
+        const [r, c] = pick(free), g = grid[r][c];
+        g.sp = pick(["rocketH", "rocketV", "bomb"]); g.spawn = 1;
+        const q = cellCenter(r, c);
+        emit("star", q.x, q.y, { n: 8, spd: [80, 220], life: [0.5, 0.9], size: [5, 9], colors: ["#ffd84d"], g: 400, vy: -160, vr: 8, list: boardParts });
+      }
+    }
     blast(entries);
+  }
+  function showPraise(level) {
+    const i = Math.min(5, Math.max(2, level));
+    praise = { text: tr("praise" + i), t: 1.1, max: 1.1, c: ["#8fe3ff", "#ffe066", "#ff9a2f", "#ff8af0"][i - 2] };
+    [523, 659, 784, 1047].slice(0, i - 1).forEach((f, k) => tone(f * 1.5, null, 0.12, "triangle", 0.1, k * 0.05));
   }
   function handleSwap() {
     const [a, b] = swapPair;
@@ -1978,7 +2021,16 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       for (let r = ROWS - 1; r >= 0; r--) if (grid[r][c] && grid[r][c].pop === 0) keep.push(grid[r][c]);
       const missing = ROWS - keep.length;
       for (let k = 0; k < keep.length; k++) grid[ROWS - 1 - k][c] = keep[k];
-      for (let r = 0; r < missing; r++) grid[r][c] = newGem(pick(GEMS), r - missing - 0.2);
+      for (let r = missing - 1; r >= 0; r--) {
+        let el = pick(GEMS), sp = null;
+        const below = gemAt(r + 1, c), side = gemAt(r, c - 1);
+        if (below && matchable(below) && Math.random() < REFILL_BIAS) el = below.el;
+        else if (side && matchable(side) && Math.random() < 0.15) el = side.el;
+        const x = Math.random();
+        if (x < DROP_RAINBOW) { el = "rainbow"; sp = "rainbow"; }
+        else if (x < DROP_SPECIAL) sp = pick(["rocketH", "rocketV", "bomb"]);
+        grid[r][c] = newGem(el, r - missing - 0.2, sp);
+      }
     }
     boardState = "fall";
   }
@@ -1987,7 +2039,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const p = cellCenter(Math.floor(ROWS / 2), Math.floor(COLS / 2));
       grantPower("wind", p.x, p.y);
     }
-    cascade = 0; moveSpecials = 0; moveNova = false;
+    cascade = 0; moveSpecials = 0; moveNova = false; moveBonus = false;
     boardState = "idle";
     if (!findMove()) shuffleBoard();
   }
@@ -2006,8 +2058,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function popFx(r, c, g) {
     const p = cellCenter(r, c), col = g.el === "rainbow" ? "#c77dff" : EL[g.el].c;
-    emit("glow", p.x, p.y, { n: 2, spd: [20, 80], life: [0.25, 0.45], size: [cell * 0.35, cell * 0.6], colors: [col, "#ffffff"], list: boardParts });
-    emit("shard", p.x, p.y, { n: 4, spd: [100, 260], life: [0.4, 0.7], size: [3, 6], colors: [col, g.el === "rainbow" ? "#ffd23f" : EL[g.el].top], g: 600, vy: -120, vr: 10, list: boardParts });
+    emit("glow", p.x, p.y, { n: 3, spd: [20, 110], life: [0.25, 0.5], size: [cell * 0.4, cell * 0.75], colors: [col, "#ffffff"], list: boardParts });
+    emit("shard", p.x, p.y, { n: 7, spd: [120, 340], life: [0.45, 0.8], size: [3, 7], colors: [col, g.el === "rainbow" ? "#ffd23f" : EL[g.el].top, "#ffffff"], g: 650, vy: -160, vr: 12, list: boardParts });
+    emit("spark", p.x, p.y, { n: 3, spd: [150, 320], life: [0.2, 0.4], size: [1.5, 2.5], colors: ["#ffffff", col], drag: 0.9, list: boardParts });
+    boardFx.push({ kind: "ring", x: p.x, y: p.y, R: cell * 0.75, life: 0.25, max: 0.25, c: col });
     if (Math.random() < 0.35) emit("star", p.x, p.y, { n: 1, spd: [60, 160], life: [0.5, 0.8], size: [4, 7], colors: ["#ffd84d"], g: 500, vy: -200, vr: 8, list: boardParts });
     sfx("pop");
   }
@@ -2045,6 +2099,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       }
     }
     boardFx = boardFx.filter((f) => f.life > 0);
+    boardShake = Math.max(0, boardShake - dt * 40);
+    if (praise) { praise.t -= dt; if (praise.t <= 0) praise = null; }
     sparkleT -= dt;
     if (sparkleT <= 0) {
       sparkleT = 0.18;
@@ -2554,6 +2610,23 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     rrPath(ctx, x + 8, y + 4, w - 16, Math.min(16, h * 0.25), Math.min(8, r)); ctx.fillStyle = "rgba(255,255,255,0.08)"; ctx.fill();
   }
   function drawBoard() {
+    ctx.save();
+    if (boardShake) ctx.translate(rand(-boardShake, boardShake) * 0.6, rand(-boardShake, boardShake) * 0.6);
+    drawBoardInner();
+    ctx.restore();
+    if (praise) {
+      const k = 1 - praise.t / praise.max;
+      const sc = k < 0.15 ? 0.4 + (k / 0.15) * 0.9 : k < 0.3 ? 1.3 - ((k - 0.15) / 0.15) * 0.3 : 1;
+      ctx.save();
+      ctx.globalAlpha = clamp(praise.t / 0.3, 0, 1);
+      ctx.translate(boardX + (cell * COLS) / 2, boardY + (cell * ROWS) / 2 - k * 30);
+      ctx.rotate(Math.sin(now * 8) * 0.04);
+      ctx.scale(sc, sc);
+      chunkyText(praise.text, 0, 0, Math.min(52, W * 0.12), praise.c, "#1a1035");
+      ctx.restore();
+    }
+  }
+  function drawBoardInner() {
     chunky(boardX - 8, boardY - 8, cell * COLS + 16, cell * ROWS + 16, 22, "#3a4fc4", "#1d2878", "#0c1145");
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       const x = boardX + c * cell, y = boardY + r * cell;
