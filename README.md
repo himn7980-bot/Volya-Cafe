@@ -5,6 +5,7 @@ An action defense game for a Telegram Mini App, in plain HTML5 Canvas and JavaSc
 - `index.html` is the deployable page. It loads Telegram's Web App SDK so the app expands to full height, vertical swipes don't close it, the Telegram back button pauses or closes menus, and taps give haptic feedback. Host it anywhere with HTTPS (GitHub Pages works) and set that URL as your bot's Mini App URL in @BotFather.
 - `game.html` is the same game without the document wrapper, used for the Claude Artifact preview.
 - `assets/volya.jpg` is the character portrait cropped from the poster. It is embedded in both pages as a data URI.
+- `server/` is the global leaderboard API (Cloudflare Worker + D1). See [Global leaderboard](#global-leaderboard).
 
 ## Languages
 
@@ -49,3 +50,31 @@ Players can override it in Settings. Persian and Arabic switch the whole layout 
 | Nova (special) | destroys every enemy on screen | | |
 
 All numbers live in constants at the top of the script. Settings and the best score are kept in `localStorage`.
+
+## Global leaderboard
+
+Every run played inside Telegram is sent to a small API when the game ends. Players see their global rank on the game-over screen, and a **Leaderboard** button (title and game-over screens) shows the top 50 with medals, their own row highlighted, and their rank below the list if they are outside the top 50.
+
+**How scores are protected**
+- The API only accepts a score together with Telegram's signed `initData`, checked with the bot token (HMAC-SHA256, as Telegram documents). The player's id and name come from that signature, so nobody can post under another name or a made-up account.
+- Signatures older than 24 hours, scores higher than the run's length allows (2,000 + 500 points per second), and repeated submissions within 3 seconds are refused.
+- Only the best score per player is kept. Telegram user ids are never returned by the API.
+- The game runs on the player's phone, so a determined cheater could still fake a believable score. The checks above stop forged names, made-up accounts and impossible numbers.
+
+**Files**
+- `server/worker.js`: the API. `GET /top?limit=50&uid=<id>` and `POST /score`.
+- `server/schema.sql`: the D1 table.
+- `server/wrangler.toml`: Worker config for the command-line deploy.
+- `server/test.mjs`: tests against an in-memory SQLite database. Run `node server/test.mjs` (Node 22+).
+
+**Deploy (free Cloudflare plan, all in the browser)**
+1. Create a free account at https://dash.cloudflare.com.
+2. **Storage & Databases → D1 → Create** a database named `volya-leaderboard`. Open its **Console**, paste the contents of `server/schema.sql` and run it.
+3. **Workers & Pages → Create → Create Worker**, name it `volya-leaderboard`, **Deploy**, then **Edit code**: replace everything with `server/worker.js` and **Deploy** again.
+4. In the Worker: **Settings → Bindings → Add → D1 database**, variable name `DB`, database `volya-leaderboard`.
+5. **Settings → Variables and Secrets**: add a **Secret** `BOT_TOKEN` with the token from @BotFather, and a **Text** variable `ALLOWED_ORIGIN` = `https://himn7980-bot.github.io`.
+6. Copy the Worker URL (`https://volya-leaderboard.<your-subdomain>.workers.dev`) into `LEADERBOARD_API` at the top of the game script, in both `game.html` and `index.html`.
+
+Command-line alternative: `cd server && npx wrangler d1 create volya-leaderboard` (put the id in `wrangler.toml`), `npx wrangler d1 execute volya-leaderboard --remote --file schema.sql`, `npx wrangler secret put BOT_TOKEN`, `npx wrangler deploy`.
+
+Until `LEADERBOARD_API` is set, the leaderboard screen explains that it works inside Telegram and the game-over screen shows no rank.
