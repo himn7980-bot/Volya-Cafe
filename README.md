@@ -24,8 +24,8 @@ An action defense game for a Telegram Mini App, in plain HTML5 Canvas and JavaSc
 
 All numbers live in constants at the top of the script.
 
-## Swapping in the character art
+## Character art
 
-Set `CHARACTER_IMAGE` at the top of the script to your image URL (or a `data:` URI). It replaces the glowing orb and is cropped to a circle.
+Character #1 is Volya, cropped from the poster (`assets/volya.jpg`) and embedded in the page as a data URI, so the game stays a single file. To swap it, replace the `CHARACTER_IMAGE` value at the top of the script with another URL or data URI; set it to `""` to show the glowing orb instead.
 
 The best score is kept in `localStorage`.
