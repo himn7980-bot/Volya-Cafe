@@ -21,33 +21,30 @@ Players can override it in Settings. Persian and Arabic switch the whole layout 
 
 ## How it plays
 
-- Volya sits on a glowing pedestal in the centre. Slimes, flying bat-imps (after 18 s) and lava golems (after 40 s) crawl in from all four edges. Each one that reaches Volya costs health.
-- **Match-3 board (bottom):** swipe two neighbouring gems (or tap one, then its neighbour) to line up 3 or more of a colour. Every match turns into a magic die that flies into the tray:
+- Volya sits on a glowing pedestal in the centre. Slimes, flying bat-imps (after 18 s) and lava golems (after 40 s) crawl in from all four edges. Each one that reaches Volya costs health; the screen edge flashes red (and the phone buzzes) when one is about to arrive.
+- **Match-3 board (7 × 6):** swipe two neighbouring gems (or tap one, then its neighbour) to line up 3 or more. Gems are faceted jewels: fire ruby, ice diamond, lightning topaz, poison emerald, heal heart.
+- **Matches attack by themselves.** Every colour cleared sends its spell from the board to Volya, who fires it with smart aim: fire and poison at the densest group, ice at the monster that will arrive first (unfrozen first), lightning chains from the closest threat, heal goes off at once. 3 gems = tier 1, 6 = tier 2, 10 = tier 3, cascades add a tier; leftovers under 3 carry over to the next clear.
+- **Special pieces on the board:**
 
-  | Match | Reward |
-  |---|---|
-  | 3 in a row | 1-star die of that colour |
-  | 4 in a row | 2-star die |
-  | L or T shape | Tornado die |
-  | 5 in a row | Nova die (clears the screen) |
-  | Cascade (a refill that matches by itself) | +1 star on the next dice |
+  | Make it with | Piece | When it goes off |
+  |---|---|---|
+  | 4 in a row | Rocket (horizontal or vertical) | Clears its whole column / row |
+  | L or T shape | Bomb | Blasts everything within 2 cells |
+  | 5 in a row | Rainbow orb | Swap with a gem: clears every gem of that colour |
 
-  If the tray is full, the new power fires straight away instead of being wasted. When no move is left the board shuffles itself, and after 5 idle seconds a possible move wiggles as a hint.
-- **Dice tray:** tap a die to cast it at the nearest enemy, or drag it into the field to aim. Drag a die onto an identical one to power it up (up to 3 stars).
-- **Rage Mode:** line up 3 dice of one element side by side in the tray. 5 seconds of slow motion and screen shake; swiping slices enemies in half for double points. The board is locked while it lasts.
-- Kills chain into a combo (+10% points per kill) that resets after 2.5 seconds without a kill or when Volya is hit. A new wave starts every 25 seconds with a swarm.
-- First-time players get in-game hints ("Swipe to match 3!", "Tap!", "Drag to merge!").
-- Keyboard: keys 1-5 cast the die in that slot, Esc pauses.
+  Tap a rocket or bomb to set it off, swap it, or match it. Specials caught in an explosion go off too, so chains run across the board. Swapping two specials makes a combo: rocket + rocket = cross, rocket + bomb = triple-wide cross, bomb + bomb = huge blast, rainbow + rocket/bomb = every gem of that colour turns into one and goes off, rainbow + rainbow = the whole board.
+- **Nova and Tornado slots:** using a rainbow earns a Nova (destroys every enemy on screen); setting off 2+ specials in one move, or a 4-step cascade, earns a Tornado (blows every enemy back and slows them). They wait in their slots (up to 3 each) until you tap them, so you choose the moment.
+- **Rage bar:** every cleared gem fills it. When full, Rage Mode starts: 5 seconds of slow motion where swiping slices enemies in half for double points. The board is locked while it lasts.
+- If no move is left the board shuffles itself; after 5 idle seconds a possible move wiggles. First-time players get hints ("Swipe to match 3!", "Tap to blast!", "Tap!").
+- Keyboard: 1 = Nova, 2 = Tornado, Esc pauses.
 
-| Power | Tier 1 | Tier 2 | Tier 3 |
+| Spell | Tier 1 | Tier 2 | Tier 3 |
 |---|---|---|---|
 | Fire (splash + knockback) | 38 dmg, 72 px | 95 dmg, 108 px | 260 dmg, 168 px |
 | Ice (freeze, then 55% slow) | 1.6 s freeze | 2.6 s freeze | 4.2 s freeze |
 | Lightning (chain) | 3 hits × 30 | 6 hits × 72 | 12 hits × 180 |
 | Poison (cloud, damage per second) | 14/s for 4 s | 30/s for 5 s | 70/s for 6 s |
 | Heal (health + bubble shield) | +15, 2.5 s | +30, 3.5 s | +60, 5 s |
-| Tornado (special) | pushes every enemy away, slows and chips them | | |
-| Nova (special) | destroys every enemy on screen | | |
 
 All numbers live in constants at the top of the script. Settings and the best score are kept in `localStorage`.
 

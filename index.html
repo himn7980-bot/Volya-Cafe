@@ -368,10 +368,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         </div>
         <ul class="tips">
           <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="5" cy="13" r="4" fill="#ff5a3d"/><circle cx="13" cy="13" r="4" fill="#ff5a3d"/><circle cx="21" cy="13" r="4" fill="#ff5a3d"/><circle cx="3.8" cy="11.6" r="1.2" fill="#fff"/><circle cx="11.8" cy="11.6" r="1.2" fill="#fff"/><circle cx="19.8" cy="11.6" r="1.2" fill="#fff"/><path d="M9 22h8" stroke="#ffd84d" stroke-width="2.2" stroke-linecap="round"/></svg></span><span data-i18n="tipMatch"></span></li>
-          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="9" r="6" fill="none" stroke="#ffd84d" stroke-width="2" opacity=".6"/><path d="M11 9.5a2 2 0 014 0V15l3.2.8a2 2 0 011.5 2.3l-.8 4.4H11l-3.4-4.3a1.7 1.7 0 012.4-2.3l1 .8z" fill="#fff" stroke="#3a2a7a" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span data-i18n="tipTap"></span></li>
-          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="12" width="10" height="10" rx="3" fill="#ff5a3d"/><rect x="14" y="4" width="10" height="10" rx="3" fill="#ff5a3d"/><path d="M8 9c0-3 2-5 5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M11 2.5l2.3 1.5-1.6 2.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-i18n="tipMerge"></span></li>
-          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="8" width="7.5" height="10" rx="2.5" fill="#36b7ff"/><rect x="9.25" y="8" width="7.5" height="10" rx="2.5" fill="#36b7ff"/><rect x="17.5" y="8" width="7.5" height="10" rx="2.5" fill="#36b7ff"/><path d="M4 23l18-20" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span data-i18n="tipRage"></span></li>
-          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2l2.6 7.2L23 10l-6 4.6L19.2 22 13 17.6 6.8 22 9 14.6 3 10l7.4-.8z" fill="#c77dff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span data-i18n="tipSpecial"></span></li>
+          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="6" cy="20" r="4" fill="#ff5a3d"/><path d="M9 17l10-10" stroke="#ffd84d" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 3"/><circle cx="21" cy="5" r="3.5" fill="#e04ff0"/><circle cx="20" cy="4" r="1" fill="#fff"/></svg></span><span data-i18n="tipAuto"></span></li>
+          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="10" width="16" height="6" rx="3" fill="#fff"/><path d="M19 10q5 3 0 6z" fill="#e0282e"/><path d="M6 10l-3-4v4zM6 16l-3 4v-4z" fill="#e0282e"/><circle cx="12" cy="13" r="1.8" fill="#3fd0ff"/></svg></span><span data-i18n="tipBoard"></span></li>
+          <li><span class="tip-ico"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="9" width="22" height="8" rx="4" fill="rgba(0,0,0,.35)"/><rect x="2" y="9" width="15" height="8" rx="4" fill="#ff5a2f"/><path d="M4 24l18-20" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span data-i18n="tipRageBar"></span></li>
         </ul>
       </div>
     </div>
@@ -438,8 +437,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const SETTINGS_KEY = "dice-chain-settings-v1";
   const BEST_KEY = "dice-chain-best-v1";
 
-  const SLOT_COUNT = 5;
-  const COLS = 6, ROWS = 5;
+  const COLS = 7, ROWS = 6;
+  const RAGE_MAX = 60;          // gems to clear for Rage Mode
+  const SPECIAL_CAP = 3;        // Nova / Tornado charges kept
+  const SPECIALS = ["nova", "wind"];
   const RAGE_TIME = 5;
   const RAGE_SLOWMO = 0.28;
   const COMBO_WINDOW = 2.5;
@@ -690,6 +691,31 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: { leaderboard: "Bảng xếp hạng", globalRank: "Hạng thế giới", you: "Bạn", loading: "Đang tải…", lbOffline: "Bảng xếp hạng thế giới hoạt động khi bạn chơi trong Telegram", lbError: "Không tải được bảng xếp hạng. Kiểm tra kết nối và thử lại", noScores: "Chưa có điểm nào. Hãy là người đầu tiên!", players: "{n} người chơi", retry: "Thử lại" }
   };
   for (const k in STR_LB) Object.assign(STR[k], STR_LB[k]);
+  const STR_AUTO = {
+    en: { tipAuto: "Matches fire at the monsters by themselves. Nova and Tornado wait in their slots until you tap them", tipBoard: "4 in a row = Rocket · L or T = Bomb · 5 in a row = Rainbow. Tap or swap them to blast", tipRageBar: "Matches fill the rage bar. When it's full: RAGE MODE, swipe to slice!", tapSpecial: "Tap to blast!" },
+    fa: { tipAuto: "جور کردن جواهرها خودش به هیولاها حمله می‌کند. ابرانفجار و گردباد ذخیره می‌شوند تا خودت بزنی", tipBoard: "۴ تا در ردیف = موشک · شکل L یا T = بمب · ۵ تا در ردیف = رنگین‌کمان. برای انفجار رویشان بزن یا جابه‌جایشان کن", tipRageBar: "جور کردن‌ها نوار خشم را پر می‌کند. وقتی پر شد: حالت خشم، بکش و تکه‌تکه کن!", tapSpecial: "بزن تا منفجر شه!" },
+    ar: { tipAuto: "التطابقات تهاجم الوحوش تلقائيًا. النوفا والإعصار يبقيان في خانتيهما حتى تضغط عليهما", tipBoard: "٤ في صف = صاروخ · شكل L أو T = قنبلة · ٥ في صف = قوس قزح. اضغط عليها أو بدّلها للتفجير", tipRageBar: "التطابقات تملأ شريط الغضب. عندما يمتلئ: وضع الغضب، اسحب للتقطيع!", tapSpecial: "اضغط للتفجير!" },
+    ru: { tipAuto: "Комбинации сами бьют по монстрам. Нова и Торнадо ждут в ячейках, пока ты их не нажмёшь", tipBoard: "4 в ряд = Ракета · Форма L или T = Бомба · 5 в ряд = Радуга. Нажми или передвинь, чтобы взорвать", tipRageBar: "Комбинации заполняют шкалу ярости. Когда она полна: РЕЖИМ ЯРОСТИ, руби свайпом!", tapSpecial: "Жми, чтобы взорвать!" },
+    uk: { tipAuto: "Збіги самі б'ють по монстрах. Нова й Торнадо чекають у комірках, доки ти їх не натиснеш", tipBoard: "4 у ряд = Ракета · Форма L або T = Бомба · 5 у ряд = Веселка. Натисни або пересунь, щоб підірвати", tipRageBar: "Збіги заповнюють шкалу люті. Коли вона повна: РЕЖИМ ЛЮТІ, рубай свайпом!", tapSpecial: "Тисни, щоб підірвати!" },
+    tr: { tipAuto: "Eşleşmeler canavarlara kendiliğinden saldırır. Nova ve Kasırga sen dokunana kadar yuvalarında bekler", tipBoard: "Sırada 4 = Roket · L veya T şekli = Bomba · Sırada 5 = Gökkuşağı. Patlatmak için dokun ya da kaydır", tipRageBar: "Eşleşmeler öfke barını doldurur. Dolunca: ÖFKE MODU, kaydırıp kes!", tapSpecial: "Patlatmak için dokun!" },
+    az: { tipAuto: "Uyğunluqlar canavarlara özü hücum edir. Nova və Qasırğa sən toxunana qədər yuvalarında gözləyir", tipBoard: "Sırada 4 = Raket · L və ya T forması = Bomba · Sırada 5 = Göy qurşağı. Partlatmaq üçün toxun və ya sürüşdür", tipRageBar: "Uyğunluqlar qəzəb zolağını doldurur. Dolanda: QƏZƏB REJİMİ, sürüşdürüb kəs!", tapSpecial: "Partlatmaq üçün toxun!" },
+    uz: { tipAuto: "Mosliklar yirtqichlarga o'zi hujum qiladi. Nova va Tornado sen bosmaguningcha joyida kutadi", tipBoard: "Qatorda 4 ta = Raketa · L yoki T shakli = Bomba · Qatorda 5 ta = Kamalak. Portlatish uchun bos yoki sur", tipRageBar: "Mosliklar g'azab chizig'ini to'ldiradi. To'lganda: G'AZAB REJIMI, surib kes!", tapSpecial: "Portlatish uchun bos!" },
+    kk: { tipAuto: "Сәйкестіктер құбыжықтарға өздігінен шабуыл жасайды. Нова мен Торнадо сен басқанша ұяшығында күтеді", tipBoard: "Қатарда 4 = Зымыран · L не T пішіні = Бомба · Қатарда 5 = Кемпірқосақ. Жару үшін бас немесе жылжыт", tipRageBar: "Сәйкестіктер ашу жолағын толтырады. Толғанда: АШУ РЕЖИМІ, сырғытып кес!", tapSpecial: "Жару үшін бас!" },
+    es: { tipAuto: "Las combinaciones atacan solas a los monstruos. Nova y Tornado esperan en su casilla hasta que los toques", tipBoard: "4 en línea = Cohete · Forma L o T = Bomba · 5 en línea = Arcoíris. Tócalos o muévelos para que exploten", tipRageBar: "Las combinaciones llenan la barra de furia. Cuando se llena: MODO FURIA, ¡desliza para cortar!", tapSpecial: "¡Toca para explotar!" },
+    pt: { tipAuto: "As combinações atacam os monstros sozinhas. Nova e Tornado esperam no espaço até você tocar", tipBoard: "4 em linha = Foguete · Formato L ou T = Bomba · 5 em linha = Arco-íris. Toque ou mova para explodir", tipRageBar: "As combinações enchem a barra de fúria. Quando enche: MODO FÚRIA, deslize para cortar!", tapSpecial: "Toque para explodir!" },
+    fr: { tipAuto: "Les alignements attaquent les monstres tout seuls. Nova et Tornade attendent dans leur case jusqu'à ce que tu les touches", tipBoard: "4 alignées = Fusée · Forme en L ou T = Bombe · 5 alignées = Arc-en-ciel. Touche-les ou déplace-les pour exploser", tipRageBar: "Les alignements remplissent la jauge de rage. Quand elle est pleine : MODE RAGE, glisse pour trancher !", tapSpecial: "Touche pour exploser !" },
+    de: { tipAuto: "Kombis greifen die Monster von selbst an. Nova und Tornado warten in ihrem Feld, bis du sie antippst", tipBoard: "4 in einer Reihe = Rakete · L- oder T-Form = Bombe · 5 in einer Reihe = Regenbogen. Antippen oder tauschen zum Sprengen", tipRageBar: "Kombis füllen die Wutleiste. Wenn sie voll ist: WUTMODUS, wische zum Schneiden!", tapSpecial: "Tippen zum Sprengen!" },
+    it: { tipAuto: "Le combinazioni attaccano i mostri da sole. Nova e Tornado aspettano nella casella finché non li tocchi", tipBoard: "4 in fila = Razzo · Forma a L o T = Bomba · 5 in fila = Arcobaleno. Toccali o spostali per farli esplodere", tipRageBar: "Le combinazioni riempiono la barra della furia. Quando è piena: MODALITÀ FURIA, scorri per tagliare!", tapSpecial: "Tocca per esplodere!" },
+    nl: { tipAuto: "Matches vallen de monsters vanzelf aan. Nova en Tornado wachten in hun vak tot je erop tikt", tipBoard: "4 op een rij = Raket · L- of T-vorm = Bom · 5 op een rij = Regenboog. Tik of wissel om ze te laten ontploffen", tipRageBar: "Matches vullen de woedebalk. Als hij vol is: WOEDEMODUS, veeg om te snijden!", tapSpecial: "Tik om te ontploffen!" },
+    pl: { tipAuto: "Dopasowania same atakują potwory. Nova i Tornado czekają w swoich polach, aż je dotkniesz", tipBoard: "4 w rzędzie = Rakieta · Kształt L lub T = Bomba · 5 w rzędzie = Tęcza. Dotknij lub przesuń, by wybuchły", tipRageBar: "Dopasowania wypełniają pasek furii. Gdy jest pełny: TRYB FURII, przesuń, aby ciąć!", tapSpecial: "Dotknij, by wysadzić!" },
+    id: { tipAuto: "Kecocokan menyerang monster secara otomatis. Nova dan Tornado menunggu di slotnya sampai kamu ketuk", tipBoard: "4 berjajar = Roket · Bentuk L atau T = Bom · 5 berjajar = Pelangi. Ketuk atau geser untuk meledakkan", tipRageBar: "Kecocokan mengisi bar amuk. Saat penuh: MODE AMUK, geser untuk menebas!", tapSpecial: "Ketuk untuk meledak!" },
+    hi: { tipAuto: "मैच अपने आप राक्षसों पर हमला करते हैं। नोवा और बवंडर तब तक स्लॉट में रहते हैं जब तक आप टैप न करें", tipBoard: "लाइन में 4 = रॉकेट · L या T आकार = बम · लाइन में 5 = इंद्रधनुष। धमाके के लिए टैप करें या खिसकाएँ", tipRageBar: "मैच से रेज बार भरता है। भरने पर: रेज मोड, काटने के लिए स्वाइप करें!", tapSpecial: "धमाके के लिए टैप!" },
+    zh: { tipAuto: "消除会自动攻击怪物。新星和龙卷风会留在格子里，等你点击再释放", tipBoard: "4 连 = 火箭 · L 或 T 形 = 炸弹 · 5 连 = 彩虹。点击或交换即可引爆", tipRageBar: "消除会充满狂暴条。满了之后：狂暴模式，滑动斩杀！", tapSpecial: "点击引爆！" },
+    ja: { tipAuto: "そろえると自動でモンスターを攻撃。ノヴァと竜巻はタップするまで枠で待機", tipBoard: "4つ並び = ロケット · L字・T字 = 爆弾 · 5つ並び = レインボー。タップか入れ替えで爆発", tipRageBar: "そろえるとレイジゲージがたまる。満タンでレイジモード、スワイプで斬れ！", tapSpecial: "タップで爆発！" },
+    ko: { tipAuto: "매치하면 자동으로 몬스터를 공격합니다. 노바와 토네이도는 탭할 때까지 슬롯에서 기다립니다", tipBoard: "4개 일렬 = 로켓 · L자·T자 = 폭탄 · 5개 일렬 = 무지개. 탭하거나 바꿔서 터뜨리세요", tipRageBar: "매치하면 분노 게이지가 찹니다. 가득 차면 분노 모드, 스와이프로 베어라!", tapSpecial: "탭해서 터뜨리기!" },
+    vi: { tipAuto: "Ghép xong sẽ tự tấn công quái vật. Nova và Lốc xoáy chờ trong ô cho đến khi bạn chạm", tipBoard: "4 viên thẳng hàng = Tên lửa · Hình L hoặc T = Bom · 5 viên thẳng hàng = Cầu vồng. Chạm hoặc đổi chỗ để nổ", tipRageBar: "Ghép đá sẽ làm đầy thanh cuồng nộ. Khi đầy: CUỒNG NỘ, vuốt để chém!", tapSpecial: "Chạm để nổ!" }
+  };
+  for (const k in STR_AUTO) Object.assign(STR[k], STR_AUTO[k]);
 
   // ---- Setup -----------------------------------------------------------
   const $ = (id) => document.getElementById(id);
@@ -732,7 +758,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const mk = (w, h) => { const c = document.createElement("canvas"); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
 
   // ---- Settings & language --------------------------------------------
-  const settings = { lang: "auto", sound: true, vib: true, tutTap: false, tutMerge: false, tutMatch: false };
+  const settings = { lang: "auto", sound: true, vib: true, tutTap: false, tutMerge: false, tutMatch: false, tutBlast: false, tutSpecial: false };
   try { Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}")); } catch (e) {}
   const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {} };
   let best = 0;
@@ -852,6 +878,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       case "heal": [660, 880, 1100, 1320].forEach((f, i) => tone(f, f * 1.02, 0.2, "sine", 0.1, i * 0.06)); break;
       case "nova": noise(1.2, 0.6, "lowpass", 2000, 60); tone(90, 30, 1.0, "sine", 0.6); [880, 1320, 1760].forEach((f, i) => tone(f, f * 0.5, 0.6, "triangle", 0.08, i * 0.05)); break;
       case "wind": noise(0.8, 0.35, "bandpass", 300, 2500); tone(200, 500, 0.6, "sine", 0.08); break;
+      case "rocket": noise(0.35, 0.3, "bandpass", 900, 3000); tone(300, 1200, 0.3, "sawtooth", 0.06); break;
+      case "bomb": noise(0.45, 0.45, "lowpass", 1500, 90); tone(160, 45, 0.35, "sine", 0.45); break;
+      case "rainbow": [523, 659, 784, 988, 1175, 1568].forEach((f, i) => tone(f, f * 1.01, 0.18, "triangle", 0.1, i * 0.05)); break;
+      case "charge": tone(700, 1400, 0.18, "sine", 0.1); break;
+      case "warn": tone(440, 330, 0.18, "square", 0.05); break;
       case "over": [523, 392, 330, 196].forEach((f, i) => tone(f, f * 0.98, 0.3, "triangle", 0.15, i * 0.16)); break;
     }
   }
@@ -860,7 +891,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try {
       const h = tg && tg.HapticFeedback;
       if (h) {
-        if (kind === "error" || kind === "success") h.notificationOccurred(kind);
+        if (kind === "error" || kind === "success" || kind === "warning") h.notificationOccurred(kind);
         else h.impactOccurred(kind);
       } else if (navigator.vibrate) navigator.vibrate(kind === "heavy" ? 35 : kind === "error" ? [30, 40, 30] : 12);
     } catch (e) {}
@@ -1140,66 +1171,155 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     return c.toDataURL();
   }
 
-  function roundPoly(g, pts, rad) {
-    const n = pts.length;
+  function parseHex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+  function mix(a, b, t) {
+    const x = parseHex(a), y = parseHex(b);
+    return `rgb(${Math.round(x[0] + (y[0] - x[0]) * t)},${Math.round(x[1] + (y[1] - x[1]) * t)},${Math.round(x[2] + (y[2] - x[2]) * t)})`;
+  }
+  function gemOutline(el, r) {
+    const poly = (n, rot, rx = r, ry = r) => Array.from({ length: n }, (_, i) => { const a = rot + (i / n) * TAU; return [Math.cos(a) * rx, Math.sin(a) * ry]; });
+    if (el === "fire") return poly(10, -Math.PI / 2, r * 0.98, r * 0.98);
+    if (el === "ice") return [[0, -r * 1.05], [r * 0.98, 0], [0, r * 1.05], [-r * 0.98, 0]];
+    if (el === "bolt") return poly(6, -Math.PI / 2, r * 1.02, r * 1.02);
+    if (el === "poison") { const w = r * 0.78, h = r * 1.0, k = r * 0.3; return [[-w + k, -h], [w - k, -h], [w, -h + k], [w, h - k], [w - k, h], [-w + k, h], [-w, h - k], [-w, -h + k]]; }
+    return null;
+  }
+  function heartPath(g, r, ox = 0, oy = 0) {
     g.beginPath();
-    g.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
-    for (let i = 0; i < n; i++) { const p = pts[i], q = pts[(i + 1) % n]; g.arcTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2, rad); }
+    g.moveTo(ox, oy + r * 0.95);
+    g.bezierCurveTo(ox - r * 1.45, oy - r * 0.05, ox - r * 0.7, oy - r * 1.15, ox, oy - r * 0.48);
+    g.bezierCurveTo(ox + r * 0.7, oy - r * 1.15, ox + r * 1.45, oy - r * 0.05, ox, oy + r * 0.95);
     g.closePath();
   }
-  function gemPath(g, el, r) {
-    if (el === "fire") { g.beginPath(); g.arc(0, 0, r * 0.95, 0, TAU); }
-    else if (el === "ice") roundPoly(g, [[0, -r * 1.05], [r * 0.95, 0], [0, r * 1.05], [-r * 0.95, 0]], r * 0.28);
-    else if (el === "bolt") roundPoly(g, [0, 1, 2, 3, 4, 5].map((i) => { const a = (i / 6) * TAU - Math.PI / 2; return [Math.cos(a) * r, Math.sin(a) * r]; }), r * 0.25);
-    else if (el === "poison") {
-      g.beginPath();
-      g.moveTo(0, -r * 1.05);
-      g.bezierCurveTo(r * 0.45, -r * 0.5, r * 0.95, -r * 0.05, r * 0.9, r * 0.35);
-      g.bezierCurveTo(r * 0.85, r * 1.0, -r * 0.85, r * 1.0, -r * 0.9, r * 0.35);
-      g.bezierCurveTo(-r * 0.95, -r * 0.05, -r * 0.45, -r * 0.5, 0, -r * 1.05);
-      g.closePath();
-    } else {
-      g.beginPath();
-      g.moveTo(0, r * 0.95);
-      g.bezierCurveTo(-r * 1.45, -r * 0.05, -r * 0.7, -r * 1.15, 0, -r * 0.48);
-      g.bezierCurveTo(r * 0.7, -r * 1.15, r * 1.45, -r * 0.05, 0, r * 0.95);
-      g.closePath();
-    }
+  function polyPath(g, pts) { g.beginPath(); pts.forEach(([x, y], i) => g[i ? "lineTo" : "moveTo"](x, y)); g.closePath(); }
+  function glint(g, x, y, r) {
+    g.fillStyle = "rgba(255,255,255,0.95)";
+    g.beginPath();
+    g.moveTo(x, y - r); g.quadraticCurveTo(x, y, x + r, y); g.quadraticCurveTo(x, y, x, y + r); g.quadraticCurveTo(x, y, x - r, y); g.quadraticCurveTo(x, y, x, y - r);
+    g.fill();
   }
+  // Faceted jewel: outer facets shaded by a light from the top-left, a bright table, gloss and glint.
   function paintGem(g, s, el) {
-    const P = EL[el], r = s * 0.42;
-    g.save(); g.translate(0, s * 0.07); gemPath(g, el, r); g.fillStyle = "rgba(0,0,30,0.4)"; g.fill(); g.restore();
-    gemPath(g, el, r);
-    const gr = g.createRadialGradient(-r * 0.35, -r * 0.45, r * 0.08, 0, 0, r * 1.25);
-    gr.addColorStop(0, P.top); gr.addColorStop(0.5, P.base); gr.addColorStop(1, P.dark);
-    g.fillStyle = gr; g.fill();
-    g.save(); g.clip();
-    g.fillStyle = "rgba(0,0,40,0.22)";
-    g.beginPath(); g.ellipse(r * 0.15, r * 1.0, r * 1.2, r * 0.6, 0, 0, TAU); g.fill();
-    g.strokeStyle = rgba(P.c2, 0.75); g.lineWidth = s * 0.05;
-    g.beginPath(); g.arc(0, 0, r * 0.85, 0.15 * Math.PI, 0.65 * Math.PI); g.stroke();
-    g.restore();
-    gemPath(g, el, r);
-    g.lineWidth = s * 0.055; g.strokeStyle = P.dark; g.lineJoin = "round"; g.stroke();
-    g.save();
-    g.translate(-r * 0.3, -r * 0.42); g.rotate(-0.55);
-    const gl = g.createLinearGradient(0, -r * 0.2, 0, r * 0.2);
-    gl.addColorStop(0, "rgba(255,255,255,0.9)"); gl.addColorStop(1, "rgba(255,255,255,0)");
-    g.beginPath(); g.ellipse(0, 0, r * 0.38, r * 0.19, 0, 0, TAU); g.fillStyle = gl; g.fill();
-    g.restore();
-    g.fillStyle = "rgba(255,255,255,0.9)";
-    g.beginPath(); g.arc(r * 0.25, -r * 0.5, r * 0.07, 0, TAU); g.fill();
-  }
-  let GEMSPR = {};
-  function buildGemSprites() {
-    GEMSPR = {};
-    const res = dpr * 1.2, s = cell, pad = s * 0.1;
-    for (const el of GEMS) {
-      const c = mk((s + pad * 2) * res, (s + pad * 2) * res), g = c.getContext("2d");
-      g.scale(res, res); g.translate(s / 2 + pad, s / 2 + pad);
-      paintGem(g, s, el);
-      GEMSPR[el] = { img: c, full: s + pad * 2 };
+    const P = EL[el], r = s * 0.43, L = [-0.55, -0.83];
+    const pts = gemOutline(el, r);
+    g.lineJoin = "round";
+    if (pts) {
+      g.save(); g.translate(0, s * 0.07); polyPath(g, pts); g.fillStyle = "rgba(0,0,30,0.4)"; g.fill(); g.restore();
+      polyPath(g, pts); g.fillStyle = P.base; g.fill();
+      const tbl = pts.map(([x, y]) => [x * 0.5 - r * 0.05, y * 0.5 - r * 0.07]);
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i], b = pts[(i + 1) % pts.length], ta = tbl[i], tb = tbl[(i + 1) % pts.length];
+        const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, ml = Math.hypot(mx, my) || 1;
+        const d = (mx / ml) * L[0] + (my / ml) * L[1], t = (d + 1) / 2;
+        g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(tb[0], tb[1]); g.lineTo(ta[0], ta[1]); g.closePath();
+        g.fillStyle = t > 0.5 ? mix(P.base, P.top, (t - 0.5) * 2) : mix(P.dark, P.base, t * 2);
+        g.fill();
+        g.strokeStyle = "rgba(255,255,255,0.22)"; g.lineWidth = s * 0.012; g.stroke();
+      }
+      polyPath(g, tbl);
+      const tg = g.createLinearGradient(-r * 0.5, -r * 0.6, r * 0.4, r * 0.5);
+      tg.addColorStop(0, P.top); tg.addColorStop(1, P.base);
+      g.fillStyle = tg; g.fill();
+      g.strokeStyle = "rgba(255,255,255,0.4)"; g.lineWidth = s * 0.014; g.stroke();
+      g.save(); polyPath(g, tbl); g.clip();
+      const sh = g.createLinearGradient(-r * 0.5, -r * 0.5, r * 0.1, r * 0.1);
+      sh.addColorStop(0, "rgba(255,255,255,0.6)"); sh.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = sh; g.fillRect(-r, -r, r * 2, r * 2);
+      g.restore();
+      polyPath(g, pts); g.strokeStyle = P.dark; g.lineWidth = s * 0.05; g.stroke();
+    } else {
+      g.save(); g.translate(0, s * 0.07); heartPath(g, r); g.fillStyle = "rgba(0,0,30,0.4)"; g.fill(); g.restore();
+      heartPath(g, r);
+      const gr = g.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.1, 0, 0, r * 1.2);
+      gr.addColorStop(0, P.top); gr.addColorStop(0.55, P.base); gr.addColorStop(1, P.dark);
+      g.fillStyle = gr; g.fill();
+      g.save(); heartPath(g, r); g.clip();
+      g.strokeStyle = "rgba(255,255,255,0.22)"; g.lineWidth = s * 0.012;
+      for (const a of [-2.4, -1.6, -0.75, 0.6, 1.57, 2.55]) { g.beginPath(); g.moveTo(Math.cos(a) * r * 0.32 - r * 0.05, Math.sin(a) * r * 0.32 - r * 0.05); g.lineTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3); g.stroke(); }
+      g.restore();
+      heartPath(g, r * 0.5, -r * 0.05, -r * 0.08);
+      const ti = g.createLinearGradient(-r * 0.4, -r * 0.5, r * 0.3, r * 0.4);
+      ti.addColorStop(0, "#ffe6f2"); ti.addColorStop(1, P.base);
+      g.fillStyle = ti; g.fill(); g.strokeStyle = "rgba(255,255,255,0.45)"; g.lineWidth = s * 0.014; g.stroke();
+      heartPath(g, r); g.strokeStyle = P.dark; g.lineWidth = s * 0.05; g.stroke();
     }
+    glint(g, -r * 0.42, -r * 0.48, r * 0.24);
+    g.fillStyle = "rgba(255,255,255,0.8)";
+    g.beginPath(); g.arc(r * 0.32, -r * 0.55, r * 0.06, 0, TAU); g.fill();
+  }
+  function paintRocket(g, s) {
+    const L = s * 0.4, h = s * 0.14;
+    g.lineJoin = "round"; g.lineWidth = s * 0.03; g.strokeStyle = "#1d1f3a";
+    g.fillStyle = "#ffcf3d";
+    g.beginPath(); g.moveTo(-L * 0.9, -h * 0.65); g.quadraticCurveTo(-L * 1.45, 0, -L * 0.9, h * 0.65); g.closePath(); g.fill();
+    g.fillStyle = "#ff7a2f";
+    g.beginPath(); g.moveTo(-L * 0.9, -h * 0.4); g.quadraticCurveTo(-L * 1.2, 0, -L * 0.9, h * 0.4); g.closePath(); g.fill();
+    for (const sg of [-1, 1]) {
+      g.beginPath(); g.moveTo(-L * 0.45, sg * h); g.lineTo(-L * 0.95, sg * h * 2.1); g.lineTo(-L * 0.95, sg * h * 0.5); g.closePath();
+      g.fillStyle = "#e0282e"; g.fill(); g.stroke();
+    }
+    rrPath(g, -L * 0.95, -h, L * 1.4, h * 2, h);
+    const bg2 = g.createLinearGradient(0, -h, 0, h);
+    bg2.addColorStop(0, "#ffffff"); bg2.addColorStop(1, "#b8c3dd");
+    g.fillStyle = bg2; g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(L * 0.35, -h); g.quadraticCurveTo(L * 0.95, -h * 0.6, L * 1.08, 0); g.quadraticCurveTo(L * 0.95, h * 0.6, L * 0.35, h); g.closePath();
+    g.fillStyle = "#e0282e"; g.fill(); g.stroke();
+    g.beginPath(); g.arc(0, 0, h * 0.62, 0, TAU); g.fillStyle = "#3fd0ff"; g.fill(); g.stroke();
+    g.fillStyle = "rgba(255,255,255,0.85)"; g.beginPath(); g.arc(-h * 0.2, -h * 0.2, h * 0.2, 0, TAU); g.fill();
+  }
+  function paintBomb(g, s, el) {
+    const P = EL[el], r = s * 0.36;
+    g.lineJoin = "round"; g.lineCap = "round";
+    g.fillStyle = "rgba(0,0,30,0.4)"; g.beginPath(); g.ellipse(0, r * 1.02, r * 0.85, r * 0.22, 0, 0, TAU); g.fill();
+    g.strokeStyle = "#c9a26b"; g.lineWidth = s * 0.045;
+    g.beginPath(); g.moveTo(r * 0.1, -r * 1.05); g.quadraticCurveTo(r * 0.25, -r * 1.45, r * 0.62, -r * 1.3); g.stroke();
+    rrPath(g, -r * 0.28, -r * 1.18, r * 0.56, r * 0.36, r * 0.08);
+    g.fillStyle = "#6b7085"; g.fill(); g.strokeStyle = "#0b0c16"; g.lineWidth = s * 0.03; g.stroke();
+    g.beginPath(); g.arc(0, 0, r, 0, TAU);
+    const gr = g.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.08, 0, 0, r * 1.1);
+    gr.addColorStop(0, "#7c829e"); gr.addColorStop(0.5, "#30344c"); gr.addColorStop(1, "#0d0f1a");
+    g.fillStyle = gr; g.fill();
+    g.save(); g.beginPath(); g.arc(0, 0, r, 0, TAU); g.clip();
+    g.strokeStyle = P.c; g.lineWidth = r * 0.34;
+    g.beginPath(); g.ellipse(0, r * 0.12, r * 1.05, r * 0.38, 0, 0, TAU); g.stroke();
+    g.strokeStyle = P.top; g.lineWidth = r * 0.1;
+    g.beginPath(); g.ellipse(0, r * 0.02, r * 1.05, r * 0.36, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+    g.restore();
+    g.beginPath(); g.arc(0, 0, r, 0, TAU); g.strokeStyle = "#05060c"; g.lineWidth = s * 0.05; g.stroke();
+    g.fillStyle = "rgba(255,255,255,0.75)"; g.beginPath(); g.ellipse(-r * 0.38, -r * 0.45, r * 0.22, r * 0.12, -0.6, 0, TAU); g.fill();
+  }
+  function paintRainbow(g, s) {
+    const r = s * 0.4;
+    g.fillStyle = "rgba(0,0,30,0.4)"; g.beginPath(); g.ellipse(0, r * 1.02, r * 0.85, r * 0.22, 0, 0, TAU); g.fill();
+    g.beginPath(); g.arc(0, 0, r, 0, TAU);
+    const cols = ["#ff4a3d", "#ff9a2f", "#ffd23f", "#62d84a", "#3fd0ff", "#4d74ff", "#c77dff", "#ff4a3d"];
+    let fill;
+    if (g.createConicGradient) { fill = g.createConicGradient(0, 0, 0); cols.forEach((c, i) => fill.addColorStop(i / (cols.length - 1), c)); }
+    else { fill = g.createLinearGradient(-r, -r, r, r); cols.forEach((c, i) => fill.addColorStop(i / (cols.length - 1), c)); }
+    g.fillStyle = fill; g.fill();
+    const sh = g.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.05, 0, 0, r);
+    sh.addColorStop(0, "rgba(255,255,255,0.85)"); sh.addColorStop(0.45, "rgba(255,255,255,0.1)"); sh.addColorStop(1, "rgba(20,0,60,0.45)");
+    g.fillStyle = sh; g.fill();
+    g.strokeStyle = "#2a1a4a"; g.lineWidth = s * 0.05; g.stroke();
+    glint(g, -r * 0.35, -r * 0.4, r * 0.3);
+    glint(g, r * 0.4, r * 0.3, r * 0.15);
+  }
+  let GEMSPR = {}, ROCKET = null, BOMBS = {}, RAINBOW = null;
+  function spriteOf(s, paint) {
+    const res = dpr * 1.25, pad = s * 0.12;
+    const c = mk((s + pad * 2) * res, (s + pad * 2) * res), g = c.getContext("2d");
+    g.scale(res, res); g.translate(s / 2 + pad, s / 2 + pad);
+    paint(g);
+    return { img: c, full: s + pad * 2 };
+  }
+  function buildGemSprites() {
+    GEMSPR = {}; BOMBS = {};
+    for (const el of GEMS) {
+      GEMSPR[el] = spriteOf(cell, (g) => paintGem(g, cell, el));
+      BOMBS[el] = spriteOf(cell, (g) => paintBomb(g, cell, el));
+    }
+    ROCKET = spriteOf(cell, (g) => paintRocket(g, cell));
+    RAINBOW = spriteOf(cell, (g) => paintRainbow(g, cell));
   }
 
   // ---- Layout ----------------------------------------------------------
@@ -1210,15 +1330,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     hudH = 84;
-    cell = Math.floor(Math.min(54, (W - 36) / COLS, H * 0.068));
+    cell = Math.floor(Math.min(52, (W - 32) / COLS, H * 0.06));
     boardX = (W - cell * COLS) / 2;
     boardY = H - cell * ROWS - 20;
-    slotGap = 8;
-    slotSize = Math.floor(Math.min(54, (W - 44 - slotGap * (SLOT_COUNT - 1)) / SLOT_COUNT, H * 0.068));
-    trayH = slotSize + 20;
+    trayH = 62;
     trayTop = boardY - 8 - 14 - trayH;
-    slotX0 = (W - (SLOT_COUNT * slotSize + (SLOT_COUNT - 1) * slotGap)) / 2;
-    slotY = trayTop + 10;
+    slotSize = trayH - 16;
     cx = W / 2;
     cy = (hudH + trayTop) / 2 + 14;
     S = clamp(Math.min(W, trayTop - hudH) / 400, 0.75, 1.4);
@@ -1261,8 +1378,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   let state = "title", stateT = 0, now = 0;
   let playTime = 0, hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, guard = 0, zones = [], flyers = [];
   let grid = [], boardState = "idle", cascade = 0, selected = null, idleT = 0, hintMove = null, gemId = 0;
-  let slots, enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, coreTurn = 0, shieldT, newBest, banner, castFx;
-  const ptr = { down: false, id: null, x: 0, y: 0, sx: 0, sy: 0, slot: -1, dragging: false, lx: 0, ly: 0, lastBuzz: 0 };
+  let powers = { nova: 0, wind: 0 }, rageMeter = 0, castQueue = [], castCD = 0, carry = {}, danger = 0, lastWarn = 0, boardParts = [], boardFx = [], pendingCreates = [], moveSpecials = 0, moveNova = false, sparkleT = 0, clearWait = 0, specPop = { nova: 0, wind: 0 };
+  let enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, coreTurn = 0, shieldT, newBest, banner, castFx;
+  const ptr = { down: false, id: null, x: 0, y: 0, sx: 0, sy: 0, spec: -1, cell: null, swiped: false, lx: 0, ly: 0, lastBuzz: 0 };
   let hudCache = {};
 
   const die = (el, tier = 1) => ({ el, tier, drop: 0, pop: 0 });
@@ -1270,7 +1388,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function reset() {
     playTime = 0; hp = MAX_HP; score = 0; shownScore = 0; combo = 0; comboT = 0; comboPop = 0; bestCombo = 0; kills = 0;
     elapsed = 0; wave = 1; spawnT = 2.5; guard = 0; zones = []; flyers = [];
-    slots = new Array(SLOT_COUNT).fill(null);
+    powers = { nova: 0, wind: 0 }; rageMeter = 0; castQueue = []; castCD = 0; carry = {}; danger = 0;
+    boardParts = []; boardFx = []; pendingCreates = []; moveSpecials = 0; moveNova = false;
     initBoard();
     enemies = []; projectiles = []; particles = []; texts = []; rings = []; bolts = []; decals = []; blade = [];
     rage = null; timeScale = 1; shake = 0; flash = 0; flashColor = "#ffffff"; coreKick = 0; coreTurn = 0; shieldT = 0; newBest = false;
@@ -1304,13 +1423,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
   // ---- Effects ---------------------------------------------------------
   function emit(kind, x, y, o) {
-    const n = o.n || 1;
-    for (let i = 0; i < n && particles.length < MAXP; i++) {
+    const n = o.n || 1, list = o.list || particles;
+    for (let i = 0; i < n && list.length < MAXP; i++) {
       const a = o.dir != null ? o.dir + rand(-o.spread, o.spread) : rand(0, TAU);
       const s = rand(o.spd[0], o.spd[1]);
       const life = rand(o.life[0], o.life[1]);
       const j = o.jit || 0;
-      particles.push({ kind, x: x + rand(-j, j), y: y + rand(-j, j), vx: Math.cos(a) * s, vy: Math.sin(a) * s + (o.vy || 0),
+      list.push({ kind, x: x + rand(-j, j), y: y + rand(-j, j), vx: Math.cos(a) * s, vy: Math.sin(a) * s + (o.vy || 0),
         life, max: life, size: rand(o.size[0], o.size[1]), c: pick(o.colors), g: o.g || 0, drag: o.drag || 1,
         grow: o.grow || 0, rot: rand(0, TAU), vr: o.vr ? rand(-o.vr, o.vr) : 0 });
     }
@@ -1529,27 +1648,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (i >= 4) addText(tr("chain", i), pts[pts.length - 1].x, pts[pts.length - 1].y - 26, "#ffe14d", 22, 0.9);
   }
 
-  // ---- Dice tray -------------------------------------------------------
-  const slotIndexAt = (i) => (rtl ? SLOT_COUNT - 1 - i : i);
-  const slotRect = (i) => ({ x: slotX0 + slotIndexAt(i) * (slotSize + slotGap), y: slotY, s: slotSize });
-  function hitSlot(x, y, pad = 0) {
-    for (let i = 0; i < SLOT_COUNT; i++) {
-      const r = slotRect(i);
-      if (x >= r.x - pad && x <= r.x + r.s + pad && y >= r.y - pad && y <= r.y + r.s + pad) return i;
-    }
-    return -1;
-  }
-  const canMerge = (a, b) => a && b && a !== b && a.el === b.el && a.tier === b.tier && a.tier < MAX_TIER && !EL[a.el].special && a.drop >= 0 && b.drop >= 0;
   // ---- Match-3 board ---------------------------------------------------
-  const newGem = (el, fy) => ({ el, fy, vy: 0, ox: 0, oy: 0, pop: 0, id: gemId++ });
+  // Gems: { el, sp } where sp is null, "rocketH" (clears its row), "rocketV" (its column),
+  // "bomb" (blast around it) or "rainbow" (clears one whole colour).
+  const newGem = (el, fy, sp = null) => ({ el, sp, fy, vy: 0, ox: 0, oy: 0, pop: 0, delay: 0, id: gemId++ });
   const gemAt = (r, c) => (r >= 0 && r < ROWS && c >= 0 && c < COLS ? grid[r][c] : null);
+  const matchable = (g) => g && g.el !== "rainbow";
   function lineAt(r, c) {
-    const g = gemAt(r, c); if (!g) return false;
+    const g = gemAt(r, c); if (!matchable(g)) return false;
+    const same = (k, l) => { const o = gemAt(k, l); return o && o.el === g.el; };
     let h = 1, v = 1;
-    for (let k = c - 1; gemAt(r, k) && gemAt(r, k).el === g.el; k--) h++;
-    for (let k = c + 1; gemAt(r, k) && gemAt(r, k).el === g.el; k++) h++;
-    for (let k = r - 1; gemAt(k, c) && gemAt(k, c).el === g.el; k--) v++;
-    for (let k = r + 1; gemAt(k, c) && gemAt(k, c).el === g.el; k++) v++;
+    for (let k = c - 1; same(r, k); k--) h++;
+    for (let k = c + 1; same(r, k); k++) h++;
+    for (let k = r - 1; same(k, c); k--) v++;
+    for (let k = r + 1; same(k, c); k++) v++;
     return h >= 3 || v >= 3;
   }
   function fillNoMatch() {
@@ -1571,6 +1683,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function swapCells(a, b) {
     const t = grid[a[0]][a[1]]; grid[a[0]][a[1]] = grid[b[0]][b[1]]; grid[b[0]][b[1]] = t;
   }
+  const hasSpecial = () => grid.some((row) => row.some((g) => g && g.sp));
   function findMove() {
     const order = [];
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) order.push([r, c]);
@@ -1585,6 +1698,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         if (ok) return [[r, c], [r2, c2]];
       }
     }
+    for (const [r, c] of order) if (grid[r][c] && grid[r][c].sp) return [[r, c], [r, c]];
     return null;
   }
   function findGroups() {
@@ -1594,7 +1708,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       let c = 0;
       while (c < COLS) {
         let k = c + 1;
-        while (k < COLS && grid[r][k].el === grid[r][c].el) k++;
+        if (matchable(grid[r][c])) while (k < COLS && grid[r][k].el === grid[r][c].el) k++;
         if (k - c >= 3) for (let j = c; j < k; j++) hLen[r][j] = k - c;
         c = k;
       }
@@ -1603,7 +1717,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       let r = 0;
       while (r < ROWS) {
         let k = r + 1;
-        while (k < ROWS && grid[k][c].el === grid[r][c].el) k++;
+        if (matchable(grid[r][c])) while (k < ROWS && grid[k][c].el === grid[r][c].el) k++;
         if (k - r >= 3) for (let j = r; j < k; j++) vLen[j][c] = k - r;
         r = k;
       }
@@ -1612,14 +1726,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       if (!(hLen[r][c] || vLen[r][c]) || seen.has(r * COLS + c)) continue;
       const el = grid[r][c].el, cells = [], stack = [[r, c]];
-      let maxRun = 0, hasH = false, hasV = false;
+      let hMax = 0, vMax = 0;
       seen.add(r * COLS + c);
       while (stack.length) {
         const [y, x] = stack.pop();
         cells.push([y, x]);
-        maxRun = Math.max(maxRun, hLen[y][x], vLen[y][x]);
-        if (hLen[y][x]) hasH = true;
-        if (vLen[y][x]) hasV = true;
+        hMax = Math.max(hMax, hLen[y][x]); vMax = Math.max(vMax, vLen[y][x]);
         for (const [dy, dx] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
           const ny = y + dy, nx = x + dx, key = ny * COLS + nx;
           if (ny < 0 || ny >= ROWS || nx < 0 || nx >= COLS || seen.has(key)) continue;
@@ -1627,11 +1739,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
           seen.add(key); stack.push([ny, nx]);
         }
       }
-      groups.push({ el, cells, maxRun, lt: hasH && hasV });
+      groups.push({ el, cells, hMax, vMax, maxRun: Math.max(hMax, vMax), lt: hMax >= 3 && vMax >= 3 });
     }
     return groups;
   }
   const cellCenter = (r, c) => ({ x: boardX + c * cell + cell / 2, y: boardY + r * cell + cell / 2 });
+  let swapPair = null, boardClearT = 0;
   function trySwap(a, b) {
     if (boardState !== "idle" || rage || state !== "play") return;
     swapCells(a, b);
@@ -1642,61 +1755,272 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     selected = null; idleT = 0; hintMove = null;
     sfx("swap");
   }
-  let swapPair = null;
-  function resolve(groups) {
-    cascade++;
-    for (const g of groups) {
-      let el = g.el, tier = 1;
-      if (g.maxRun >= 5) el = "nova";
-      else if (g.lt) el = "wind";
-      else if (g.maxRun === 4) tier = 2;
-      if (cascade >= 2 && !EL[el].special) tier = Math.min(MAX_TIER, tier + 1);
-      let sx = 0, sy = 0;
-      for (const [r, c] of g.cells) {
-        const gem = grid[r][c];
-        gem.pop = 0.001;
+  function startMove() { cascade = 1; moveSpecials = 0; moveNova = false; }
+
+  // Clear a set of cells; specials caught in it go off too, chaining outwards.
+  function blast(entries) {
+    const clear = new Map(), queue = [];
+    const add = (r, c, d) => {
+      const g = gemAt(r, c); if (!g || g.pop > 0) return;
+      const k = r * COLS + c;
+      if (clear.has(k) && clear.get(k) <= d) return;
+      clear.set(k, d);
+      if (g.sp && !g.used) { g.used = true; queue.push([r, c, d]); }
+    };
+    for (const [r, c, d] of entries) add(r, c, d || 0);
+    while (queue.length) {
+      const [r, c, d] = queue.shift();
+      activate(r, c, d, add);
+    }
+    let total = 0, maxD = 0;
+    const counts = {}, sums = {};
+    for (const [k, d] of clear) {
+      const r = Math.floor(k / COLS), c = k % COLS, g = grid[r][c];
+      g.pop = 0.001; g.delay = d; maxD = Math.max(maxD, d);
+      total++;
+      if (g.el !== "rainbow") {
+        counts[g.el] = (counts[g.el] || 0) + 1;
         const p = cellCenter(r, c);
-        sx += p.x; sy += p.y;
-        emit("glow", p.x, p.y, { n: 2, spd: [20, 80], life: [0.25, 0.45], size: [cell * 0.35, cell * 0.55], colors: [EL[gem.el].c, EL[gem.el].c2] });
-        emit("star", p.x, p.y, { n: 1, spd: [80, 180], life: [0.5, 0.8], size: [4, 7], colors: ["#ffd84d"], g: 500, vy: -200, vr: 8 });
+        sums[g.el] = sums[g.el] || [0, 0];
+        sums[g.el][0] += p.x; sums[g.el][1] += p.y;
       }
-      sx /= g.cells.length; sy /= g.cells.length;
-      const pts = g.cells.length * 5 * cascade;
-      score += pts;
-      if (el === "nova" || el === "wind") addText(tr(el) + "!", sx, sy - 10, EL[el].c2, 24, 1.1, -40);
-      else if (cascade >= 2) addText(tr("chain", cascade), sx, sy - 10, "#ffe066", 20, 0.9, -40);
-      awardDie(el, tier, sx, sy);
+    }
+    // Each colour cleared charges a spell; small leftovers carry over to the next clear.
+    for (const el in counts) {
+      const n = counts[el] + (carry[el] || 0);
+      let tier = n >= 10 ? 3 : n >= 6 ? 2 : n >= 3 ? 1 : 0;
+      if (!tier) { carry[el] = n; continue; }
+      carry[el] = 0;
+      if (cascade >= 2) tier = Math.min(MAX_TIER, tier + 1);
+      const ox = sums[el][0] / counts[el], oy = sums[el][1] / counts[el];
+      flyers.push({ x: ox, y: oy, tx: cx, ty: cy - coreR * 0.35, t: 0, dur: 0.32, c: EL[el].c, done: () => castQueue.push({ el, tier }) });
+    }
+    score += total * 5 * Math.max(1, cascade);
+    if (!rage) {
+      rageMeter = Math.min(RAGE_MAX, rageMeter + total);
+      if (rageMeter >= RAGE_MAX && state === "play") {
+        let top = "fire", best2 = -1;
+        for (const el in counts) if (counts[el] > best2) { best2 = counts[el]; top = el; }
+        triggerRage(top);
+      }
     }
     sfx("match", cascade);
-    haptic(cascade >= 2 ? "medium" : "light");
-    if (!settings.tutMatch) { settings.tutMatch = true; saveSettings(); }
-    boardState = "clear"; boardClearT = 0;
+    haptic(total >= 10 ? "heavy" : cascade >= 2 ? "medium" : "light");
+    boardState = "clear"; boardClearT = 0; clearWait = maxD + 0.22;
   }
-  let boardClearT = 0;
+  function activate(r, c, d, add) {
+    const g = grid[r][c], p = cellCenter(r, c);
+    moveSpecials++;
+    if (!settings.tutBlast) { settings.tutBlast = true; saveSettings(); }
+    score += 20;
+    if (g.sp === "rocketH" || g.sp === "rocketV") {
+      const hz = g.sp === "rocketH";
+      const n = hz ? COLS : ROWS, at = hz ? c : r;
+      for (let k = 0; k < n; k++) hz ? add(r, k, d + Math.abs(k - at) * 0.035) : add(k, c, d + Math.abs(k - at) * 0.035);
+      const sp = cell / 0.035;
+      for (const sg of [-1, 1]) boardFx.push({ kind: "rocket", x: p.x, y: p.y, vx: hz ? sg * sp : 0, vy: hz ? 0 : sg * sp, life: 0.5, wait: d, rot: hz ? (sg > 0 ? 0 : Math.PI) : (sg > 0 ? Math.PI / 2 : -Math.PI / 2) });
+      later(d, () => { sfx("rocket"); addShake(3); });
+    } else if (g.sp === "bomb") {
+      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+        const m = Math.abs(dr) + Math.abs(dc);
+        if (m <= 2) add(r + dr, c + dc, d + m * 0.05);
+      }
+      later(d, () => {
+        boardFx.push({ kind: "ring", x: p.x, y: p.y, R: cell * 2.8, life: 0.4, max: 0.4, c: EL[g.el].c });
+        emit("glow", p.x, p.y, { n: 8, spd: [40, 220], life: [0.3, 0.6], size: [cell * 0.4, cell * 0.8], colors: [EL[g.el].c, "#ffd27a", "#ffffff"], list: boardParts });
+        emit("spark", p.x, p.y, { n: 18, spd: [200, 500], life: [0.3, 0.6], size: [2, 3.5], colors: ["#ffd84d", "#fff2b0"], drag: 0.9, list: boardParts });
+        sfx("bomb"); addShake(7); haptic("heavy");
+      });
+    } else if (g.sp === "rainbow") {
+      const colour = commonColour();
+      rainbowBeams(r, c, colour, d, add);
+    }
+  }
+  function commonColour() {
+    const n = {};
+    for (const row of grid) for (const g of row) if (g && matchable(g) && !g.pop) n[g.el] = (n[g.el] || 0) + 1;
+    let best3 = GEMS[0], m = -1;
+    for (const el in n) if (n[el] > m) { m = n[el]; best3 = el; }
+    return best3;
+  }
+  function rainbowBeams(r, c, colour, d, add, convert) {
+    const p = cellCenter(r, c);
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const g = grid[y][x];
+      if (!g || g.el !== colour || g.pop > 0) continue;
+      if (convert) { g.sp = convert === "rocket" ? pick(["rocketH", "rocketV"]) : convert; g.used = false; }
+      const q = cellCenter(y, x), dd = d + 0.12 + Math.hypot(x - c, y - r) * 0.03;
+      add(y, x, dd);
+      boardFx.push({ kind: "beam", x1: p.x, y1: p.y, x2: q.x, y2: q.y, life: 0.45, max: 0.45, wait: d, c: EL[colour].c });
+    }
+    if (!moveNova) { moveNova = true; later(d + 0.3, () => grantPower("nova", p.x, p.y)); }
+    later(d, () => { sfx("rainbow"); haptic("success"); });
+  }
+  const timers = [];
+  function later(delay, fn) { if (delay <= 0) fn(); else timers.push({ t: delay, fn }); }
+
+  function grantPower(kind, x, y) {
+    if (state !== "play") return;
+    const i = SPECIALS.indexOf(kind), r = specRect(i);
+    flyers.push({ x, y, tx: r.x + r.s / 2, ty: r.y + r.s / 2, t: 0, dur: 0.45, c: EL[kind].c, done: () => {
+      powers[kind] = Math.min(SPECIAL_CAP, powers[kind] + 1); specPop[kind] = 1; sfx("charge");
+    } });
+    addText(tr(kind) + "!", x, y - 14, EL[kind].c2, 24, 1.1, -40);
+  }
+  function castSpecial(i) {
+    const kind = SPECIALS[i];
+    if (!powers[kind] || state !== "play" || rage) return;
+    powers[kind]--;
+    if (!settings.tutSpecial) { settings.tutSpecial = true; saveSettings(); }
+    cast(die(kind, 1));
+  }
+
+  function resolveGroups(groups, swapped) {
+    cascade++;
+    const entries = [];
+    for (const g of groups) {
+      let sp = null;
+      if (g.maxRun >= 5) sp = "rainbow";
+      else if (g.lt) sp = "bomb";
+      else if (g.maxRun === 4) sp = g.hMax >= 4 ? "rocketV" : "rocketH";
+      if (sp) {
+        const at = g.cells.find(([r, c]) => swapped && swapped.some((q) => q[0] === r && q[1] === c)) || g.cells[Math.floor(g.cells.length / 2)];
+        pendingCreates.push({ r: at[0], c: at[1], el: sp === "rainbow" ? "rainbow" : g.el, sp });
+      }
+      for (const [r, c] of g.cells) entries.push([r, c, 0]);
+      if (cascade >= 2) {
+        const p = cellCenter(g.cells[0][0], g.cells[0][1]);
+        addText(tr("chain", cascade), p.x, p.y - 10, "#ffe066", 20, 0.9, -40);
+      }
+    }
+    if (!settings.tutMatch) { settings.tutMatch = true; saveSettings(); }
+    blast(entries);
+  }
+  function handleSwap() {
+    const [a, b] = swapPair;
+    const ga = grid[a[0]][a[1]], gb = grid[b[0]][b[1]];
+    if (ga.sp === "rainbow" || gb.sp === "rainbow") {
+      startMove();
+      const [rp, other, op] = ga.sp === "rainbow" ? [a, gb, b] : [b, ga, a];
+      const rg = grid[rp[0]][rp[1]];
+      rg.used = true;
+      const entries = [[rp[0], rp[1], 0]];
+      if (other.sp === "rainbow") {
+        other.used = true;
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) entries.push([r, c, 0.1 + Math.hypot(r - rp[0], c - rp[1]) * 0.04]);
+        moveSpecials += 2;
+        if (!moveNova) { moveNova = true; const p = cellCenter(rp[0], rp[1]); later(0.3, () => grantPower("nova", p.x, p.y)); }
+        sfx("rainbow");
+        blast(entries);
+      } else {
+        const convert = other.sp === "bomb" ? "bomb" : other.sp ? "rocket" : null;
+        if (other.sp) moveSpecials += 2;
+        const add = (r, c, d) => entries.push([r, c, d]);
+        rainbowBeams(rp[0], rp[1], other.el, 0, add, convert);
+        entries.push([op[0], op[1], 0.1]);
+        blast(entries);
+      }
+      return;
+    }
+    if (ga.sp && gb.sp) {
+      startMove();
+      ga.used = gb.used = true;
+      moveSpecials += 2;
+      const bombs = (ga.sp === "bomb") + (gb.sp === "bomb");
+      const [r0, c0] = b, entries = [[a[0], a[1], 0], [b[0], b[1], 0]];
+      const p = cellCenter(r0, c0);
+      if (bombs === 2) {
+        for (let dr = -3; dr <= 3; dr++) for (let dc = -3; dc <= 3; dc++) { const m = Math.abs(dr) + Math.abs(dc); if (m <= 3) entries.push([r0 + dr, c0 + dc, m * 0.05]); }
+        boardFx.push({ kind: "ring", x: p.x, y: p.y, R: cell * 4.2, life: 0.5, max: 0.5, c: EL[gb.el].c });
+        sfx("bomb"); addShake(12);
+      } else {
+        const w = bombs ? 1 : 0;
+        for (let k = -w; k <= w; k++) {
+          for (let x = 0; x < COLS; x++) entries.push([r0 + k, x, Math.abs(x - c0) * 0.035]);
+          for (let y = 0; y < ROWS; y++) entries.push([y, c0 + k, Math.abs(y - r0) * 0.035]);
+          const sp = cell / 0.035;
+          for (const sg of [-1, 1]) {
+            const q = cellCenter(clamp(r0 + k, 0, ROWS - 1), clamp(c0 + k, 0, COLS - 1));
+            boardFx.push({ kind: "rocket", x: p.x, y: q.y, vx: sg * sp, vy: 0, life: 0.5, wait: 0, rot: sg > 0 ? 0 : Math.PI });
+            boardFx.push({ kind: "rocket", x: q.x, y: p.y, vx: 0, vy: sg * sp, life: 0.5, wait: 0, rot: sg > 0 ? Math.PI / 2 : -Math.PI / 2 });
+          }
+        }
+        sfx("rocket"); addShake(8);
+      }
+      haptic("heavy");
+      blast(entries);
+      return;
+    }
+    const groups = findGroups();
+    if (groups.length) { startMove(); cascade = 0; resolveGroups(groups, [a, b]); return; }
+    const sp = ga.sp ? a : gb.sp ? b : null;
+    if (sp) { startMove(); blast([[sp[0], sp[1], 0]]); return; }
+    swapCells(a, b);
+    const ga2 = grid[a[0]][a[1]], gb2 = grid[b[0]][b[1]];
+    ga2.ox = b[1] - a[1]; ga2.oy = b[0] - a[0];
+    gb2.ox = a[1] - b[1]; gb2.oy = a[0] - b[0];
+    boardState = "back";
+    sfx("nope");
+  }
+  function tapSpecial(r, c) {
+    const g = gemAt(r, c);
+    if (!g || !g.sp || boardState !== "idle" || rage || state !== "play") return false;
+    selected = null; idleT = 0; hintMove = null;
+    startMove();
+    blast([[r, c, 0]]);
+    return true;
+  }
   function collapse() {
+    for (const pc of pendingCreates) {
+      const g = newGem(pc.el, pc.r, pc.sp);
+      g.spawn = 1;
+      grid[pc.r][pc.c] = g;
+      const p = cellCenter(pc.r, pc.c);
+      emit("star", p.x, p.y, { n: 6, spd: [80, 200], life: [0.5, 0.8], size: [5, 8], colors: ["#ffd84d"], g: 400, vy: -150, vr: 8, list: boardParts });
+    }
+    if (pendingCreates.length) sfx("charge");
+    pendingCreates = [];
     for (let c = 0; c < COLS; c++) {
       const keep = [];
       for (let r = ROWS - 1; r >= 0; r--) if (grid[r][c] && grid[r][c].pop === 0) keep.push(grid[r][c]);
       const missing = ROWS - keep.length;
       for (let k = 0; k < keep.length; k++) grid[ROWS - 1 - k][c] = keep[k];
-      // new gems start stacked just above the board and fall in
       for (let r = 0; r < missing; r++) grid[r][c] = newGem(pick(GEMS), r - missing - 0.2);
     }
     boardState = "fall";
   }
+  function endMove() {
+    if (moveSpecials >= 2 || cascade >= 4) {
+      const p = cellCenter(Math.floor(ROWS / 2), Math.floor(COLS / 2));
+      grantPower("wind", p.x, p.y);
+    }
+    cascade = 0; moveSpecials = 0; moveNova = false;
+    boardState = "idle";
+    if (!findMove()) shuffleBoard();
+  }
   function shuffleBoard() {
     const els = [];
-    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) els.push(grid[r][c].el);
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!grid[r][c].sp) els.push(grid[r][c].el);
     let tries = 0;
     do {
       els.sort(() => Math.random() - 0.5);
-      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { grid[r][c].el = els[r * COLS + c]; grid[r][c].pop = 0; }
+      let k = 0;
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!grid[r][c].sp) { grid[r][c].el = els[k++]; grid[r][c].pop = 0; }
       tries++;
     } while (tries < 50 && (findGroups().length || !findMove()));
     if (findGroups().length || !findMove()) initBoard();
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) grid[r][c].spawn = 1;
   }
+  function popFx(r, c, g) {
+    const p = cellCenter(r, c), col = g.el === "rainbow" ? "#c77dff" : EL[g.el].c;
+    emit("glow", p.x, p.y, { n: 2, spd: [20, 80], life: [0.25, 0.45], size: [cell * 0.35, cell * 0.6], colors: [col, "#ffffff"], list: boardParts });
+    emit("shard", p.x, p.y, { n: 4, spd: [100, 260], life: [0.4, 0.7], size: [3, 6], colors: [col, g.el === "rainbow" ? "#ffd23f" : EL[g.el].top], g: 600, vy: -120, vr: 10, list: boardParts });
+    if (Math.random() < 0.35) emit("star", p.x, p.y, { n: 1, spd: [60, 160], life: [0.5, 0.8], size: [4, 7], colors: ["#ffd84d"], g: 500, vy: -200, vr: 8, list: boardParts });
+    sfx("pop");
+  }
   function updateBoard(dt) {
+    for (const tm of timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
+    for (let i = timers.length - 1; i >= 0; i--) if (timers[i].done) timers.splice(i, 1);
     let moving = false;
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       const g = grid[r][c]; if (!g) continue;
@@ -1711,34 +2035,38 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         g.vy += 38 * dt; g.fy += g.vy * dt;
         if (g.fy >= r) { g.fy = r; g.vy = 0; g.land = 1; }
       }
-      if (g.pop > 0) g.pop = Math.min(1, g.pop + dt * 5);
+      if (g.pop > 0) {
+        if (g.delay > 0) g.delay -= dt;
+        else { if (!g.burst) { g.burst = true; popFx(r, c, g); } g.pop = Math.min(1, g.pop + dt * 5); }
+      }
       if (g.land) g.land = Math.max(0, g.land - dt * 5);
       if (g.spawn) g.spawn = Math.max(0, g.spawn - dt * 3);
     }
-    if (boardState === "swap" && !moving) {
-      const groups = findGroups();
-      if (groups.length) resolve(groups);
-      else {
-        const [a, b] = swapPair;
-        swapCells(a, b);
-        const ga = grid[a[0]][a[1]], gb = grid[b[0]][b[1]];
-        ga.ox = b[1] - a[1]; ga.oy = b[0] - a[0];
-        gb.ox = a[1] - b[1]; gb.oy = a[0] - b[0];
-        boardState = "back";
-        sfx("nope");
+    for (const f of boardFx) {
+      if (f.wait > 0) { f.wait -= dt; continue; }
+      f.life -= dt;
+      if (f.kind === "rocket") {
+        f.x += f.vx * dt; f.y += f.vy * dt;
+        emit("glow", f.x, f.y, { n: 1, spd: [0, 20], life: [0.2, 0.35], size: [6, 11], colors: ["#ffb03a", "#ff5a2f"], list: boardParts });
+        emit("smoke", f.x, f.y, { n: 1, spd: [5, 20], life: [0.3, 0.5], size: [5, 9], colors: ["#cfd6ea"], grow: 1.2, list: boardParts });
       }
-    } else if (boardState === "back" && !moving) boardState = "idle";
+    }
+    boardFx = boardFx.filter((f) => f.life > 0);
+    sparkleT -= dt;
+    if (sparkleT <= 0) {
+      sparkleT = 0.18;
+      const r = (Math.random() * ROWS) | 0, c = (Math.random() * COLS) | 0;
+      boardFx.push({ kind: "glint", r, c, life: 0.5, max: 0.5 });
+    }
+    if (boardState === "swap" && !moving) handleSwap();
+    else if (boardState === "back" && !moving) boardState = "idle";
     else if (boardState === "clear") {
       boardClearT += dt;
-      if (boardClearT >= 0.2) collapse();
+      if (boardClearT >= clearWait) collapse();
     } else if (boardState === "fall" && !moving) {
       const groups = findGroups();
-      if (groups.length) resolve(groups);
-      else {
-        cascade = 0;
-        boardState = "idle";
-        if (!findMove()) shuffleBoard();
-      }
+      if (groups.length && state === "play") resolveGroups(groups, null);
+      else endMove();
     }
     if (boardState === "idle" && state === "play") {
       idleT += dt;
@@ -1746,62 +2074,42 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
 
-  function awardDie(el, tier, x, y) {
-    if (state !== "play") return;
-    const idx = slots.indexOf(null);
-    if (idx < 0) {
-      // tray full: the power fires straight away instead of being wasted
-      flyers.push({ x, y, tx: cx, ty: cy, t: 0, dur: 0.35, c: EL[el].c, done: () => cast(die(el, tier)) });
-      return;
+  // ---- Auto-cast with smart targets -------------------------------------
+  const onScreen = (e) => !e.dead && e.x > -8 && e.x < W + 8 && e.y > -8 && e.y < trayTop + 8;
+  function eta(e) {
+    const d = Math.hypot(e.x - cx, e.y - cy) - coreR;
+    return Math.max(0, d) / Math.max(1, e.speed * (e.slow > 0 ? 0.45 : 1)) + Math.max(0, e.frozen);
+  }
+  function soonest(filter) {
+    let bestE = null, bt = Infinity;
+    for (const e of enemies) if (onScreen(e) && (!filter || filter(e))) { const t = eta(e); if (t < bt) { bt = t; bestE = e; } }
+    return bestE;
+  }
+  function densest(R) {
+    let bestE = null, bs = -1;
+    for (const a of enemies) {
+      if (!onScreen(a)) continue;
+      let sc = 0;
+      for (const b of enemies) if (onScreen(b) && Math.hypot(a.x - b.x, a.y - b.y) < R) sc += 1 + 2 / (1 + eta(b));
+      if (sc > bs) { bs = sc; bestE = a; }
     }
-    const d = die(el, tier);
-    d.drop = -1.4;
-    slots[idx] = d;
-    const r = slotRect(idx);
-    flyers.push({ x, y, tx: r.x + r.s / 2, ty: r.y + r.s / 2, t: 0, dur: 0.35, c: EL[el].c, done: () => { sfx("drop"); checkRage(); } });
+    return bestE;
   }
-  function moveDie(from, to) {
-    const a = slots[from], b = slots[to];
-    if (!b) { slots[to] = a; slots[from] = null; sfx("click"); }
-    else if (canMerge(a, b)) {
-      const m = die(a.el, a.tier + 1);
-      m.drop = 1; m.pop = 1;
-      slots[to] = m; slots[from] = null;
-      const r = slotRect(to), mx = r.x + r.s / 2, my = r.y + r.s / 2;
-      emit("glow", mx, my, { n: 8, spd: [40, 160], life: [0.3, 0.6], size: [10, 20], colors: [EL[a.el].c, EL[a.el].c2] });
-      emit("star", mx, my, { n: 6, spd: [120, 260], life: [0.6, 0.9], size: [6, 10], colors: ["#ffd84d"], g: 500, vy: -260, vr: 8 });
-      addText(tr("powerUp"), mx, r.y - 12, "#ffe066", 20, 0.9);
-      if (!settings.tutMerge) { settings.tutMerge = true; saveSettings(); }
-      sfx("merge");
-      haptic("success");
-    } else { slots[to] = a; slots[from] = b; sfx("click"); }
-    checkRage();
+  function autoCast(el, tier) {
+    let t = null;
+    if (el === "fire") t = densest(FIRE.R[tier] * S);
+    else if (el === "poison") t = densest(POISON.R[tier] * S);
+    else if (el === "ice") t = soonest((e) => e.frozen <= 0) || soonest();
+    else if (el === "bolt") t = soonest();
+    cast(die(el, tier), t ? t.x : null, t ? t.y : null);
   }
-  function useSlot(i, tx, ty) {
-    const d = slots[i];
-    if (!d) return;
-    slots[i] = null;
-    cast(d, tx, ty);
-  }
-  function checkRage() {
-    if (rage || state !== "play") return;
-    for (let i = 0; i <= SLOT_COUNT - 3; i++) {
-      const a = slots[i], b = slots[i + 1], c = slots[i + 2];
-      if (a && b && c && a.el === b.el && b.el === c.el && !EL[a.el].special && a.drop >= 0 && b.drop >= 0 && c.drop >= 0) { triggerRage(a.el, i); return; }
-    }
-  }
-  function triggerRage(el, start) {
-    for (let k = start; k < start + 3; k++) {
-      const r = slotRect(k);
-      emit("glow", r.x + r.s / 2, r.y + r.s / 2, { n: 6, spd: [60, 260], life: [0.4, 0.7], size: [12, 24], colors: [EL[el].c, EL[el].c2] });
-      emit("star", r.x + r.s / 2, r.y + r.s / 2, { n: 4, spd: [150, 300], life: [0.7, 1], size: [6, 10], colors: ["#ffd84d"], g: 400, vy: -300, vr: 8 });
-      slots[k] = null;
-    }
-    rage = { t: RAGE_TIME, el };
-    ptr.slot = -1; ptr.dragging = false;
+  function triggerRage(el) {
+    rage = { t: RAGE_TIME, el: EL[el] && !EL[el].special ? el : "fire" };
+    rageMeter = 0;
     blade = [];
+    selected = null;
     addShake(16);
-    doFlash(EL[el].c, 0.55);
+    doFlash(EL[rage.el].c, 0.55);
     sfx("rage");
     haptic("heavy");
   }
@@ -1836,7 +2144,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function pauseGame() {
     if (state !== "play") return;
     state = "paused";
-    ptr.down = false; ptr.slot = -1; ptr.dragging = false;
+    ptr.down = false; ptr.spec = -1; ptr.cell = null;
     showScreen("pauseScreen");
   }
   function resumeGame() {
@@ -2023,6 +2331,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         }
       }
       zones = zones.filter((z) => z.t > 0);
+      castCD -= dt;
+      if (castCD <= 0 && castQueue.length) {
+        const q = castQueue[0];
+        if (q.el === "heal" || enemies.some(onScreen)) { castQueue.shift(); autoCast(q.el, q.tier); castCD = 0.13; }
+        else if ((q.wait = (q.wait || 0) + dt) > 5) castQueue.shift();
+      }
+      danger = 0;
+      for (const e of enemies) if (onScreen(e)) danger = Math.max(danger, 1 - eta(e) / 1.8);
+      if (danger > 0.45 && now - lastWarn > 1.6) { lastWarn = now; haptic("warning"); sfx("warn"); }
       elapsed += wdt;
       playTime += dt;
       if (combo > 0) { comboT -= wdt; if (comboT <= 0) combo = 0; }
@@ -2097,6 +2414,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (p.grow) p.size = Math.max(0, p.size * (1 + p.grow * wdt));
     }
     particles = particles.filter((p) => p.life > 0);
+    for (const p of boardParts) {
+      if (p.drag !== 1) { const f = Math.pow(p.drag, dt * 60); p.vx *= f; p.vy *= f; }
+      p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; p.rot += p.vr * dt;
+      if (p.grow) p.size = Math.max(0, p.size * (1 + p.grow * dt));
+    }
+    boardParts = boardParts.filter((p) => p.life > 0);
     for (const t of texts) { t.y += t.vy * dt; t.life -= dt; }
     texts = texts.filter((t) => t.life > 0);
     for (const r of rings) r.life -= wdt;
@@ -2107,7 +2430,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     bolts = bolts.filter((b) => b.life > 0);
     for (const b of blade) b.age += dt;
     blade = blade.filter((b) => b.age < 0.25);
-    for (const d of slots) if (d) { d.drop = Math.min(1, d.drop + dt * 4); d.pop = Math.max(0, d.pop - dt * 3); }
+    for (const k of SPECIALS) specPop[k] = Math.max(0, specPop[k] - dt * 3);
     if (castFx) { castFx.t -= dt; if (castFx.t <= 0) castFx = null; }
 
     shake = Math.max(0, shake - dt * 30);
@@ -2195,14 +2518,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     drawTexts();
     ctx.restore();
 
-    drawTray();
+    if (state === "play") drawDanger();
+    drawPowerBar();
     drawBoard();
+    drawParticles(false, boardParts);
     ctx.globalCompositeOperation = "lighter";
+    drawParticles(true, boardParts);
     for (const f of flyers) if (f.cx != null) ctx.drawImage(glow(f.c), f.cx - 16, f.cy - 16, 32, 32);
     ctx.globalCompositeOperation = "source-over";
-    if (ptr.dragging && ptr.slot >= 0 && slots[ptr.slot]) {
-      drawDie(ptr.x - slotSize * 0.55, ptr.y - slotSize * 0.75, slotSize * 1.1, slots[ptr.slot], 1);
-    }
     if (state === "play") drawHints();
     drawCombo();
     if (rage) drawRage();
@@ -2249,10 +2572,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const hint = hintMove && boardState === "idle" && !rage ? hintMove : null;
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       const g = grid[r] && grid[r][c]; if (!g) continue;
-      const spr = GEMSPR[g.el]; if (!spr) continue;
       const x = boardX + (c + g.ox) * cell + cell / 2, y = boardY + (g.fy + g.oy) * cell + cell / 2;
       let sc = 1, rot = 0, sy = 1, alpha = 1;
-      if (g.pop > 0) { sc = 1 + g.pop * 0.45; alpha = 1 - g.pop; }
+      const popping = g.pop > 0 && g.delay <= 0;
+      if (popping) { sc = 1 + g.pop * 0.45; alpha = 1 - g.pop; }
+      else if (g.pop > 0) sc = 1.08 + Math.sin(now * 40) * 0.04;
       if (g.land) { sy = 1 - g.land * 0.18; sc *= 1 + g.land * 0.06; }
       if (g.spawn) sc *= 1 - g.spawn;
       if (selected && selected[0] === r && selected[1] === c) sc *= 1.12 + Math.sin(now * 10) * 0.05;
@@ -2260,18 +2584,86 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.translate(x, y + cell * 0.4); ctx.scale(sc, sc * sy); ctx.translate(0, -cell * 0.4); ctx.rotate(rot);
-      ctx.drawImage(spr.img, -spr.full / 2, -spr.full / 2, spr.full, spr.full);
-      if (g.pop > 0) {
+      if (g.sp && !popping) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = alpha * (0.45 + Math.sin(now * 6 + c) * 0.2);
+        const col = g.el === "rainbow" ? "#c77dff" : EL[g.el].c;
+        ctx.drawImage(glow(col), -cell * 0.75, -cell * 0.75, cell * 1.5, cell * 1.5);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = alpha;
+      }
+      let spr = g.sp === "bomb" ? BOMBS[g.el] : g.sp === "rainbow" ? RAINBOW : GEMSPR[g.el];
+      if (g.sp === "rainbow") ctx.rotate(now * 1.5);
+      if (spr) ctx.drawImage(spr.img, -spr.full / 2, -spr.full / 2, spr.full, spr.full);
+      if (g.sp === "rocketH" || g.sp === "rocketV") {
+        ctx.save();
+        if (g.sp === "rocketV") ctx.rotate(-Math.PI / 2);
+        ctx.translate(Math.sin(now * 12 + r) * cell * 0.03, 0);
+        ctx.drawImage(ROCKET.img, -ROCKET.full / 2, -ROCKET.full / 2, ROCKET.full, ROCKET.full);
+        ctx.restore();
+      }
+      if (g.sp === "bomb") {
+        ctx.globalCompositeOperation = "lighter";
+        const f = 0.6 + Math.random() * 0.4;
+        ctx.drawImage(glow("#ffd27a"), cell * 0.22 - 9 * f, -cell * 0.47 - 9 * f, 18 * f, 18 * f);
+        ctx.globalCompositeOperation = "source-over";
+      }
+      if (popping) {
         ctx.globalCompositeOperation = "lighter";
         ctx.globalAlpha = (1 - g.pop) * 0.8;
-        ctx.drawImage(glow(EL[g.el].c2), -cell * 0.6, -cell * 0.6, cell * 1.2, cell * 1.2);
+        ctx.drawImage(glow(g.el === "rainbow" ? "#ffffff" : EL[g.el].c2), -cell * 0.6, -cell * 0.6, cell * 1.2, cell * 1.2);
       }
+      ctx.restore();
+    }
+    // board effects: glints, rocket trails, rainbow beams, bomb rings
+    ctx.globalCompositeOperation = "lighter";
+    for (const f of boardFx) {
+      if (f.wait > 0) continue;
+      if (f.kind === "glint") {
+        const g = grid[f.r] && grid[f.r][f.c]; if (!g || g.pop > 0) continue;
+        const k = f.life / f.max, p = cellCenter(f.r, f.c), s2 = cell * 0.22 * Math.sin(k * Math.PI);
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = "#ffffff";
+        const gx = p.x - cell * 0.18, gy = p.y + (g.fy - f.r) * cell - cell * 0.2;
+        ctx.beginPath(); ctx.moveTo(gx, gy - s2); ctx.quadraticCurveTo(gx, gy, gx + s2, gy); ctx.quadraticCurveTo(gx, gy, gx, gy + s2); ctx.quadraticCurveTo(gx, gy, gx - s2, gy); ctx.quadraticCurveTo(gx, gy, gx, gy - s2); ctx.fill();
+      } else if (f.kind === "beam") {
+        const k = f.life / f.max;
+        ctx.globalAlpha = k;
+        ctx.strokeStyle = f.c; ctx.lineWidth = 6 * k + 2;
+        ctx.beginPath(); ctx.moveTo(f.x1, f.y1); ctx.lineTo(f.x2, f.y2); ctx.stroke();
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(f.x1, f.y1); ctx.lineTo(f.x2, f.y2); ctx.stroke();
+      } else if (f.kind === "ring") {
+        const k = 1 - f.life / f.max;
+        ctx.globalAlpha = 1 - k;
+        ctx.strokeStyle = f.c; ctx.lineWidth = 10 * (1 - k) + 2;
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.R * ease(k * 1.3), 0, TAU); ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    for (const f of boardFx) {
+      if (f.kind !== "rocket" || f.wait > 0) continue;
+      ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      ctx.drawImage(ROCKET.img, -ROCKET.full / 2, -ROCKET.full / 2, ROCKET.full, ROCKET.full);
       ctx.restore();
     }
     ctx.restore();
     if (rage) {
       rrPath(ctx, boardX - 8, boardY - 8, cell * COLS + 16, cell * ROWS + 16, 22);
       ctx.fillStyle = "rgba(5,8,30,0.45)"; ctx.fill();
+    }
+  }
+  function drawDanger() {
+    if (danger <= 0) return;
+    const shown = enemies.filter((e) => onScreen(e) && eta(e) < 1.8).sort((a, b) => eta(a) - eta(b)).slice(0, 3);
+    for (const e of shown) {
+      const k = 1 - eta(e) / 1.8, a = Math.atan2(e.y - cy, e.x - cx);
+      const ex = clamp(cx + Math.cos(a) * W, 0, W), ey = clamp(cy + Math.sin(a) * W, hudH * 0.5, trayTop);
+      const R = 110, pulse = 0.6 + Math.sin(now * 12) * 0.4;
+      const g = ctx.createRadialGradient(ex, ey, 0, ex, ey, R);
+      g.addColorStop(0, `rgba(255,40,60,${0.55 * k * pulse})`); g.addColorStop(1, "rgba(255,40,60,0)");
+      ctx.fillStyle = g; ctx.fillRect(ex - R, ey - R, R * 2, R * 2);
     }
   }
   function drawDecals() {
@@ -2544,8 +2936,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
 
   const ADD = { glow: 1, spark: 1, flake: 1 };
-  function drawParticles(additive) {
-    for (const p of particles) {
+  function drawParticles(additive, list = particles) {
+    for (const p of list) {
       if (!!ADD[p.kind] !== additive) continue;
       const a = clamp(p.life / p.max, 0, 1);
       switch (p.kind) {
@@ -2652,21 +3044,63 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
 
-  function drawTray() {
+  function specRect(i) {
+    const s = slotSize, gap = 10, w = s * 2 + gap;
+    const x0 = rtl ? 22 : W - 22 - w;
+    const j = rtl ? 1 - i : i;
+    return { x: x0 + j * (s + gap), y: trayTop + (trayH - s) / 2, s };
+  }
+  function meterRect() {
+    const w = slotSize * 2 + 10;
+    const x = rtl ? 22 + w + 16 : 24;
+    return { x, y: trayTop + trayH / 2 - 12, w: W - 48 - w - 16, h: 24 };
+  }
+  function drawPowerBar() {
     chunky(10, trayTop, W - 20, trayH, 20, "#5a47c9", "#33278a", "#160f4a");
-    const dragged = ptr.dragging && ptr.slot >= 0 ? slots[ptr.slot] : null;
-    for (let i = 0; i < SLOT_COUNT; i++) {
-      const r = slotRect(i);
-      rrPath(ctx, r.x, r.y, r.s, r.s, r.s * 0.28);
-      ctx.fillStyle = "rgba(10,6,40,0.5)"; ctx.fill();
+    const m = meterRect();
+    rrPath(ctx, m.x, m.y, m.w, m.h, m.h / 2); ctx.fillStyle = "rgba(10,6,40,0.6)"; ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 2; ctx.stroke();
+    const f = rage ? clamp(rage.t / RAGE_TIME, 0, 1) : rageMeter / RAGE_MAX;
+    if (f > 0) {
+      const fw = Math.max(m.h, m.w * f), fx = rtl ? m.x + m.w - fw : m.x;
+      const g = ctx.createLinearGradient(0, m.y, 0, m.y + m.h);
+      g.addColorStop(0, "#ffd27a"); g.addColorStop(0.5, rage ? EL[rage.el].c : "#ff5a2f"); g.addColorStop(1, "#a8162a");
+      rrPath(ctx, fx, m.y, fw, m.h, m.h / 2); ctx.fillStyle = g; ctx.fill();
+      rrPath(ctx, fx + 4, m.y + 3, fw - 8, m.h * 0.3, m.h * 0.15); ctx.fillStyle = "rgba(255,255,255,0.35)"; ctx.fill();
+      if (f > 0.8 || rage) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = 0.4 + Math.sin(now * 10) * 0.3;
+        ctx.drawImage(glow("#ff7a3d"), fx - 10, m.y - 16, fw + 20, m.h + 32);
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+      }
+    }
+    ctx.save();
+    ctx.translate(rtl ? m.x + m.w - 4 : m.x + 4, m.y + m.h / 2);
+    ctx.beginPath(); ctx.arc(0, 0, m.h * 0.62, 0, TAU);
+    ctx.fillStyle = "#2a1f78"; ctx.fill(); ctx.strokeStyle = "#ffcf3d"; ctx.lineWidth = 2; ctx.stroke();
+    paintIcon(ctx, "fire", m.h * 0.34, EL.fire);
+    ctx.restore();
+    font(800, 12);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.fillText(tr("rage"), m.x + m.w / 2, m.y + m.h / 2 + 1);
+    for (let i = 0; i < SPECIALS.length; i++) {
+      const k = SPECIALS[i], r = specRect(i), n = powers[k];
+      rrPath(ctx, r.x, r.y, r.s, r.s, r.s * 0.3);
+      ctx.fillStyle = "rgba(10,6,40,0.55)"; ctx.fill();
       ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 3; ctx.stroke();
-      const d = slots[i];
-      if (!d || d.drop < 0) continue;
-      if (dragged && ptr.slot === i) { drawDie(r.x, r.y, r.s, d, 0.25); continue; }
-      drawDie(r.x, r.y, r.s, d, 1);
-      if (dragged && canMerge(dragged, d)) {
-        rrPath(ctx, r.x - 4, r.y - 4, r.s + 8, r.s + 8, r.s * 0.32);
-        ctx.strokeStyle = `rgba(255,240,150,${0.55 + Math.sin(now * 10) * 0.4})`; ctx.lineWidth = 4; ctx.stroke();
+      drawDie(r.x, r.y, r.s, { el: k, tier: 1, drop: 1, pop: specPop[k] }, n ? 1 : 0.22);
+      if (n) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = 0.35 + Math.sin(now * 5 + i) * 0.2;
+        ctx.drawImage(glow(EL[k].c), r.x - r.s * 0.3, r.y - r.s * 0.3, r.s * 1.6, r.s * 1.6);
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+      }
+      if (n > 1) {
+        const bx = r.x + r.s - 4, by = r.y + 4;
+        ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fillStyle = "#ff3b5c"; ctx.fill();
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; ctx.stroke();
+        font(800, 12); ctx.fillStyle = "#ffffff"; ctx.fillText(fmt(n), bx, by + 1);
       }
     }
   }
@@ -2684,28 +3118,19 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.fillText(text, bx + w / 2, by + h / 2 + 1);
   }
   function drawHints() {
-    if (rage || ptr.dragging) return;
-    if (!settings.tutMatch && hintMove && boardState === "idle") {
+    if (rage) return;
+    if (!settings.tutMatch && hintMove && boardState === "idle" && hintMove[0] !== hintMove[1]) {
       const a = cellCenter(hintMove[0][0], hintMove[0][1]), b = cellCenter(hintMove[1][0], hintMove[1][1]);
       bubble(tr("matchHint"), (a.x + b.x) / 2, Math.min(a.y, b.y) - cell * 0.45);
       return;
     }
-    if (!settings.tutTap) {
-      const i = slots.findIndex((d) => d);
-      if (i >= 0 && slots[i].drop >= 0) { const r = slotRect(i); bubble(tr("tapHint"), r.x + r.s / 2, r.y - 4); return; }
-    }
-    if (!settings.tutMerge && settings.tutTap) {
-      for (let i = 0; i < SLOT_COUNT; i++) for (let j = i + 1; j < SLOT_COUNT; j++) {
-        if (canMerge(slots[i], slots[j])) {
-          const a = slotRect(i), b = slotRect(j);
-          for (const r of [a, b]) {
-            rrPath(ctx, r.x - 4, r.y - 4, r.s + 8, r.s + 8, r.s * 0.32);
-            ctx.strokeStyle = `rgba(255,240,150,${0.5 + Math.sin(now * 8) * 0.4})`; ctx.lineWidth = 4; ctx.stroke();
-          }
-          bubble(tr("mergeHint"), (a.x + b.x + a.s) / 2, Math.min(a.y, b.y) - 4);
-          return;
-        }
+    if (!settings.tutBlast && boardState === "idle") {
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] && grid[r][c].sp) { const p = cellCenter(r, c); bubble(tr("tapSpecial"), p.x, p.y - cell * 0.45); return; }
       }
+    }
+    if (!settings.tutSpecial) {
+      for (let i = 0; i < SPECIALS.length; i++) if (powers[SPECIALS[i]]) { const r = specRect(i); bubble(tr("tapHint"), r.x + r.s / 2, r.y - 4); return; }
     }
   }
 
@@ -2768,11 +3193,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (state !== "play" || ptr.down) return;
     const p = pos(ev);
     try { canvas.setPointerCapture(ev.pointerId); } catch (e) {}
-    Object.assign(ptr, { down: true, id: ev.pointerId, x: p.x, y: p.y, sx: p.x, sy: p.y, lx: p.x, ly: p.y, slot: -1, dragging: false, cell: null, swiped: false });
+    Object.assign(ptr, { down: true, id: ev.pointerId, x: p.x, y: p.y, sx: p.x, sy: p.y, lx: p.x, ly: p.y, spec: -1, cell: null, swiped: false });
     if (rage) { blade = [{ x: p.x, y: p.y, age: 0 }]; return; }
     if (inBoard(p.x, p.y)) { ptr.cell = boardCell(p.x, p.y); return; }
-    const i = hitSlot(p.x, p.y, 6);
-    if (i >= 0 && slots[i] && slots[i].drop >= 0) ptr.slot = i;
+    for (let i = 0; i < SPECIALS.length; i++) {
+      const r = specRect(i);
+      if (p.x >= r.x - 6 && p.x <= r.x + r.s + 6 && p.y >= r.y - 6 && p.y <= r.y + r.s + 6) ptr.spec = i;
+    }
   });
   canvas.addEventListener("pointermove", (ev) => {
     if (!ptr.down || ev.pointerId !== ptr.id) return;
@@ -2788,7 +3215,6 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         if (t[0] >= 0 && t[0] < ROWS && t[1] >= 0 && t[1] < COLS) trySwap([r, c], t);
       }
     }
-    else if (ptr.slot >= 0 && !ptr.dragging && Math.hypot(p.x - ptr.sx, p.y - ptr.sy) > 10) ptr.dragging = true;
     ptr.lx = p.x; ptr.ly = p.y;
   });
   function release(ev, cancelled) {
@@ -2797,20 +3223,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (ptr.cell && !ptr.swiped && !cancelled && !rage && boardState === "idle") {
       const [r, c] = ptr.cell;
       if (selected && Math.abs(selected[0] - r) + Math.abs(selected[1] - c) === 1) trySwap(selected, [r, c]);
+      else if (grid[r][c] && grid[r][c].sp && !selected) tapSpecial(r, c);
       else if (selected && selected[0] === r && selected[1] === c) selected = null;
       else { selected = [r, c]; sfx("click"); }
     }
-    ptr.cell = null;
-    const from = ptr.slot;
-    if (from >= 0 && slots[from] && !rage && !cancelled && state === "play") {
-      if (!ptr.dragging) useSlot(from);
-      else {
-        const to = hitSlot(ptr.x, ptr.y, slotGap / 2 + 4);
-        if (to >= 0 && to !== from) moveDie(from, to);
-        else if (to < 0 && ptr.y < trayTop - 8) useSlot(from, ptr.x, ptr.y);
-      }
+    if (ptr.spec >= 0 && !cancelled) {
+      const r = specRect(ptr.spec);
+      if (ptr.x >= r.x - 10 && ptr.x <= r.x + r.s + 10 && ptr.y >= r.y - 10 && ptr.y <= r.y + r.s + 10) castSpecial(ptr.spec);
     }
-    ptr.slot = -1; ptr.dragging = false;
+    ptr.cell = null; ptr.spec = -1;
   }
   canvas.addEventListener("pointerup", (ev) => release(ev, false));
   canvas.addEventListener("pointercancel", (ev) => release(ev, true));
@@ -2820,7 +3241,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (ev.key === "Escape" || ev.key === "p") { if (state === "play") pauseGame(); else if (state === "paused") resumeGame(); return; }
     if (state !== "play" || rage) return;
     const n = parseInt(ev.key, 10);
-    if (n >= 1 && n <= SLOT_COUNT) useSlot(n - 1);
+    if (n >= 1 && n <= SPECIALS.length) castSpecial(n - 1);
   });
   document.addEventListener("visibilitychange", () => { if (document.hidden) pauseGame(); });
 
