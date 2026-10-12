@@ -456,10 +456,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const RAGE_MAX = 60;          // gems to clear for Rage Mode
   const SPECIAL_CAP = 3;        // Nova / Tornado charges kept
   const SPECIALS = ["nova", "wind"];
-  const REFILL_BIAS = 0.15;     // chance a falling gem copies the colour below it (more cascades)
-  const DROP_SPECIAL = 0.03;    // chance a falling gem arrives as a rocket or bomb
-  const DROP_RAINBOW = 0.005;   // chance it arrives as a rainbow orb
-  const MAX_BOARD_SPECIALS = 3; // no free specials drop while this many are already on the board
+  const REFILL_BIAS = 0.05;     // chance a falling gem copies the colour below it (more cascades)
+  const DROP_SPECIAL = 0.01;    // chance a falling gem arrives as a rocket or bomb
+  const DROP_RAINBOW = 0.002;   // chance it arrives as a rainbow orb
+  const MAX_BOARD_SPECIALS = 2; // no free specials drop while this many are already on the board
   const RAGE_TIME = 5;
   const RAGE_SLOWMO = 0.28;
   const COMBO_WINDOW = 2.5;
@@ -1740,7 +1740,6 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     for (let r = 1; r < ROWS - 1; r++) for (let c = 1; c < COLS - 1; c++) spots.push([r, c]);
     spots.sort(() => Math.random() - 0.5);
     grid[spots[0][0]][spots[0][1]].sp = pick(["rocketH", "rocketV"]);
-    grid[spots[1][0]][spots[1][1]].sp = "bomb";
     boardState = "fall"; cascade = 0; selected = null; idleT = 0; hintMove = null;
   }
   function swapCells(a, b) {
@@ -1962,7 +1961,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     if (!settings.tutMatch) { settings.tutMatch = true; saveSettings(); }
     if (cascade >= 2) showPraise(cascade);
-    if (cascade >= 3 && !moveBonus && countSpecials() < MAX_BOARD_SPECIALS) {
+    if (cascade >= 4 && !moveBonus && countSpecials() < MAX_BOARD_SPECIALS) {
       moveBonus = true;
       const inGroup = new Set(entries.map(([r, c]) => r * COLS + c));
       const free = [];
@@ -2075,7 +2074,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         let el = pick(GEMS), sp = null;
         const below = gemAt(r + 1, c), side = gemAt(r, c - 1);
         if (below && matchable(below) && Math.random() < REFILL_BIAS) el = below.el;
-        else if (side && matchable(side) && Math.random() < 0.15) el = side.el;
+        else if (side && matchable(side) && Math.random() < REFILL_BIAS) el = side.el;
         const x = freeSpecials > 0 ? Math.random() : 1;
         if (x < DROP_SPECIAL) freeSpecials--;
         if (x < DROP_RAINBOW) { el = "rainbow"; sp = "rainbow"; }
