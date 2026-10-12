@@ -2,13 +2,18 @@ name = "volya-leaderboard"
 main = "worker.js"
 compatibility_date = "2024-09-23"
 
+# The same Worker serves the game (./public, filled by deploy.sh) and the leaderboard API.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "volya-leaderboard"
 database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
 
 [vars]
-# Only the game's page may call the API from a browser.
+# Only needed when the game is hosted somewhere else (e.g. GitHub Pages).
 ALLOWED_ORIGIN = "https://himn7980-bot.github.io"
 
 # The bot token is a secret, never put it in this file:

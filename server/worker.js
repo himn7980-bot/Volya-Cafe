@@ -4,6 +4,7 @@
 // never from the client.
 //
 //   GET  /top?limit=50&uid=<telegram id>  -> { top: [...], total, me }
+//   GET  /  (anything else)                -> the game (static assets in ./public)
 //   POST /score { initData, score, wave, kills, duration } -> { best, rank, total, improved }
 
 const MAX_AUTH_AGE = 24 * 60 * 60; // seconds an initData signature stays valid
@@ -23,6 +24,8 @@ export default {
     try {
       if (url.pathname === "/top" && req.method === "GET") return json(await top(env, url), cors);
       if (url.pathname === "/score" && req.method === "POST") return json(await submit(env, await readJson(req)), cors);
+      // Everything else is the game itself (static files deployed with the Worker).
+      if (env.ASSETS && (req.method === "GET" || req.method === "HEAD")) return env.ASSETS.fetch(req);
       return json({ error: "not_found" }, cors, 404);
     } catch (e) {
       if (e instanceof HttpError) return json({ error: e.message }, cors, e.status);
