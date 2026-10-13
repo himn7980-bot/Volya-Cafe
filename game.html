@@ -613,7 +613,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const COLS = 7, ROWS = 6;
   const RAGE_MAX = 60;          // gems to clear for Rage Mode
   const SPECIAL_CAP = 3;        // Nova / Tornado charges kept
-  const SPECIALS = ["nova", "wind"];
+  const SPECIALS = ["nova", "wind", "shield", "magnet"];
+  const DOME_TIME = 6;
   const REFILL_BIAS = 0.05;     // chance a falling gem copies the colour below it (more cascades)
   const DROP_SPECIAL = 0.01;    // chance a falling gem arrives as a rocket or bomb
   const DROP_RAINBOW = 0.002;   // chance it arrives as a rainbow orb
@@ -634,7 +635,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     poison: { c: "#6ee03a", c2: "#d6ff9e", top: "#d2ff9a", base: "#56c42a", dark: "#1f6e14" },
     heal:   { c: "#ff6fb5", c2: "#ffd1e8", top: "#ffc6e1", base: "#ff5aa8", dark: "#a3175f" },
     nova:   { c: "#c77dff", c2: "#f3d9ff", top: "#efd0ff", base: "#a64dff", dark: "#4f1a99", special: true },
-    wind:   { c: "#5fe6d0", c2: "#e0fff9", top: "#d0fff6", base: "#39cdb5", dark: "#11705f", special: true }
+    wind:   { c: "#5fe6d0", c2: "#e0fff9", top: "#d0fff6", base: "#39cdb5", dark: "#11705f", special: true },
+    shield: { c: "#4fc3ff", c2: "#e0f6ff", top: "#bfeaff", base: "#2f9cff", dark: "#0f4a9a", special: true },
+    magnet: { c: "#ff5a7a", c2: "#ffe0e6", top: "#ffb3c2", base: "#ff3b5c", dark: "#8a0f2a", special: true }
   };
   const ELS = ["fire", "ice", "bolt"];
   const GEMS = ["fire", "ice", "bolt", "poison", "heal"];
@@ -645,6 +648,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     brute:    { r: 26, hp: 150, speed: 18, dmg: 20, pts: 50,  c: "#ff7a3d" },
     ghost:    { r: 15, hp: 40,  speed: 34, dmg: 10, pts: 25,  c: "#b9a6ff" },
     splitter: { r: 22, hp: 90,  speed: 24, dmg: 14, pts: 35,  c: "#ff9a3d" },
+    knight:   { r: 20, hp: 70,  speed: 22, dmg: 14, pts: 45,  c: "#5aa0ff", armor: 60 },
+    healer:   { r: 17, hp: 55,  speed: 26, dmg: 6,  pts: 50,  c: "#7dffb0", hold: 0.36 },
+    thrower:  { r: 18, hp: 60,  speed: 28, dmg: 10, pts: 50,  c: "#b6e83a", hold: 0.44 },
     boss:     { r: 46, hp: 900, speed: 6,  dmg: 40, pts: 500, c: "#ff4766" }
   };
 
@@ -686,7 +692,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const BOSS_FX = ["chain", "ice", "slime", "stone", "chain", "stone", "chain", "ice", "bombT", "slime"];
   const LEVELS_PER_WORLD = 10, MAX_LEVEL = 1000;
   // Powers and boosts unlock at these levels (Endless has everything).
-  const UNLOCK_AT = { poison: 3, dart: 4, wind: 6, nova: 9, boostBolt: 15, boostFire: 25, boostIce: 35, boostHeal: 45 };
+  const UNLOCK_AT = { poison: 3, dart: 4, wind: 6, nova: 9, boostBolt: 15, boostFire: 25, boostIce: 35, boostHeal: 45, shield: 55, magnet: 70 };
   // Board mechanics join the mix at these levels and then stay for good.
   const MECH_AT = { moves: 7, chain: 11, shape: 12, ice2: 13, time: 16, stone: 21, gold: 23, slime: 31, bombT: 41, drop: 51 };
   // What the intro card announces before a level.
@@ -698,9 +704,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     21: { kind: "mech", id: "stone" }, 23: { kind: "mech", id: "gold" }, 25: { kind: "boost", id: "boostFire", el: "fire" },
     28: { kind: "enemy", id: "brute" }, 31: { kind: "mech", id: "slime" }, 35: { kind: "boost", id: "boostIce", el: "ice" },
     38: { kind: "enemy", id: "splitter" }, 41: { kind: "mech", id: "bombT" }, 45: { kind: "boost", id: "boostHeal", el: "heal" },
-    51: { kind: "mech", id: "drop" }
+    48: { kind: "enemy", id: "knight" }, 51: { kind: "mech", id: "drop" }, 55: { kind: "power", id: "shield" },
+    58: { kind: "enemy", id: "healer" }, 68: { kind: "enemy", id: "thrower" }, 70: { kind: "power", id: "magnet" }
   };
-  const POOL_WEIGHT = { crawler: 5, runner: 3, ghost: 2, brute: 1, splitter: 1.5 };
+  const POOL_WEIGHT = { crawler: 5, runner: 3, ghost: 2, brute: 1, splitter: 1.5, knight: 1.4, healer: 0.8, thrower: 0.8 };
   // Board shapes ("." is a hole). Gems fall straight through holes and blockers.
   const SHAPES = [
     [".xxxxx.", "xxxxxxx", "xxxxxxx", "xxxxxxx", "xxxxxxx", ".xxxxx."],
@@ -805,6 +812,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (n >= 18) pool.push("ghost");
     if (n >= 28) pool.push("brute");
     if (n >= 38) pool.push("splitter");
+    if (n >= 48) pool.push("knight");
+    if (n >= 58) pool.push("healer");
+    if (n >= 68) pool.push("thrower");
     return { n, w, k, gems, goals, pool, moves, time, shape, clutter, mini, boss: goals.some((g) => g.type === "boss"),
       bossFx: n >= 10 ? (has(BOSS_FX[w % 10]) || BOSS_FX[w % 10] === "ice" ? BOSS_FX[w % 10] : "ice") : null,
       ice2: has("ice2") ? 0.25 + d * 0.4 : 0, hard: Math.min(0.6, Math.max(0, (n - 20) / 150)), bombTimer: Math.max(5, 9 - Math.floor(d * 4)),
@@ -1181,6 +1191,32 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: ["Lượt", "Thời gian", "Hết lượt!", "Hết giờ!", "Thử thách mới!", "Phi tiêu vuông", "Ghép 4 viên ngọc thành hình vuông để tạo phi tiêu tự bay tới mục tiêu", "Giới hạn lượt", "Hoàn thành mục tiêu trước khi hết lượt", "Giới hạn thời gian", "Hoàn thành mục tiêu trước khi hết giờ", "Xiềng xích", "Ngọc bị xích không di chuyển được. Ghép chúng để phá xích", "Bàn chơi lạ", "Bàn chơi giờ có hình dạng mới và có lỗ", "Băng dày", "Băng dày cần hai đòn mới vỡ", "Đá", "3 đòn từ các lần ghép bên cạnh, hoặc 1 đòn từ tên lửa, bom hay phi tiêu", "Ô vàng", "Phá các viên ngọc trên ô vàng để thu thập chúng", "Chất nhờn lan", "Chất nhờn lan ra mỗi lượt bạn không xóa nó. Ghép ngay bên cạnh!", "Bom hẹn giờ", "Ghép chúng trước khi đếm về 0, nếu không Volya sẽ bị thương", "Kho báu", "Đưa rương kho báu xuống đáy bàn chơi", "Tấn công bàn chơi", "Trùm giờ ném băng, xích và đá lên bàn chơi của bạn!", "Trùm nhỏ", "Sa mạc Vàng", "Rừng Hoang", "Đại dương Sâu", "Xứ Kẹo", "Lâu đài Bóng tối", "Còn nhiều thế giới nữa…"]
   };
   for (const k in STR_CH) STR_CH[k].forEach((v, i) => { STR[k][CH_KEYS[i]] = v; });
+  const P2_KEYS = ["shield", "magnet", "shieldNote", "magnetNote", "knightNote", "healerNote", "throwerNote"];
+  const STR_P2 = {
+    en: ["Shield", "Magnet", "Make a bomb to earn it: a bubble that pushes enemies away for 6 s", "Clear 15+ gems in one move to earn it: pulls enemies together and crushes them", "Armored knight: break the armor first — lightning shatters it", "Heals the monsters around it. Take it out first!", "Stays back and throws rocks onto your board"],
+    fa: ["سپر", "آهن‌ربا", "با ساختن بمب به دست می‌آید: حبابی که ۶ ثانیه دشمن‌ها را عقب می‌زند", "با ترکاندن ۱۵+ جواهر در یک حرکت به دست می‌آید: دشمن‌ها را جمع می‌کند و له می‌کند", "شوالیهٔ زره‌پوش: اول زره‌اش را بشکن — صاعقه زره را خرد می‌کند", "هیولاهای اطرافش را درمان می‌کند. اول او را بزن!", "از دور می‌ایستد و روی جدولت سنگ پرتاب می‌کند"],
+    ar: ["درع", "مغناطيس", "اصنع قنبلة لتحصل عليه: فقاعة تدفع الأعداء بعيدًا لمدة 6 ثوانٍ", "امسح 15 جوهرة أو أكثر في حركة واحدة لتحصل عليه: يجمع الأعداء ويسحقهم", "فارس مدرّع: اكسر الدرع أولًا — البرق يحطمه", "يعالج الوحوش من حوله. تخلّص منه أولًا!", "يقف بعيدًا ويرمي الحجارة على لوحك"],
+    ru: ["Щит", "Магнит", "Сделай бомбу, чтобы получить его: пузырь отталкивает врагов 6 секунд", "Убери 15+ камней за ход, чтобы получить его: стягивает врагов и раздавливает", "Бронированный рыцарь: сначала разбей броню — молния крушит её", "Лечит монстров вокруг. Убери его первым!", "Держится вдали и бросает камни на твоё поле"],
+    uk: ["Щит", "Магніт", "Зроби бомбу, щоб отримати його: бульбашка відштовхує ворогів 6 секунд", "Прибери 15+ каменів за хід, щоб отримати його: стягує ворогів і розчавлює", "Броньований лицар: спершу розбий броню — блискавка трощить її", "Лікує монстрів довкола. Прибери його першим!", "Тримається віддалік і кидає каміння на твоє поле"],
+    tr: ["Kalkan", "Mıknatıs", "Bomba yaparak kazan: düşmanları 6 sn iten bir baloncuk", "Tek hamlede 15+ mücevher patlatarak kazan: düşmanları toplar ve ezer", "Zırhlı şövalye: önce zırhı kır — yıldırım zırhı parçalar", "Etrafındaki canavarları iyileştirir. Önce onu indir!", "Uzakta durur ve tahtana taş atar"],
+    az: ["Qalxan", "Maqnit", "Bomba düzəldərək qazan: düşmənləri 6 san itələyən qabarcıq", "Bir gedişdə 15+ daş partladaraq qazan: düşmənləri yığır və əzir", "Zirehli cəngavər: əvvəlcə zirehi qır — ildırım onu parçalayır", "Ətrafındakı canavarları sağaldır. Əvvəl onu vur!", "Uzaqda dayanır və lövhənə daş atır"],
+    uz: ["Qalqon", "Magnit", "Bomba yasab qo'lga kirit: dushmanlarni 6 soniya itaradigan pufak", "Bir yurishda 15+ tosh portlatib qo'lga kirit: dushmanlarni yig'ib ezadi", "Sovutli ritsar: avval sovutini sindir — chaqmoq uni parchalaydi", "Atrofidagi maxluqlarni davolaydi. Avval uni yo'q qil!", "Uzoqda turib taxtangga tosh otadi"],
+    kk: ["Қалқан", "Магнит", "Бомба жасап ал: жауларды 6 секунд итеретін көпіршік", "Бір жүрісте 15+ тас жарып ал: жауларды жинап, жаншып тастайды", "Сауытты сері: алдымен сауытын сындыр — найзағай оны қиратады", "Айналасындағы құбыжықтарды емдейді. Алдымен соны жой!", "Алыста тұрып, тақтаңа тас лақтырады"],
+    es: ["Escudo", "Imán", "Crea una bomba para ganarlo: una burbuja que aleja a los enemigos 6 s", "Elimina 15+ gemas en un movimiento para ganarlo: junta a los enemigos y los aplasta", "Caballero con armadura: rompe primero la armadura — el rayo la destroza", "Cura a los monstruos de alrededor. ¡Elimínalo primero!", "Se queda lejos y lanza rocas a tu tablero"],
+    pt: ["Escudo", "Ímã", "Crie uma bomba para ganhá-lo: uma bolha que afasta os inimigos por 6 s", "Elimine 15+ gemas numa jogada para ganhá-lo: junta os inimigos e os esmaga", "Cavaleiro de armadura: quebre a armadura primeiro — o raio a despedaça", "Cura os monstros ao redor. Elimine-o primeiro!", "Fica de longe e joga pedras no seu tabuleiro"],
+    fr: ["Bouclier", "Aimant", "Crée une bombe pour l'obtenir : une bulle qui repousse les ennemis 6 s", "Fais exploser 15+ gemmes en un coup pour l'obtenir : regroupe les ennemis et les écrase", "Chevalier en armure : brise d'abord l'armure — l'éclair la pulvérise", "Soigne les monstres autour de lui. Élimine-le en premier !", "Reste à distance et lance des pierres sur ton plateau"],
+    de: ["Schild", "Magnet", "Bau eine Bombe, um ihn zu bekommen: eine Blase, die Gegner 6 s lang wegstößt", "Räum 15+ Steine in einem Zug ab, um ihn zu bekommen: zieht Gegner zusammen und zerquetscht sie", "Gepanzerter Ritter: erst die Rüstung brechen — Blitze zerschmettern sie", "Heilt die Monster um sich herum. Schalte ihn zuerst aus!", "Bleibt auf Abstand und wirft Steine auf dein Brett"],
+    it: ["Scudo", "Calamita", "Crea una bomba per ottenerlo: una bolla che respinge i nemici per 6 s", "Elimina 15+ gemme in una mossa per ottenerla: raduna i nemici e li schiaccia", "Cavaliere corazzato: rompi prima l'armatura — il fulmine la frantuma", "Cura i mostri intorno a sé. Eliminalo per primo!", "Resta lontano e lancia sassi sul tuo tabellone"],
+    nl: ["Schild", "Magneet", "Maak een bom om hem te krijgen: een bel die vijanden 6 s wegduwt", "Ruim 15+ stenen in één zet op om hem te krijgen: trekt vijanden samen en verplettert ze", "Gepantserde ridder: breek eerst het pantser — bliksem verbrijzelt het", "Geneest de monsters om zich heen. Schakel hem eerst uit!", "Blijft op afstand en gooit stenen op je bord"],
+    pl: ["Tarcza", "Magnes", "Zrób bombę, by ją zdobyć: bańka odpychająca wrogów przez 6 s", "Zbij 15+ klejnotów w jednym ruchu, by go zdobyć: ściąga wrogów razem i miażdży", "Opancerzony rycerz: najpierw rozbij pancerz — piorun go kruszy", "Leczy potwory wokół siebie. Pokonaj go jako pierwszego!", "Trzyma się z daleka i rzuca kamieniami w twoją planszę"],
+    id: ["Perisai", "Magnet", "Buat bom untuk mendapatkannya: gelembung yang mendorong musuh selama 6 dtk", "Hancurkan 15+ permata dalam satu langkah untuk mendapatkannya: menarik musuh lalu meremukkannya", "Ksatria berzirah: hancurkan zirahnya dulu — petir menghancurkannya", "Menyembuhkan monster di sekitarnya. Kalahkan dia dulu!", "Berdiri jauh dan melempar batu ke papanmu"],
+    hi: ["ढाल", "चुंबक", "बम बनाकर पाओ: एक बुलबुला जो 6 सेकंड तक दुश्मनों को दूर धकेलता है", "एक चाल में 15+ रत्न फोड़कर पाओ: दुश्मनों को खींचकर कुचल देता है", "कवचधारी योद्धा: पहले कवच तोड़ो — बिजली उसे चूर कर देती है", "आसपास के राक्षसों को ठीक करता है। पहले उसे हराओ!", "दूर खड़ा होकर तुम्हारे बोर्ड पर पत्थर फेंकता है"],
+    zh: ["护盾", "磁铁", "做出炸弹即可获得：一个把敌人推开 6 秒的护罩", "一步消除 15 颗以上宝石即可获得：把敌人吸到一起再压碎", "重甲骑士：先打破护甲——闪电能直接击碎它", "会治疗周围的怪物。先把它打倒！", "站在远处往你的棋盘上扔石头"],
+    ja: ["シールド", "マグネット", "爆弾を作ると手に入る：敵を 6 秒間はじき返すバリア", "1 手で宝石を 15 個以上消すと手に入る：敵を引き寄せて押しつぶす", "鎧の騎士：まず鎧を壊そう — 雷なら一撃で砕ける", "まわりのモンスターを回復する。先に倒そう！", "遠くから盤面に石を投げてくる"],
+    ko: ["방패", "자석", "폭탄을 만들면 얻어요: 6초 동안 적을 밀어내는 보호막", "한 번에 보석 15개 이상을 터뜨리면 얻어요: 적을 끌어모아 짓눌러요", "갑옷 기사: 먼저 갑옷을 깨세요 — 번개가 단번에 부숴요", "주변 몬스터를 치료해요. 먼저 쓰러뜨리세요!", "멀리 서서 보드에 돌을 던져요"],
+    vi: ["Khiên", "Nam châm", "Tạo bom để nhận: bong bóng đẩy lùi kẻ địch trong 6 giây", "Phá 15+ viên ngọc trong một lượt để nhận: hút kẻ địch lại rồi nghiền nát", "Hiệp sĩ giáp: phá giáp trước — sét đánh vỡ giáp ngay", "Hồi máu cho quái vật xung quanh. Hạ nó trước!", "Đứng từ xa và ném đá lên bàn chơi của bạn"]
+  };
+  for (const k in STR_P2) STR_P2[k].forEach((v, i) => { STR[k][P2_KEYS[i]] = v; });
 
   // ---- Setup -----------------------------------------------------------
   const $ = (id) => document.getElementById(id);
@@ -1607,6 +1643,50 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     g.beginPath(); g.ellipse(-r * 0.45, -r * 0.55, r * 0.2, r * 0.1, -0.6, 0, TAU); g.fill();
   }
 
+  function paintKnight(g, r) {
+    paintSlime(g, r, { hi: "#cfe6ff", base: "#4a8cff", dark: "#173a8a", line: "#0a1a40" });
+    // helmet with a red plume
+    g.beginPath(); g.moveTo(-r * 0.78, -r * 0.42); g.quadraticCurveTo(-r * 0.75, -r * 1.12, 0, -r * 1.1); g.quadraticCurveTo(r * 0.75, -r * 1.12, r * 0.78, -r * 0.42); g.closePath();
+    const hg = g.createLinearGradient(0, -r * 1.1, 0, -r * 0.4); hg.addColorStop(0, "#f0f4ff"); hg.addColorStop(1, "#7a86a8");
+    g.fillStyle = hg; g.fill(); g.strokeStyle = "#0a1a40"; g.lineWidth = r * 0.09; g.stroke();
+    g.fillStyle = "rgba(255,255,255,0.6)"; g.beginPath(); g.ellipse(-r * 0.35, -r * 0.85, r * 0.18, r * 0.08, -0.4, 0, TAU); g.fill();
+    g.beginPath(); g.moveTo(-r * 0.1, -r * 1.08); g.quadraticCurveTo(r * 0.25, -r * 1.6, r * 0.75, -r * 1.35); g.quadraticCurveTo(r * 0.3, -r * 1.25, r * 0.12, -r * 1.06); g.closePath();
+    g.fillStyle = "#ff4a5a"; g.fill(); g.strokeStyle = "#5a0a14"; g.lineWidth = r * 0.06; g.stroke();
+  }
+  function paintHealer(g, r) {
+    // halo
+    g.beginPath(); g.ellipse(0, -r * 1.12, r * 0.55, r * 0.16, 0, 0, TAU); g.strokeStyle = "#fff6a0"; g.lineWidth = r * 0.14; g.stroke();
+    g.strokeStyle = "#b08a00"; g.lineWidth = r * 0.04; g.stroke();
+    paintSlime(g, r, { hi: "#e6fff0", base: "#4fe08a", dark: "#137a44", line: "#06381e" });
+    // little white cross on the belly
+    g.fillStyle = "#ffffff"; g.strokeStyle = "#06381e"; g.lineWidth = r * 0.05;
+    rrPath(g, -r * 0.09, r * 0.28, r * 0.18, r * 0.42, r * 0.04); g.fill(); g.stroke();
+    rrPath(g, -r * 0.24, r * 0.4, r * 0.48, r * 0.17, r * 0.04); g.fill(); g.stroke();
+    g.fillStyle = "#ffffff"; rrPath(g, -r * 0.07, r * 0.3, r * 0.14, r * 0.38, r * 0.03); g.fill();
+  }
+  function paintGoblin(g, r) {
+    for (const sg of [-1, 1]) {
+      g.beginPath(); g.moveTo(sg * r * 0.6, -r * 0.35); g.lineTo(sg * r * 1.35, -r * 0.75); g.lineTo(sg * r * 0.72, r * 0.05); g.closePath();
+      g.fillStyle = "#8ccf2a"; g.fill(); g.strokeStyle = "#1e3a06"; g.lineWidth = r * 0.09; g.stroke();
+      g.beginPath(); g.moveTo(sg * r * 0.72, -r * 0.3); g.lineTo(sg * r * 1.12, -r * 0.58); g.lineTo(sg * r * 0.78, -r * 0.08); g.closePath(); g.fillStyle = "#ff9ab0"; g.fill();
+    }
+    g.beginPath(); g.arc(0, 0, r * 0.9, 0, TAU);
+    const gr = g.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.1, 0, 0, r * 1.1); gr.addColorStop(0, "#e2ff8a"); gr.addColorStop(0.5, "#8ccf2a"); gr.addColorStop(1, "#3a6a0c");
+    g.fillStyle = gr; g.fill(); g.strokeStyle = "#1e3a06"; g.lineWidth = r * 0.1; g.stroke();
+    for (const sg of [-1, 1]) {
+      g.beginPath(); g.arc(sg * r * 0.3, -r * 0.15, r * 0.2, 0, TAU); g.fillStyle = "#fff8c0"; g.fill(); g.strokeStyle = "#1e3a06"; g.lineWidth = r * 0.06; g.stroke();
+      g.beginPath(); g.arc(sg * r * 0.27, -r * 0.12, r * 0.09, 0, TAU); g.fillStyle = "#c01a1a"; g.fill();
+      g.strokeStyle = "#1e3a06"; g.lineWidth = r * 0.09; g.beginPath(); g.moveTo(sg * r * 0.55, -r * 0.45); g.lineTo(sg * r * 0.12, -r * 0.35); g.stroke();
+    }
+    g.beginPath(); g.moveTo(-r * 0.38, r * 0.3); g.quadraticCurveTo(0, r * 0.62, r * 0.38, r * 0.3); g.strokeStyle = "#1e3a06"; g.lineWidth = r * 0.1; g.stroke();
+    g.fillStyle = "#ffffff"; g.beginPath(); g.moveTo(r * 0.12, r * 0.4); g.lineTo(r * 0.24, r * 0.38); g.lineTo(r * 0.18, r * 0.52); g.closePath(); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.45)"; g.beginPath(); g.ellipse(-r * 0.45, -r * 0.55, r * 0.2, r * 0.1, -0.6, 0, TAU); g.fill();
+  }
+  function paintRock(g, r) {
+    g.beginPath(); for (let i = 0; i < 7; i++) { const a = (i / 7) * TAU, rr = r * (0.8 + (i % 2) * 0.2); g[i ? "lineTo" : "moveTo"](Math.cos(a) * rr, Math.sin(a) * rr); } g.closePath();
+    const rg = g.createLinearGradient(-r, -r, r, r); rg.addColorStop(0, "#dfe4ee"); rg.addColorStop(1, "#5a6178");
+    g.fillStyle = rg; g.fill(); g.strokeStyle = "#262a3a"; g.lineWidth = r * 0.18; g.stroke();
+  }
   let SPR = null;
   function buildEnemySprites() {
     const c = ENEMY.crawler.r, b = ENEMY.runner.r, g = ENEMY.brute.r;
@@ -1616,7 +1696,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       brute: sprite(g * 2.8, (x) => paintGolem(x, g)),
       ghost: sprite(ENEMY.ghost.r * 2.8, (x) => paintGhost(x, ENEMY.ghost.r)),
       splitter: sprite(ENEMY.splitter.r * 2.6, (x) => paintSlime(x, ENEMY.splitter.r, { hi: "#ffe6b0", base: "#ff9a3d", dark: "#b04a10", line: "#4a1a05" })),
-      boss: sprite(ENEMY.boss.r * 2.8, (x) => paintGolem(x, ENEMY.boss.r))
+      boss: sprite(ENEMY.boss.r * 2.8, (x) => paintGolem(x, ENEMY.boss.r)),
+      knight: sprite(ENEMY.knight.r * 3.2, (x) => paintKnight(x, ENEMY.knight.r)),
+      healer: sprite(ENEMY.healer.r * 3.0, (x) => paintHealer(x, ENEMY.healer.r)),
+      thrower: sprite(ENEMY.thrower.r * 3.2, (x) => paintGoblin(x, ENEMY.thrower.r))
     };
   }
 
@@ -1695,6 +1778,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         g.stroke();
       };
       swirl(r * 0.42, P.dark); swirl(r * 0.24, "#ffffff");
+    } else if (el === "shield") {
+      g.beginPath();
+      g.moveTo(0, -r * 1.05); g.quadraticCurveTo(r * 0.55, -r * 0.75, r * 0.95, -r * 0.8);
+      g.quadraticCurveTo(r * 1.0, r * 0.45, 0, r * 1.05); g.quadraticCurveTo(-r * 1.0, r * 0.45, -r * 0.95, -r * 0.8);
+      g.quadraticCurveTo(-r * 0.55, -r * 0.75, 0, -r * 1.05); g.closePath();
+      g.lineWidth = r * 0.16; g.stroke(); g.fill();
+      starPath(g, 0, 0, r * 0.42, -Math.PI / 2); g.fillStyle = P.base; g.fill();
+    } else if (el === "magnet") {
+      const arc = (lw, col) => { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); g.arc(0, -r * 0.05, r * 0.62, Math.PI, 0); g.lineTo(r * 0.62, r * 0.75); g.moveTo(-r * 0.62, -r * 0.05); g.lineTo(-r * 0.62, r * 0.75); g.stroke(); };
+      g.lineCap = "butt";
+      arc(r * 0.62, P.dark); arc(r * 0.42, "#ffffff");
+      g.fillStyle = "#cfd6ea"; g.strokeStyle = P.dark; g.lineWidth = r * 0.1;
+      for (const sg of [-1, 1]) { g.fillRect(sg * r * 0.62 - r * 0.21, r * 0.5, r * 0.42, r * 0.32); g.strokeRect(sg * r * 0.62 - r * 0.21, r * 0.5, r * 0.42, r * 0.32); }
+      g.lineCap = "round";
     }
   }
   function paintDie(g, s, el, tier) {
@@ -2074,7 +2171,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   let state = "title", stateT = 0, now = 0;
   let runBestStart = 0, runRecordShown = false, playTime = 0, hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, guard = 0, zones = [], flyers = [];
   let grid = [], boardState = "idle", cascade = 0, selected = null, idleT = 0, hintMove = null, gemId = 0;
-  let powers = { nova: 0, wind: 0 }, rageMeter = 0, castQueue = [], castCD = 0, carry = {}, danger = 0, lastWarn = 0, boardParts = [], boardFx = [], pendingCreates = [], moveSpecials = 0, moveNova = false, sparkleT = 0, clearWait = 0, boardShake = 0, praise = null, moveBonus = false, specPop = { nova: 0, wind: 0 };
+  let powers = { nova: 0, wind: 0, shield: 0, magnet: 0 }, dome = 0, magnetFx = null, moveCleared = 0, rageMeter = 0, castQueue = [], castCD = 0, carry = {}, danger = 0, lastWarn = 0, boardParts = [], boardFx = [], pendingCreates = [], moveSpecials = 0, moveNova = false, sparkleT = 0, clearWait = 0, boardShake = 0, praise = null, moveBonus = false, specPop = { nova: 0, wind: 0, shield: 0, magnet: 0 };
   let enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, coreTurn = 0, shieldT, newBest, banner, castFx;
   const ptr = { down: false, id: null, x: 0, y: 0, sx: 0, sy: 0, spec: -1, cell: null, swiped: false, lx: 0, ly: 0, lastBuzz: 0 };
   let hudCache = {};
@@ -2089,7 +2186,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     moveMade = false; slimeHit = false; bombsSpawned = 0; dropsSpawned = 0; shots = []; failReason = null;
     playTime = 0; hp = MAX_HP; score = 0; shownScore = 0; combo = 0; comboT = 0; comboPop = 0; bestCombo = 0; kills = 0;
     elapsed = 0; wave = 1; spawnT = 2.5; guard = 0; zones = []; flyers = [];
-    powers = { nova: 0, wind: 0 }; rageMeter = 0; castQueue = []; castCD = 0; carry = {}; danger = 0;
+    powers = { nova: 0, wind: 0, shield: 0, magnet: 0 }; dome = 0; magnetFx = null; moveCleared = 0; rageMeter = 0; castQueue = []; castCD = 0; carry = {}; danger = 0;
     boardParts = []; boardFx = []; pendingCreates = []; moveSpecials = 0; moveNova = false;
     initBoard();
     if (LV) placeBlockers();
@@ -2115,7 +2212,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const hpScale = (LV ? lvScale * (1 + t / 160) : 1 + t / 70) * hpMul;
     const spd = LV ? LV.spdScale * Math.min(1 + t / 200, 1.4) : Math.min(1 + t / 120, 2.4);
     const e = { type, x, y, r: d.r, hp: d.hp * hpScale, maxHp: d.hp * hpScale, speed: d.speed * spd * S, dmg: d.dmg, pts: d.pts, c: d.c,
-      frozen: 0, slow: 0, flash: 0, hit: 0, kx: 0, ky: 0, phase: rand(0, TAU), ghostT: rand(0, 2), dead: false, boss: type === "boss" };
+      frozen: 0, slow: 0, flash: 0, hit: 0, kx: 0, ky: 0, phase: rand(0, TAU), ghostT: rand(0, 2), dead: false, boss: type === "boss",
+      armor: d.armor ? d.armor * hpScale : 0, maxArmor: d.armor ? d.armor * hpScale : 0, actT: rand(1.5, 3) };
     enemies.push(e);
     return e;
   }
@@ -2131,6 +2229,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       type = "crawler";
       if (t > 40 && r < 0.12) type = "brute";
       else if (t > 75 && r < 0.2) type = "splitter";
+      else if (t > 90 && r < 0.27) type = "knight";
+      else if (t > 110 && r < 0.31) type = "healer";
+      else if (t > 130 && r < 0.35) type = "thrower";
       else if (t > 55 && r < 0.3) type = "ghost";
       else if (t > 18 && r < 0.45) type = "runner";
     }
@@ -2192,6 +2293,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function damage(e, amt, fromX, fromY, push = 0, quiet = false) {
     if (e.dead || ghostFaded(e)) return;
+    if (e.armor > 0) {
+      const a = Math.min(e.armor, amt);
+      e.armor -= a; amt -= a;
+      if (e.armor <= 0) breakArmor(e);
+      else if (!quiet && now - (e.clankT || 0) > 0.12) { e.clankT = now; tone(1800, 1200, 0.05, "square", 0.04); emit("spark", e.x, e.y, { n: 4, spd: [80, 200], life: [0.15, 0.3], size: [1.5, 2.5], colors: ["#ffffff", "#bfe0ff"] }); }
+      if (amt <= 0) { if (!quiet) e.hit = 0.6; return; }
+    }
     if (e.boss) push *= 0.15;
     e.hp -= amt;
     if (!quiet) { e.flash = 0.14; e.hit = 1; }
@@ -2200,6 +2308,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       e.kx += (dx / d) * push; e.ky += (dy / d) * push;
     }
     if (e.hp <= 0) kill(e, "spell");
+  }
+  function breakArmor(e) {
+    e.armor = 0;
+    emit("shard", e.x, e.y, { n: 12, spd: [120, 320], life: [0.4, 0.8], size: [3, 6], colors: ["#e0ecff", "#8aa4d8", "#ffffff"], g: 500, vy: -120, vr: 12 });
+    ring(e.x, e.y, e.r * 2.6, "#bfe0ff", 0.3, 6);
+    tone(900, 300, 0.18, "square", 0.06);
   }
   function kill(e, how, ang) {
     if (e.dead) return;
@@ -2228,6 +2342,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
   function hitCore(e) {
+    if (dome > 0) return;
     if (e.boss) {
       if (e.hitCD > 0) return;
       e.hitCD = 1.2;
@@ -2275,6 +2390,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (d.el === "heal") { healUp(d.tier); return; }
     if (d.el === "nova") { novaBlast(); return; }
     if (d.el === "wind") { tornado(); return; }
+    if (d.el === "shield") { shieldUp(); return; }
+    if (d.el === "magnet") { magnetPull(); return; }
     sfx(d.el === "fire" ? "castFire" : d.el === "ice" ? "castIce" : "poison");
     const a = Math.atan2(ty - cy, tx - cx);
     projectiles.push({ el: d.el, tier: d.tier, x: cx + Math.cos(a) * coreR, y: cy + Math.sin(a) * coreR,
@@ -2347,6 +2464,41 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     sfx("nova");
     haptic("heavy");
   }
+  function shieldUp() {
+    dome = DOME_TIME;
+    ring(cx, cy, coreR * 3.2, "#bfeaff", 0.5, 12);
+    emit("glow", cx, cy, { n: 14, spd: [60, 220], life: [0.4, 0.8], size: [16, 30], colors: ["#4fc3ff", "#e0f6ff", "#ffffff"], drag: 0.9 });
+    tone(520, 1040, 0.35, "sine", 0.08); tone(780, 1560, 0.3, "triangle", 0.05, 0.05);
+    haptic("success");
+  }
+  const domeR = () => coreR * 2.9;
+  function magnetPull() {
+    const on = enemies.filter((e) => onScreen(e) && !e.boss);
+    let x = cx, y = hudH + 60;
+    if (on.length) { x = on.reduce((a, e) => a + e.x, 0) / on.length; y = on.reduce((a, e) => a + e.y, 0) / on.length; }
+    // never gather them right on top of Volya
+    const dx = x - cx, dy = y - cy, dd = Math.hypot(dx, dy) || 1, minD = coreR * 4.5;
+    if (dd < minD) { x = cx + (dx / dd) * minD; y = cy + (dy / dd || -1) * minD; }
+    x = clamp(x, 40, W - 40); y = clamp(y, hudH + 30, trayTop - 30);
+    magnetFx = { x, y, t: 0.85, max: 0.85 };
+    for (const e of on) { e.pulled = true; const a = rand(0, TAU), rr = rand(0, 18); e.ox2 = Math.cos(a) * rr; e.oy2 = Math.sin(a) * rr; }
+    tone(220, 880, 0.8, "sawtooth", 0.05);
+    haptic("medium");
+  }
+  function magnetCrush() {
+    const m = magnetFx; magnetFx = null;
+    for (const e of enemies) {
+      if (e.dead) continue;
+      const near = Math.hypot(e.x - m.x, e.y - m.y) < 90 * S;
+      if (e.pulled || near) { e.pulled = false; damage(e, e.boss ? 220 : Math.max(120, e.maxHp * 0.65), m.x, m.y, 60); if (!e.dead) e.frozen = Math.max(e.frozen, 1.4); }
+    }
+    ring(m.x, m.y, 120 * S, "#ff5a7a", 0.45, 12);
+    ring(m.x, m.y, 70 * S, "#ffffff", 0.3, 6);
+    emit("glow", m.x, m.y, { n: 12, spd: [60, 300], life: [0.3, 0.6], size: [16, 32], colors: ["#ff5a7a", "#ffe0e6", "#ffffff"], drag: 0.9 });
+    emit("spark", m.x, m.y, { n: 30, spd: [200, 600], life: [0.3, 0.6], size: [2, 3.5], colors: ["#ffffff", "#ffb3c2"], drag: 0.9 });
+    addShake(12); doFlash("#ff5a7a", 0.2);
+    sfx("bomb"); haptic("heavy");
+  }
   function tornado() {
     for (const e of enemies) {
       if (e.dead) continue;
@@ -2382,6 +2534,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       pts.push({ x: cur.x, y: cur.y });
       emit("glow", cur.x, cur.y, { n: 1, spd: [0, 0], life: [0.25, 0.25], size: [30 + t * 8, 30 + t * 8], colors: ["#fff3a0"] });
       emit("spark", cur.x, cur.y, { n: 8 + t * 3, spd: [150, 420], life: [0.25, 0.5], size: [1.5, 3], colors: ["#ffe14d", "#ffffff", "#9fe8ff"], drag: 0.9 });
+      if (cur.armor > 0) breakArmor(cur);
       damage(cur, BOLT.dmg[t] * Math.pow(0.92, i), cx, cy, 20);
       i++;
       cur = nearestEnemy(cur.x, cur.y, hit, range);
@@ -2586,7 +2739,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     sfx("swap");
   }
   function startMove() {
-    cascade = 1; moveSpecials = 0; moveNova = false; moveBonus = false;
+    cascade = 1; moveSpecials = 0; moveNova = false; moveBonus = false; moveCleared = 0;
     if (LV) { moveMade = true; slimeHit = false; if (LV.moves) movesLeft = Math.max(0, movesLeft - 1); }
   }
 
@@ -2653,6 +2806,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       flyers.push({ x: ox, y: oy, tx: cx, ty: cy - coreR * 0.35, t: 0, dur: 0.32, c: EL[el].c, done: () => castQueue.push({ el, tier }) });
     }
     score += total * 5 * Math.max(1, cascade);
+    moveCleared += total;
     if (!rage) {
       rageMeter = Math.min(RAGE_MAX, rageMeter + total);
       if (rageMeter >= RAGE_MAX && state === "play") {
@@ -2772,6 +2926,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       let sp = null;
       if (g.maxRun >= 5) sp = unlocked("nova") ? "rainbow" : "bomb";
       else if (g.lt) sp = "bomb";
+      if (sp === "bomb") { const q = cellCenter(g.cells[0][0], g.cells[0][1]); later(0.25, () => grantPower("shield", q.x, q.y)); }
       else if (g.maxRun === 4) sp = g.hMax >= 4 ? "rocketV" : "rocketH";
       if (!sp && g.square) sp = "dart";
       if (sp) {
@@ -2976,7 +3131,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function hurtVolya(n) {
     if (state !== "play") return;
-    if (guard > 0) { ring(cx, cy, coreR * 2.4, "#ff9fd0", 0.4, 8); return; }
+    if (guard > 0 || dome > 0) { ring(cx, cy, coreR * 2.4, "#ff9fd0", 0.4, 8); return; }
     hp = Math.max(0, hp - n);
     addShake(10); doFlash("#ff2448", 0.3); coreKick = 1; shieldT = 1;
     addText("-" + fmt(n), cx, cy - coreR - 18, "#ff6b6b", 26, 0.9);
@@ -2984,7 +3139,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (hp <= 0) gameOver();
   }
   // Bosses lob ice, chains, stones, slime or time bombs onto the board.
-  const SHOT_COL = { ice: "#bff4ff", chain: "#dfe4ee", stone: "#9aa2b8", slime: "#b46cff", bombT: "#ff4a3d" };
+  const SHOT_COL = { ice: "#bff4ff", chain: "#dfe4ee", stone: "#9aa2b8", rock: "#c8cfdf", slime: "#b46cff", bombT: "#ff4a3d" };
   function bossAttack(e) {
     const opts = [];
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
@@ -3005,9 +3160,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (fx === "ice") g.ice = 1;
     else if (fx === "chain") g.chain = 1;
     else if (fx === "bombT") g.timer = LV.bombTimer;
-    else { const b = newGem(fx, g.fy); b.hp = fx === "stone" ? 2 : 1; b.maxHp = b.hp; b.spawn = 0.6; grid[r][c] = b; }
+    else { const b = newGem(fx === "rock" ? "stone" : fx, g.fy); b.hp = fx === "stone" ? 2 : 1; b.maxHp = fx === "rock" ? 3 : b.hp; b.spawn = 0.6; grid[r][c] = b; }
     grid[r][c].hitT = 1;
-    iceFx(r, c, fx === "stone" ? "stone" : fx === "slime" ? "goo" : fx === "chain" ? "chain" : "ice");
+    iceFx(r, c, fx === "stone" || fx === "rock" ? "stone" : fx === "slime" ? "goo" : fx === "chain" ? "chain" : "ice");
     boardShake = Math.min(14, boardShake + 3);
     haptic("light");
     if (selected && selected[0] === r && selected[1] === c) selected = null;
@@ -3018,6 +3173,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const p = cellCenter(Math.floor(ROWS / 2), Math.floor(COLS / 2));
       grantPower("wind", p.x, p.y);
     }
+    if (moveCleared >= 15) {
+      const p = cellCenter(Math.floor(ROWS / 2), Math.floor(COLS / 2));
+      later(0.2, () => grantPower("magnet", p.x, p.y + cell));
+    }
+    moveCleared = 0;
     cascade = 0; moveSpecials = 0; moveNova = false; moveBonus = false;
     boardState = "idle";
     if (moveMade) { moveMade = false; moveTick(); }
@@ -3142,7 +3302,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (el === "fire") t = densest(FIRE.R[tier] * S);
     else if (el === "poison") t = densest(POISON.R[tier] * S);
     else if (el === "ice") t = soonest((e) => e.frozen <= 0) || soonest();
-    else if (el === "bolt") t = soonest();
+    else if (el === "bolt") t = soonest((e) => e.type === "healer" || e.type === "thrower") || soonest((e) => e.armor > 0) || soonest();
     cast(die(el, tier), t ? t.x : null, t ? t.y : null);
   }
   function triggerRage(el) {
@@ -3684,6 +3844,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         if (rage.t <= 0) { const c = EL[rage.el].c; rage = null; blade = []; doFlash("#ffffff", 0.25); ring(cx, cy, Math.max(W, H) * 0.6, c, 0.6, 10); }
       }
       guard = Math.max(0, guard - dt);
+      if (dome > 0) {
+        dome = Math.max(0, dome - wdt);
+        const R = domeR();
+        for (const e of enemies) {
+          if (e.dead) continue;
+          const dx = e.x - cx, dy = e.y - cy, d = Math.hypot(dx, dy) || 1;
+          if (d > R + e.r) continue;
+          // push them out of the bubble and sting them
+          e.x = cx + (dx / d) * (R + e.r); e.y = cy + (dy / d) * (R + e.r);
+          e.kx += (dx / d) * (e.boss ? 160 : 420) * S; e.ky += (dy / d) * (e.boss ? 160 : 420) * S;
+          if (now - (e.domeT || 0) > 0.5) { e.domeT = now; damage(e, 18, cx, cy, 0); emit("spark", e.x - (dx / d) * e.r, e.y - (dy / d) * e.r, { n: 6, spd: [80, 220], life: [0.2, 0.35], size: [1.5, 3], colors: ["#e0f6ff", "#4fc3ff"] }); tone(1400, 900, 0.06, "triangle", 0.04); }
+        }
+      }
+      if (magnetFx) { magnetFx.t -= wdt; if (magnetFx.t <= 0) magnetCrush(); }
       for (const z of zones) {
         z.t -= wdt; z.spin += wdt * 0.6;
         for (const e of enemies) {
@@ -3740,13 +3914,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         haptic("medium");
       }
 
+      actDt = wdt;
       for (const e of enemies) {
         if (e.dead) continue;
         const dx = cx - e.x, dy = cy - e.y, d = Math.hypot(dx, dy) || 1;
-        if (e.frozen > 0) e.frozen -= wdt;
+        const hold = ENEMY[e.type].hold ? Math.min(W, trayTop - hudH) * ENEMY[e.type].hold : 0;
+        if (magnetFx && !e.boss && e.pulled) {
+          const k = Math.min(1, wdt * 7);
+          e.x += (magnetFx.x + e.ox2 - e.x) * k; e.y += (magnetFx.y + e.oy2 - e.y) * k;
+          e.phase += wdt * 20;
+        } else if (e.frozen > 0) e.frozen -= wdt;
         else {
-          const sp = e.speed * (e.slow > 0 ? 0.45 : 1) * wdt;
+          const sp = e.speed * (e.slow > 0 ? 0.45 : 1) * wdt * (hold && d <= hold ? 0 : 1);
           e.x += (dx / d) * sp; e.y += (dy / d) * sp;
+          if (hold && d <= hold && onScreen(e)) enemyAct(e);
           e.phase += wdt * (e.type === "runner" ? 14 : e.type === "brute" ? 5 : 8);
           if (e.slow > 0 && Math.random() < wdt * 4) emit("flake", e.x, e.y - e.r, { n: 1, spd: [5, 20], life: [0.6, 1], size: [4, 6], colors: ["#ffffff"], vy: 20, vr: 3 });
         }
@@ -3869,6 +4050,39 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     else if (a === "wisp") emit("glow", rand(0, W), trayTop, { n: 1, spd: [0, 15], life: [2, 4], size: [4, 8], colors: ["#8a5aff", "#ff4a6a"], vy: -35 });
   }
 
+  // Healers mend their friends; throwers lob rocks onto the board.
+  let actDt = 0;
+  function enemyAct(e) {
+    e.actT -= actDt;
+    if (e.actT > 0) return;
+    if (e.type === "healer") {
+      e.actT = 3.2;
+      const R = 130 * S;
+      let n = 0;
+      for (const o of enemies) {
+        if (o.dead || o === e || Math.hypot(o.x - e.x, o.y - e.y) > R || o.hp >= o.maxHp) continue;
+        o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (o.boss ? 0.05 : 0.3)); n++;
+        emit("heart", o.x, o.y - o.r, { n: 3, spd: [20, 60], life: [0.6, 1], size: [5, 8], colors: ["#7dffb0", "#ffffff"], vy: -60 });
+      }
+      ring(e.x, e.y, R, "#7dffb0", 0.5, 5);
+      emit("glow", e.x, e.y, { n: 4, spd: [10, 60], life: [0.4, 0.7], size: [14, 24], colors: ["#7dffb0", "#e6fff0"] });
+      if (n) tone(660, 990, 0.15, "sine", 0.05);
+    } else if (e.type === "thrower") {
+      e.actT = 4.5;
+      if (state !== "play" || !grid.length) return;
+      const opts = [];
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const g = grid[r][c];
+        if (g && movable(g) && !g.sp && !g.timer && GEMS.includes(g.el) && g.pop === 0 && !shots.some((sh) => sh.r === r && sh.c === c)) opts.push([r, c]);
+      }
+      if (!opts.length) return;
+      const [r, c] = pick(opts), q = cellCenter(r, c);
+      shots.push({ x: e.x, y: e.y, tx: q.x, ty: q.y, r, c, t: 0, dur: 0.85, fx: "rock" });
+      e.hit = 0.8;
+      tone(260, 140, 0.15, "triangle", 0.05);
+    }
+  }
+
   // ---- Rage slicing ----------------------------------------------------
   function distToSeg(px, py, ax, ay, bx, by) {
     const vx = bx - ax, vy = by - ay, l = vx * vx + vy * vy || 1;
@@ -3943,6 +4157,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     drawEnemies();
     drawParticles(false);
     drawCore();
+    drawDome();
+    drawMagnet();
     drawProjectiles();
     ctx.globalCompositeOperation = "lighter";
     drawRings();
@@ -3966,7 +4182,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       ctx.globalCompositeOperation = "lighter";
       ctx.drawImage(glow(SHOT_COL[sh.fx]), sh.cx - 22, sh.cy - 22, 44, 44);
       ctx.globalCompositeOperation = "source-over";
-      const spr = sh.fx === "stone" ? STONE : sh.fx === "slime" ? GOO : sh.fx === "chain" ? CHAIN : null;
+      const spr = sh.fx === "stone" || sh.fx === "rock" ? STONE : sh.fx === "slime" ? GOO : sh.fx === "chain" ? CHAIN : null;
       ctx.save(); ctx.translate(sh.cx, sh.cy); ctx.rotate(sh.t * 8);
       if (spr) ctx.drawImage(spr.img, -spr.full * 0.3, -spr.full * 0.3, spr.full * 0.6, spr.full * 0.6);
       else { ctx.beginPath(); ctx.arc(0, 0, 9, 0, TAU); ctx.fillStyle = SHOT_COL[sh.fx]; ctx.fill(); ctx.strokeStyle = "#1a1035"; ctx.lineWidth = 2; ctx.stroke(); }
@@ -4209,7 +4425,24 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (e.flash > 0) { ctx.globalAlpha = clamp(e.flash / 0.14, 0, 1) * 0.85; ctx.drawImage(spr.white, -z / 2, -z / 2, z, z); }
       ctx.globalAlpha = 1;
       ctx.restore();
-      if (e.type === "crawler" || e.type === "splitter") {
+      if (e.pulled && magnetFx) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.strokeStyle = `rgba(255,90,122,${0.5 + Math.sin(now * 30) * 0.3})`; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(magnetFx.x, magnetFx.y); ctx.stroke();
+        ctx.globalCompositeOperation = "source-over";
+      }
+      if (e.armor > 0) {
+        // shield held up toward Volya
+        const a = Math.atan2(cy - e.y, cx - e.x), sx = e.x + Math.cos(a) * e.r * 0.85, sy = e.y + bob + Math.sin(a) * e.r * 0.85;
+        ctx.save(); ctx.translate(sx, sy); ctx.rotate(a + Math.PI / 2);
+        const w2 = e.r * 0.75, h2 = e.r * 0.95;
+        ctx.beginPath(); ctx.moveTo(0, -h2 * 0.55); ctx.quadraticCurveTo(w2 * 0.6, -h2 * 0.55, w2, -h2 * 0.4); ctx.quadraticCurveTo(w2, h2 * 0.3, 0, h2 * 0.6); ctx.quadraticCurveTo(-w2, h2 * 0.3, -w2, -h2 * 0.4); ctx.quadraticCurveTo(-w2 * 0.6, -h2 * 0.55, 0, -h2 * 0.55); ctx.closePath();
+        const sg = ctx.createLinearGradient(-w2, -h2, w2, h2); sg.addColorStop(0, "#f0f4ff"); sg.addColorStop(1, "#6a7ab0");
+        ctx.fillStyle = e.hit > 0.3 ? "#ffffff" : sg; ctx.fill(); ctx.strokeStyle = "#0a1a40"; ctx.lineWidth = 2.2; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, -h2 * 0.4); ctx.lineTo(0, h2 * 0.4); ctx.moveTo(-w2 * 0.55, -h2 * 0.1); ctx.lineTo(w2 * 0.55, -h2 * 0.1); ctx.strokeStyle = "#ffcf3d"; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.restore();
+      }
+      if (e.type === "crawler" || e.type === "splitter" || e.type === "knight" || e.type === "healer") {
         const dx = cx - e.x, dy = cy - e.y, d = Math.hypot(dx, dy) || 1;
         const ex = e.x + (dx / d) * e.r * 0.17, ey = e.y + bob - e.r * 0.12 * syy + (dy / d) * e.r * 0.17;
         ctx.fillStyle = e.frozen > 0 ? "#3a6a8a" : "#1a0526";
@@ -4227,6 +4460,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         ctx.strokeStyle = "rgba(255,255,255,0.75)"; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(x + s * 0.2, y + s * 0.45); ctx.lineTo(x + s * 0.45, y + s * 0.2); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(x + s * 0.25, y + s * 0.62); ctx.lineTo(x + s * 0.3, y + s * 0.57); ctx.stroke();
+      }
+      if (e.armor > 0) {
+        const w = e.r * 1.8, y = e.y - e.r - 18;
+        rrPath(ctx, e.x - w / 2 - 1.5, y - 1.5, w + 3, 8, 4); ctx.fillStyle = "rgba(10,8,30,0.7)"; ctx.fill();
+        rrPath(ctx, e.x - w / 2, y, Math.max(5, w * clamp(e.armor / e.maxArmor, 0, 1)), 5, 2.5); ctx.fillStyle = "#9fd0ff"; ctx.fill();
       }
       if (!e.boss && !ghostFaded(e) && (e.hp < e.maxHp || e.type === "brute")) {
         const w = e.r * 1.8, y = e.y - e.r - (e.type === "runner" ? 14 : 10);
@@ -4442,6 +4680,39 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.restore();
   }
 
+  function drawDome() {
+    if (dome <= 0) return;
+    const R = domeR() * (1 + Math.sin(now * 6) * 0.02), fade = dome < 1.5 ? (Math.sin(now * 20) > 0 ? 0.5 : 1) : 1;
+    const intro = clamp((DOME_TIME - dome) / 0.25, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = fade * intro;
+    const g = ctx.createRadialGradient(cx, cy, R * 0.6, cx, cy, R);
+    g.addColorStop(0, "rgba(79,195,255,0)"); g.addColorStop(0.85, "rgba(79,195,255,0.18)"); g.addColorStop(1, "rgba(200,240,255,0.5)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * ease(intro), 0, TAU); ctx.fill();
+    ctx.strokeStyle = "rgba(220,246,255,0.9)"; ctx.lineWidth = 3; ctx.stroke();
+    // hexagon shimmer
+    ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = "rgba(120,210,255,0.35)"; ctx.lineWidth = 1.5;
+    for (let k = 0; k < 6; k++) {
+      const a = now * 0.6 + (k / 6) * TAU, hx = cx + Math.cos(a) * R * 0.62, hy = cy + Math.sin(a) * R * 0.62, hr = R * 0.24;
+      ctx.beginPath(); for (let i = 0; i <= 6; i++) { const b = (i / 6) * TAU; ctx[i ? "lineTo" : "moveTo"](hx + Math.cos(b) * hr, hy + Math.sin(b) * hr); } ctx.stroke();
+    }
+    ctx.globalAlpha = fade * 0.6;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 0.97, -2.4 + now, -1.6 + now); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4; ctx.stroke();
+    ctx.restore();
+  }
+  function drawMagnet() {
+    if (!magnetFx) return;
+    const m = magnetFx, k = 1 - m.t / m.max, s = 22 + k * 10;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(glow("#ff5a7a"), m.x - s * 2, m.y - s * 2, s * 4, s * 4);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.translate(m.x, m.y); ctx.rotate(Math.sin(now * 30) * 0.15);
+    ctx.beginPath(); ctx.arc(0, 0, s * 0.9, 0, TAU); ctx.fillStyle = "#8a0f2a"; ctx.fill(); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; ctx.stroke();
+    paintIconMore(ctx, "magnet", s * 0.6, EL.magnet);
+    ctx.restore();
+  }
   function drawProjectiles() {
     for (const p of projectiles) {
       ctx.globalCompositeOperation = "lighter";
@@ -4632,14 +4903,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
 
+  const slotDims = () => { const n = SPECIALS.length, gap = 8, s = Math.min(slotSize, Math.floor((W - 150 - gap * (n - 1)) / n)); return { n, gap, s, w: s * n + gap * (n - 1) }; };
   function specRect(i) {
-    const s = slotSize, gap = 10, w = s * 2 + gap;
+    const { n, gap, s, w } = slotDims();
     const x0 = rtl ? 22 : W - 22 - w;
-    const j = rtl ? 1 - i : i;
+    const j = rtl ? n - 1 - i : i;
     return { x: x0 + j * (s + gap), y: trayTop + (trayH - s) / 2, s };
   }
   function meterRect() {
-    const w = slotSize * 2 + 10;
+    const w = slotDims().w;
     const x = rtl ? 22 + w + 16 : 24;
     return { x, y: trayTop + trayH / 2 - 12, w: W - 48 - w - 16, h: 24 };
   }
