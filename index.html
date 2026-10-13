@@ -4773,6 +4773,24 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vg.addColorStop(0, rgba(col.c, 0)); vg.addColorStop(1, rgba(col.c, 0.32 + pulse * 0.12));
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 
+    // bosses keep a health bar over their head (the top bar is hidden during Rage)
+    const ringR = clamp(W * 0.12, 34, 48), ringBottom = Math.max(ringR + 18, hudH * 0.55) + ringR + 10;
+    for (const e of enemies) {
+      if (!e.boss || e.dead) continue;
+      const bw = Math.max(70, e.r * 2.1), bh = 10, bx = e.x - bw / 2 + (e.hit ? rand(-2, 2) * e.hit : 0);
+      let by = e.y - e.r - 26;
+      if (by < ringBottom && Math.abs(e.x - cx) < ringR + bw / 2 + 24) by = e.y + e.r + 14;
+      const f2 = clamp(e.hp / e.maxHp, 0, 1);
+      e.lag = e.lag == null ? f2 : Math.max(f2, e.lag + (f2 - e.lag) * 0.06);
+      rrPath(ctx, bx - 3, by - 3, bw + 6, bh + 6, 8); ctx.fillStyle = "rgba(10,8,30,0.85)"; ctx.fill();
+      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
+      if (e.lag > f2) { rrPath(ctx, bx, by, Math.max(bh, bw * e.lag), bh, 5); ctx.fillStyle = "#ffe066"; ctx.fill(); }
+      if (f2 > 0) {
+        const g = ctx.createLinearGradient(0, by, 0, by + bh); g.addColorStop(0, "#ff9a7a"); g.addColorStop(1, "#c81e2a");
+        rrPath(ctx, bx, by, Math.max(bh, bw * f2), bh, 5); ctx.fillStyle = e.flash > 0 ? "#ffffff" : g; ctx.fill();
+      }
+      ctx.drawImage(SPR.boss.img, bx - 20, by - 9, 26, 26);
+    }
     // the only thing on screen besides the action: a big countdown ring
     const f = clamp(rage.t / RAGE_TIME, 0, 1), R = clamp(W * 0.12, 34, 48), y = Math.max(R + 18, hudH * 0.55);
     const hot = rage.t <= 2, ringC = hot && Math.sin(now * 16) > 0 ? "#ff4766" : col.c;
