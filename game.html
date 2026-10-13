@@ -112,7 +112,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   touch-action: pan-y;
   animation: fadein .25s ease-out;
 }
-.screen.center { justify-content: center; }
+.screen.center > .card { margin-block: auto; }
 @keyframes fadein { from { opacity: 0; } }
 .screen > * { flex: none; }
 .corner { position: absolute; top: 12px; inset-inline-end: 12px; }
@@ -278,6 +278,29 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .switch[aria-checked="true"] i { transform: translateX(26px); }
 [dir="rtl"] .switch[aria-checked="true"] i { transform: translateX(-26px); }
 
+.btn-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.btn-row .btn { font-size: 17px; padding-inline: 10px; gap: 8px; }
+.btn-row .btn svg { width: 20px; height: 20px; }
+.improve { text-align: center; color: var(--green); font-weight: 800; font-size: 17px; margin-top: -4px; }
+.rec-hero {
+  text-align: center; line-height: 1; padding: 12px 10px 10px; border-radius: 20px;
+  background: linear-gradient(rgba(255,207,61,.2), rgba(255,207,61,.06));
+  box-shadow: inset 0 0 0 2px rgba(255,207,61,.35);
+}
+.rec-hero small { display: block; color: var(--muted); font-weight: 800; font-size: 15px; }
+.rec-hero b { display: block; margin-top: 4px; font-size: 48px; font-weight: 800; color: var(--gold); text-shadow: 0 3px 0 #7a4a00; font-variant-numeric: tabular-nums; }
+.stats.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#recBody { display: flex; flex-direction: column; gap: 8px; }
+#recBody[hidden] { display: none !important; }
+.chart { display: block; width: 100%; height: auto; border-radius: 14px; background: rgba(0,0,0,.22); }
+.rec-list { display: flex; flex-direction: column; gap: 6px; max-height: 22vh; overflow-y: auto; touch-action: pan-y; }
+.rec-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 6px 12px; border-radius: 14px; background: rgba(0,0,0,.22);
+  font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums;
+}
+.rec-row small { color: var(--muted); font-weight: 700; font-size: 13px; margin-inline-end: 8px; }
+.rec-row .up { color: var(--green); font-size: 14px; }
 .rank-line {
   display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
   padding: 8px 12px; border-radius: 16px; background: rgba(0,0,0,.22);
@@ -364,7 +387,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         <span data-i18n="play"></span>
       </button>
       <button class="btn share" id="titleInviteBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="inviteFriends"></span></button>
-      <button class="btn secondary" id="titleLbBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></button>
+      <div class="btn-row">
+        <button class="btn secondary" id="titleRecBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></button>
+        <button class="btn secondary" id="titleLbBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></button>
+      </div>
       <div class="card">
         <h2 data-i18n="howTo"></h2>
         <div class="elements">
@@ -400,6 +426,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h2 class="over-title" data-i18n="gameOver"></h2>
       <div class="big-score"><small data-i18n="score"></small><b id="ovScore">0</b></div>
       <div class="badge" id="ovBest"></div>
+      <div class="improve" id="ovImprove" hidden></div>
       <div class="stats">
         <div><small data-i18n="waveLabel"></small><b id="ovWave">1</b></div>
         <div><small data-i18n="kills"></small><b id="ovKills">0</b></div>
@@ -408,7 +435,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <div class="rank-line" id="ovRank" hidden></div>
       <button class="btn primary" id="againBtn" type="button"><span data-i18n="playAgain"></span></button>
       <button class="btn share" id="ovShareBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="challenge"></span></button>
-      <button class="btn secondary" id="ovLbBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></button>
+      <div class="btn-row">
+        <button class="btn secondary" id="ovRecBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></button>
+        <button class="btn secondary" id="ovLbBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></button>
+      </div>
       <button class="btn ghost" id="overMenuBtn" type="button"><span data-i18n="menu"></span></button>
     </div>
   </section>
@@ -420,6 +450,28 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <div class="lb-list" id="lbList"></div>
       <div id="lbMe"></div>
       <button class="btn primary" id="lbDone" type="button"><span data-i18n="done"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="recScreen" hidden>
+    <div class="card">
+      <h2 class="lb-title"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></h2>
+      <div class="rec-hero"><small data-i18n="personalBest"></small><b id="recBest">0</b></div>
+      <div class="stats two">
+        <div><small data-i18n="gamesPlayed"></small><b id="recGames">0</b></div>
+        <div><small data-i18n="avgScore"></small><b id="recAvg">0</b></div>
+        <div><small data-i18n="bestWave"></small><b id="recWave">0</b></div>
+        <div><small data-i18n="bestCombo"></small><b id="recCombo">0</b></div>
+      </div>
+      <p class="lb-note" id="recEmpty" data-i18n="noGames"></p>
+      <div id="recBody">
+        <h3 data-i18n="recordHistory"></h3>
+        <div id="recChart"></div>
+        <div class="rec-list" id="recList"></div>
+        <h3 data-i18n="recentGames"></h3>
+        <div id="recentChart"></div>
+      </div>
+      <button class="btn primary" id="recDone" type="button"><span data-i18n="done"></span></button>
     </div>
   </section>
 
@@ -773,6 +825,31 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: { inviteFriends: "Mời bạn bè", challenge: "Thách đấu bạn bè", inviteText: "Chơi Volya với mình nhé! Ghép đá quý, cho quái vật nổ tung 💎🚀", challengeText: "Mình được {n} điểm trong Volya! Bạn vượt qua được không? 💎🏆", linkCopied: "Đã sao chép liên kết!" }
   };
   for (const k in STR_SHARE) Object.assign(STR[k], STR_SHARE[k]);
+  const STR_REC = {
+    en: { myRecords: "My records", personalBest: "Personal best", gamesPlayed: "Games", bestWave: "Best wave", recordHistory: "Record history", recentGames: "Recent games", noGames: "Play a game to set your first record!", improvedBy: "+{n} over your old record", avgScore: "Average" },
+    fa: { myRecords: "رکوردهای من", personalBest: "بهترین رکورد من", gamesPlayed: "تعداد بازی", bestWave: "بهترین موج", recordHistory: "تاریخچهٔ رکوردها", recentGames: "بازی‌های اخیر", noGames: "یک دور بازی کن تا اولین رکوردت ثبت شود!", improvedBy: "{n} امتیاز بیشتر از رکورد قبلی‌ات", avgScore: "میانگین" },
+    ar: { myRecords: "أرقامي القياسية", personalBest: "أفضل نتيجة لي", gamesPlayed: "عدد الألعاب", bestWave: "أفضل موجة", recordHistory: "سجل الأرقام القياسية", recentGames: "الألعاب الأخيرة", noGames: "العب جولة لتسجّل أول رقم قياسي لك!", improvedBy: "+{n} فوق رقمك السابق", avgScore: "المتوسط" },
+    ru: { myRecords: "Мои рекорды", personalBest: "Личный рекорд", gamesPlayed: "Игр", bestWave: "Лучшая волна", recordHistory: "История рекордов", recentGames: "Последние игры", noGames: "Сыграй, чтобы поставить первый рекорд!", improvedBy: "+{n} к прошлому рекорду", avgScore: "В среднем" },
+    uk: { myRecords: "Мої рекорди", personalBest: "Особистий рекорд", gamesPlayed: "Ігор", bestWave: "Найкраща хвиля", recordHistory: "Історія рекордів", recentGames: "Останні ігри", noGames: "Зіграй, щоб встановити перший рекорд!", improvedBy: "+{n} до минулого рекорду", avgScore: "У середньому" },
+    tr: { myRecords: "Rekorlarım", personalBest: "Kişisel rekor", gamesPlayed: "Oyun", bestWave: "En iyi dalga", recordHistory: "Rekor geçmişi", recentGames: "Son oyunlar", noGames: "İlk rekorunu kırmak için bir oyun oyna!", improvedBy: "Eski rekorundan +{n}", avgScore: "Ortalama" },
+    az: { myRecords: "Rekordlarım", personalBest: "Şəxsi rekord", gamesPlayed: "Oyun", bestWave: "Ən yaxşı dalğa", recordHistory: "Rekord tarixçəsi", recentGames: "Son oyunlar", noGames: "İlk rekordunu qoymaq üçün bir oyun oyna!", improvedBy: "Köhnə rekordundan +{n}", avgScore: "Orta" },
+    uz: { myRecords: "Rekordlarim", personalBest: "Shaxsiy rekord", gamesPlayed: "O'yinlar", bestWave: "Eng yaxshi to'lqin", recordHistory: "Rekordlar tarixi", recentGames: "So'nggi o'yinlar", noGames: "Birinchi rekordingni qo'yish uchun o'yna!", improvedBy: "Oldingi rekorddan +{n}", avgScore: "O'rtacha" },
+    kk: { myRecords: "Менің рекордтарым", personalBest: "Жеке рекорд", gamesPlayed: "Ойындар", bestWave: "Үздік толқын", recordHistory: "Рекордтар тарихы", recentGames: "Соңғы ойындар", noGames: "Алғашқы рекордыңды қою үшін ойна!", improvedBy: "Бұрынғы рекордтан +{n}", avgScore: "Орташа" },
+    es: { myRecords: "Mis récords", personalBest: "Récord personal", gamesPlayed: "Partidas", bestWave: "Mejor oleada", recordHistory: "Historial de récords", recentGames: "Partidas recientes", noGames: "¡Juega una partida para marcar tu primer récord!", improvedBy: "+{n} sobre tu récord anterior", avgScore: "Promedio" },
+    pt: { myRecords: "Meus recordes", personalBest: "Recorde pessoal", gamesPlayed: "Partidas", bestWave: "Melhor onda", recordHistory: "Histórico de recordes", recentGames: "Partidas recentes", noGames: "Jogue uma partida para fazer seu primeiro recorde!", improvedBy: "+{n} sobre seu recorde anterior", avgScore: "Média" },
+    fr: { myRecords: "Mes records", personalBest: "Record perso", gamesPlayed: "Parties", bestWave: "Meilleure vague", recordHistory: "Historique des records", recentGames: "Parties récentes", noGames: "Joue une partie pour établir ton premier record !", improvedBy: "+{n} sur ton ancien record", avgScore: "Moyenne" },
+    de: { myRecords: "Meine Rekorde", personalBest: "Persönlicher Rekord", gamesPlayed: "Spiele", bestWave: "Beste Welle", recordHistory: "Rekordverlauf", recentGames: "Letzte Spiele", noGames: "Spiel eine Runde für deinen ersten Rekord!", improvedBy: "+{n} über deinem alten Rekord", avgScore: "Durchschnitt" },
+    it: { myRecords: "I miei record", personalBest: "Record personale", gamesPlayed: "Partite", bestWave: "Ondata migliore", recordHistory: "Storico dei record", recentGames: "Partite recenti", noGames: "Gioca una partita per fare il tuo primo record!", improvedBy: "+{n} rispetto al record precedente", avgScore: "Media" },
+    nl: { myRecords: "Mijn records", personalBest: "Persoonlijk record", gamesPlayed: "Spellen", bestWave: "Beste golf", recordHistory: "Recordgeschiedenis", recentGames: "Recente spellen", noGames: "Speel een potje voor je eerste record!", improvedBy: "+{n} boven je oude record", avgScore: "Gemiddeld" },
+    pl: { myRecords: "Moje rekordy", personalBest: "Rekord osobisty", gamesPlayed: "Gry", bestWave: "Najlepsza fala", recordHistory: "Historia rekordów", recentGames: "Ostatnie gry", noGames: "Zagraj, aby ustanowić pierwszy rekord!", improvedBy: "+{n} ponad poprzedni rekord", avgScore: "Średnio" },
+    id: { myRecords: "Rekorku", personalBest: "Rekor pribadi", gamesPlayed: "Permainan", bestWave: "Gelombang terbaik", recordHistory: "Riwayat rekor", recentGames: "Permainan terakhir", noGames: "Main satu ronde untuk mencetak rekor pertamamu!", improvedBy: "+{n} dari rekor lamamu", avgScore: "Rata-rata" },
+    hi: { myRecords: "मेरे रिकॉर्ड", personalBest: "निजी रिकॉर्ड", gamesPlayed: "खेल", bestWave: "सबसे अच्छी लहर", recordHistory: "रिकॉर्ड इतिहास", recentGames: "हाल के खेल", noGames: "पहला रिकॉर्ड बनाने के लिए एक खेल खेलें!", improvedBy: "पिछले रिकॉर्ड से +{n}", avgScore: "औसत" },
+    zh: { myRecords: "我的纪录", personalBest: "个人最佳", gamesPlayed: "局数", bestWave: "最高波次", recordHistory: "纪录历史", recentGames: "最近对局", noGames: "玩一局来创造你的第一个纪录！", improvedBy: "比旧纪录高 {n}", avgScore: "平均" },
+    ja: { myRecords: "マイ記録", personalBest: "自己ベスト", gamesPlayed: "プレイ回数", bestWave: "最高ウェーブ", recordHistory: "記録の履歴", recentGames: "最近のプレイ", noGames: "1回プレイして最初の記録を作ろう！", improvedBy: "前の記録より +{n}", avgScore: "平均" },
+    ko: { myRecords: "내 기록", personalBest: "개인 최고", gamesPlayed: "게임 수", bestWave: "최고 웨이브", recordHistory: "기록 히스토리", recentGames: "최근 게임", noGames: "한 판 플레이해서 첫 기록을 세워 보세요!", improvedBy: "이전 기록보다 +{n}", avgScore: "평균" },
+    vi: { myRecords: "Kỷ lục của tôi", personalBest: "Kỷ lục cá nhân", gamesPlayed: "Số ván", bestWave: "Đợt cao nhất", recordHistory: "Lịch sử kỷ lục", recentGames: "Ván gần đây", noGames: "Chơi một ván để lập kỷ lục đầu tiên!", improvedBy: "+{n} so với kỷ lục cũ", avgScore: "Trung bình" }
+  };
+  for (const k in STR_REC) Object.assign(STR[k], STR_REC[k]);
   for (const k in PRAISE) PRAISE[k].forEach((w, i) => { STR[k]["praise" + (i + 2)] = w; });
 
   // ---- Setup -----------------------------------------------------------
@@ -821,6 +898,51 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {} };
   let best = 0;
   try { best = +localStorage.getItem(BEST_KEY) || 0; } catch (e) {}
+
+  // ---- Personal records: this device + the player's Telegram cloud ----
+  const STATS_KEY = "dice-chain-stats-v1";
+  const emptyStats = () => ({ games: 0, total: 0, kills: 0, bestWave: 0, bestCombo: 0, records: [], recent: [] });
+  let stats = emptyStats();
+  function mergeStats(a, b) {
+    const byTime = (list) => { const m = new Map(); for (const x of list) if (x && x.t) m.set(x.t, x); return [...m.values()].sort((p, q) => p.t - q.t); };
+    const mx = (k) => Math.max(+a[k] || 0, +b[k] || 0);
+    return {
+      games: mx("games"), total: mx("total"), kills: mx("kills"), bestWave: mx("bestWave"), bestCombo: mx("bestCombo"),
+      records: byTime([...(a.records || []), ...(b.records || [])]).slice(-30),
+      recent: byTime([...(a.recent || []), ...(b.recent || [])]).slice(-15)
+    };
+  }
+  const tgCloud = () => {
+    try { return tg && tg.CloudStorage && (!tg.isVersionAtLeast || tg.isVersionAtLeast("6.9")) ? tg.CloudStorage : null; } catch (e) { return null; }
+  };
+  function bestFromStats() { for (const r of stats.records) best = Math.max(best, r.s || 0); }
+  function loadStats() {
+    try { stats = mergeStats(emptyStats(), JSON.parse(localStorage.getItem(STATS_KEY) || "{}")); } catch (e) {}
+    bestFromStats();
+    const cs = tgCloud();
+    if (cs) {
+      try {
+        cs.getItem(STATS_KEY, (err, val) => {
+          if (err || !val) return;
+          try { stats = mergeStats(stats, JSON.parse(val)); bestFromStats(); hudCache = {}; } catch (e) {}
+        });
+      } catch (e) {}
+    }
+  }
+  function saveStats() {
+    const data = JSON.stringify(stats);
+    try { localStorage.setItem(STATS_KEY, data); } catch (e) {}
+    const cs = tgCloud();
+    if (cs) try { cs.setItem(STATS_KEY, data, () => {}); } catch (e) {}
+  }
+  function recordRun(run, isRecord, prev) {
+    stats.games++; stats.total += run.s; stats.kills += run.k;
+    stats.bestWave = Math.max(stats.bestWave, run.w);
+    stats.bestCombo = Math.max(stats.bestCombo, run.c);
+    stats.recent = stats.recent.concat(run).slice(-15);
+    if (isRecord) stats.records = stats.records.concat({ t: run.t, s: run.s, w: run.w, prev }).slice(-30);
+    saveStats();
+  }
 
   let lang = "en", nf = new Intl.NumberFormat("en"), rtl = false;
   function detectLang() {
@@ -1434,7 +1556,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
   // ---- State -----------------------------------------------------------
   let state = "title", stateT = 0, now = 0;
-  let playTime = 0, hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, guard = 0, zones = [], flyers = [];
+  let runBestStart = 0, runRecordShown = false, playTime = 0, hp, score, shownScore, combo, comboT, comboPop, bestCombo, kills, elapsed, wave, spawnT, guard = 0, zones = [], flyers = [];
   let grid = [], boardState = "idle", cascade = 0, selected = null, idleT = 0, hintMove = null, gemId = 0;
   let powers = { nova: 0, wind: 0 }, rageMeter = 0, castQueue = [], castCD = 0, carry = {}, danger = 0, lastWarn = 0, boardParts = [], boardFx = [], pendingCreates = [], moveSpecials = 0, moveNova = false, sparkleT = 0, clearWait = 0, boardShake = 0, praise = null, moveBonus = false, specPop = { nova: 0, wind: 0 };
   let enemies, projectiles, particles, texts, rings, bolts, decals, blade, rage, timeScale, shake, flash, flashColor, coreKick, coreTurn = 0, shieldT, newBest, banner, castFx;
@@ -2216,17 +2338,18 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen"]) $(s).hidden = s !== id;
     $("hud").hidden = !(state === "play" || state === "paused" || state === "over");
     syncBackButton();
   }
   function syncBackButton() {
     const bb = tg && tg.BackButton;
     if (!bb) return;
-    try { if (state === "title" && $("settingsScreen").hidden && $("lbScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
+    try { if (state === "title" && $("settingsScreen").hidden && $("lbScreen").hidden && $("recScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("lbScreen").hidden) closeLeaderboard();
+    if (!$("recScreen").hidden) closeRecords();
+    else if (!$("lbScreen").hidden) closeLeaderboard();
     else if (!$("settingsScreen").hidden) closeSettings();
     else if (state === "play") pauseGame();
     else if (state === "paused") resumeGame();
@@ -2234,6 +2357,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function startGame() {
     reset();
+    runBestStart = best; runRecordShown = false;
     state = "play"; stateT = 0;
     showScreen(null);
     sfx("wave");
@@ -2273,10 +2397,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ring(cx, cy, Math.max(W, H) * 0.7, "#ff6b6b", 1.0, 14);
     addShake(22);
     for (const e of enemies) if (!e.dead) { e.dead = true; poof(e); }
+    const prevBest = best;
     if (score > best) {
       best = score; newBest = true;
       try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
     }
+    recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
     sfx("over");
     haptic("error");
     const submitted = submitScore({ score, wave, kills, duration: Math.round(playTime) });
@@ -2292,9 +2418,72 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       b.className = "badge" + (newBest ? " new" : "");
       b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span></span>';
       b.querySelector("span").textContent = newBest ? tr("newBest") : tr("best") + " " + fmt(best);
+      const imp = $("ovImprove");
+      imp.hidden = !(newBest && prevBest > 0);
+      if (!imp.hidden) imp.textContent = tr("improvedBy", score - prevBest);
       showScreen("overScreen");
     }, 1200);
   }
+
+  // ---- My records screen -------------------------------------------------
+  let recReturn = "title";
+  function progressionSVG(recs) {
+    const Wd = 300, Ht = 96, pad = 14, n = recs.length;
+    if (!n) return "";
+    const lo = Math.min(...recs.map((r) => r.prev || 0), recs[0].s) * 0.9, hi = Math.max(...recs.map((r) => r.s));
+    const X = (i) => (n === 1 ? Wd / 2 : pad + (i / (n - 1)) * (Wd - pad * 2));
+    const Y = (v) => Ht - pad - ((v - lo) / Math.max(1, hi - lo)) * (Ht - pad * 2);
+    let line = `M${X(0).toFixed(1)} ${Y(recs[0].s).toFixed(1)}`;
+    for (let i = 1; i < n; i++) line += ` H${X(i).toFixed(1)} V${Y(recs[i].s).toFixed(1)}`;
+    const area = `${line} V${Ht - 4} H${X(0).toFixed(1)} Z`;
+    const dots = recs.map((r, i) => `<circle cx="${X(i).toFixed(1)}" cy="${Y(r.s).toFixed(1)}" r="${i === n - 1 ? 6 : 3.5}" fill="#ffcf3d" stroke="#7a4a00" stroke-width="1.5"/>`).join("");
+    return `<svg class="chart" viewBox="0 0 ${Wd} ${Ht}" aria-hidden="true"><defs><linearGradient id="recFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf3d" stop-opacity=".45"/><stop offset="1" stop-color="#ffcf3d" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#recFill)"/><path d="${line}" fill="none" stroke="#ffcf3d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
+  }
+  function recentSVG(list) {
+    const Wd = 300, Ht = 76, pad = 8, n = list.length;
+    if (!n) return "";
+    const top = Math.max(best, ...list.map((r) => r.s), 1);
+    const recordTimes = new Set(stats.records.map((r) => r.t));
+    const slot = (Wd - pad * 2) / 15, bw = slot * 0.7;
+    const bars = list.map((r, i) => {
+      const h = Math.max(3, (r.s / top) * (Ht - pad * 2));
+      const x = pad + (15 - n + i) * slot + (slot - bw) / 2, y = Ht - pad - h;
+      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${recordTimes.has(r.t) ? "#ffcf3d" : "#6f8dff"}"/>`;
+    }).join("");
+    const by = Ht - pad - (best / top) * (Ht - pad * 2);
+    return `<svg class="chart" viewBox="0 0 ${Wd} ${Ht}" aria-hidden="true"><line x1="${pad}" x2="${Wd - pad}" y1="${by.toFixed(1)}" y2="${by.toFixed(1)}" stroke="#ffcf3d" stroke-opacity=".6" stroke-width="1.5" stroke-dasharray="5 5"/>${bars}</svg>`;
+  }
+  function renderRecords() {
+    $("recBest").textContent = fmt(best);
+    $("recGames").textContent = fmt(stats.games);
+    $("recAvg").textContent = fmt(stats.games ? stats.total / stats.games : 0);
+    $("recWave").textContent = fmt(stats.bestWave);
+    $("recCombo").textContent = fmt(stats.bestCombo);
+    const empty = !stats.games;
+    $("recEmpty").hidden = !empty;
+    $("recBody").hidden = empty;
+    if (empty) return;
+    const recs = stats.records.slice(-12);
+    $("recChart").innerHTML = progressionSVG(recs);
+    $("recentChart").innerHTML = recentSVG(stats.recent);
+    let df;
+    try { df = new Intl.DateTimeFormat(lang, { month: "short", day: "numeric" }); } catch (e) { df = new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }); }
+    const list = $("recList");
+    list.textContent = "";
+    for (const r of recs.slice().reverse()) {
+      const row = document.createElement("div"); row.className = "rec-row";
+      const left = document.createElement("span");
+      const d = document.createElement("small"); d.textContent = df.format(new Date(r.t));
+      const v = document.createElement("span"); v.textContent = fmt(r.s);
+      left.append(d, v);
+      const up = document.createElement("span"); up.className = "up";
+      up.textContent = r.prev > 0 ? "+" + fmt(r.s - r.prev) : "★";
+      row.append(left, up);
+      list.appendChild(row);
+    }
+  }
+  function openRecords(from) { recReturn = from; renderRecords(); showScreen("recScreen"); }
+  function closeRecords() { showScreen(recReturn === "over" ? "overScreen" : "titleScreen"); }
 
   // ---- Global leaderboard ----------------------------------------------
   const tgInitData = () => (tg && tg.initData) || "";
@@ -2472,6 +2661,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (danger > 0.45 && now - lastWarn > 1.6) { lastWarn = now; haptic("warning"); sfx("warn"); }
       elapsed += wdt;
       playTime += dt;
+      if (!runRecordShown && runBestStart > 0 && score > runBestStart) {
+        runRecordShown = true;
+        banner = { text: tr("newBest"), t: 1.8 };
+        emit("star", cx, hudH, { n: 18, spd: [120, 320], life: [0.8, 1.2], size: [6, 10], colors: ["#ffd84d"], g: 300, vy: -60, vr: 8 });
+        sfx("merge"); haptic("success");
+      }
       if (combo > 0) { comboT -= wdt; if (comboT <= 0) combo = 0; }
       spawnT -= wdt;
       if (spawnT <= 0) { spawn(); spawnT = spawnInterval(); }
@@ -3408,6 +3603,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("ovShareBtn").addEventListener("click", clickSfx(() => share(tr("challengeText", score))));
   $("ovLbBtn").addEventListener("click", clickSfx(() => openLeaderboard("over")));
   $("lbDone").addEventListener("click", clickSfx(closeLeaderboard));
+  $("titleRecBtn").addEventListener("click", clickSfx(() => openRecords("title")));
+  $("ovRecBtn").addEventListener("click", clickSfx(() => openRecords("over")));
+  $("recDone").addEventListener("click", clickSfx(closeRecords));
   $("soundSw").addEventListener("click", () => {
     settings.sound = !settings.sound; saveSettings();
     $("soundSw").setAttribute("aria-checked", String(settings.sound));
@@ -3435,6 +3633,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ["Baloo 2", "Vazirmatn", "Nunito"].forEach((f) => document.fonts.load(`800 20px "${f}"`).catch(() => {}));
   }
 
+  loadStats();
   buildEnemySprites();
   layout();
   setLang();

@@ -49,6 +49,10 @@ Players can override it in Settings. Persian and Arabic switch the whole layout 
 
 All numbers live in constants at the top of the script. Settings and the best score are kept in `localStorage`.
 
+## Personal records
+
+Each player has a **My records** screen (title and game-over screens) comparing them with themselves: personal best, games played, average score, best wave and best combo, a chart of how their record has climbed with the date and gain of each new record, and the last 15 games as bars (record runs in gold, dashed line at the current best). Passing the old best mid-game shows "New record!", and the game-over screen says how far the old record was beaten. History is stored on the device and, inside Telegram, in the player's Telegram Cloud Storage so it follows them to other phones.
+
 ## Global leaderboard
 
 Every run played inside Telegram is sent to a small API when the game ends. Players see their global rank on the game-over screen, and a **Leaderboard** button (title and game-over screens) shows the top 50 with medals, their own row highlighted, and their rank below the list if they are outside the top 50.
