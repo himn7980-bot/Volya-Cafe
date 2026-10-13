@@ -55,11 +55,13 @@ All numbers live in constants at the top of the script. Settings and the best sc
 
 Press **Play** to continue the campaign, **Levels** to open the map, or **Endless** for the classic score run (the only mode that feeds personal records and the leaderboard).
 
-- **5 worlds × 6 levels**: Night City, Frost Peaks, Toxic Swamp, Lava Land, Cosmic Realm. Each world changes the background, board, colours and Volya's crown/aura. After level 30 the worlds repeat, getting harder.
-- **Board challenges** per level: collect gems of a colour, defeat N enemies, break ice-locked gems, smash crates (match next to them), and a **boss** at the end of every world.
-- **Unlocks**: Poison (L3), Wind (L5), Nova + rainbow orbs (L8), then power boosts for Bolt (L11), Fire (L15), Ice (L21), Heal (L27).
-- **New enemies**: Boss (L6), Runner (L7), Ghost that fades in and out (L13), Brute (L19), Splitter that breaks into two slimes (L20).
-- 1–3 stars by remaining health; progress is saved locally and in Telegram CloudStorage.
+- **1000 levels**: 100 worlds of 10 levels across 10 themes (Night City, Frost Peaks, Toxic Swamp, Lava Land, Cosmic Realm, Golden Desert, Wild Jungle, Deep Ocean, Candy Land, Shadow Castle). Each theme restyles the arena, board and Volya's crown/aura; after world 10 the themes come back harder ("Night City 2" …). Level 5 of every world is a mini boss, level 10 a boss.
+- **Levels 1–100 each bring their own mix of challenges**, introduced one at a time: limited moves (L7), chains (L11), board shapes with holes (L12), thick ice (L13), time limits (L16), stone (L21), gold tiles (L23), spreading slime (L31), time bombs (L41), treasure to bring down (L51). After that the same mechanics are remixed with rising difficulty. Levels are generated from a fixed seed, so level N is the same for everyone.
+- **Square dart**: matching 4 gems in a 2×2 square makes a dart that clears around it and flies to the cell that helps the level's goals most.
+- **Bosses attack the board** from level 10: depending on the world they throw ice, chains, stones, slime or time bombs onto gems.
+- **Unlocks**: Poison (L3), dart (L4), Wind (L6), Nova + rainbow orbs (L9), boosts for Bolt (L15), Fire (L25), Ice (L35), Heal (L45). New enemies: mini boss (L5), Runner (L8), Ghost (L18), Brute (L28), Splitter (L38).
+- 1–3 stars by remaining health and leftover moves/time; unused moves are paid out as bonus points. Progress is saved locally and in Telegram CloudStorage.
+- Move budgets were tuned with a bot that plays random valid moves (it clears roughly 70% of limited-move levels; a real player aiming at the goals does better).
 
 ## Personal records
 
