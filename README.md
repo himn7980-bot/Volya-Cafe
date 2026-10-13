@@ -49,6 +49,16 @@ Players can override it in Settings. Persian and Arabic switch the whole layout 
 
 All numbers live in constants at the top of the script. Settings and the best score are kept in `localStorage`.
 
+## Levels & worlds
+
+Press **Play** to continue the campaign, **Levels** to open the map, or **Endless** for the classic score run (the only mode that feeds personal records and the leaderboard).
+
+- **5 worlds × 6 levels**: Night City, Frost Peaks, Toxic Swamp, Lava Land, Cosmic Realm. Each world changes the background, board, colours and Volya's crown/aura. After level 30 the worlds repeat, getting harder.
+- **Board challenges** per level: collect gems of a colour, defeat N enemies, break ice-locked gems, smash crates (match next to them), and a **boss** at the end of every world.
+- **Unlocks**: Poison (L3), Wind (L5), Nova + rainbow orbs (L8), then power boosts for Bolt (L11), Fire (L15), Ice (L21), Heal (L27).
+- **New enemies**: Boss (L6), Runner (L7), Ghost that fades in and out (L13), Brute (L19), Splitter that breaks into two slimes (L20).
+- 1–3 stars by remaining health; progress is saved locally and in Telegram CloudStorage.
+
 ## Personal records
 
 Each player has a **My records** screen (title and game-over screens) comparing them with themselves: personal best, games played, average score, best wave and best combo, a chart of how their record has climbed with the date and gain of each new record, and the last 15 games as bars (record runs in gold, dashed line at the current best). Passing the old best mid-game shows "New record!", and the game-over screen says how far the old record was beaten. History is stored on the device and, inside Telegram, in the player's Telegram Cloud Storage so it follows them to other phones.

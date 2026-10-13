@@ -278,6 +278,63 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .switch[aria-checked="true"] i { transform: translateX(26px); }
 [dir="rtl"] .switch[aria-checked="true"] i { transform: translateX(-26px); }
 
+.lvl-tag { font-size: 16px; padding: 3px 10px 1px; border-radius: 999px; background: rgba(74,35,0,.16); }
+.hud.levels .best { display: none; }
+.goals {
+  position: absolute; top: 68px; left: 50%; z-index: 5; transform: translateX(-50%);
+  display: flex; gap: 6px; pointer-events: none;
+}
+.goal {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 10px 0 3px; border-radius: 999px;
+  background: rgba(8,12,44,.78); box-shadow: inset 0 0 0 2px rgba(255,255,255,.14);
+  font-weight: 800; font-size: 16px; color: #fff; font-variant-numeric: tabular-nums;
+}
+.goal img { width: 26px; height: 26px; }
+.goal.done { box-shadow: inset 0 0 0 2px var(--green); }
+.goal.done b { color: var(--green); }
+.map-wrap { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; padding-top: 6px; }
+.map-title { margin: 0; text-align: center; font-weight: 800; font-size: 30px; }
+.map-list { display: flex; flex-direction: column; gap: 14px; }
+.world { border-radius: 22px; padding: 12px 12px 18px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.16), 0 6px 0 rgba(0,0,0,.35); }
+.world h3 { margin: 0 0 10px; font-weight: 800; font-size: 18px; text-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.lvls { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px 6px; }
+.lvl {
+  appearance: none; border: 0; cursor: pointer; padding: 0; position: relative;
+  aspect-ratio: 1; border-radius: 50%;
+  display: grid; place-items: center;
+  background: linear-gradient(#ffe98a, #ffbf1f 60%, #e08a00); color: #4a2300;
+  font-weight: 800; font-size: 17px; font-family: inherit;
+  box-shadow: 0 4px 0 #9a5a00;
+}
+.lvl i { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); display: flex; }
+.lvl i svg { width: 12px; height: 12px; }
+.lvl.boss { background: linear-gradient(#ffb3a8, #ff4a3d 60%, #a8162a); color: #fff; box-shadow: 0 4px 0 #6a0a14; }
+.lvl.locked { background: rgba(0,0,0,.35); color: rgba(255,255,255,.55); box-shadow: none; cursor: default; }
+.lvl.locked svg { width: 16px; height: 16px; }
+.lvl.current { box-shadow: 0 4px 0 #9a5a00, 0 0 0 3px #fff; animation: pulse 1s ease-in-out infinite; }
+.intro-world { margin: 0; text-align: center; font-weight: 800; font-size: 16px; }
+.intro-goals { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.intro-goal { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 16px 6px; border-radius: 18px; background: rgba(0,0,0,.25); font-weight: 800; font-size: 22px; }
+.intro-goal img { width: 46px; height: 46px; }
+.unlock {
+  display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 18px;
+  background: linear-gradient(rgba(255,207,61,.24), rgba(255,207,61,.06));
+  box-shadow: inset 0 0 0 2px rgba(255,207,61,.5);
+  animation: glowpulse 1.6s ease-in-out infinite;
+}
+@keyframes glowpulse { 50% { box-shadow: inset 0 0 0 2px rgba(255,207,61,1), 0 0 18px rgba(255,207,61,.35); } }
+.unlock img { width: 58px; height: 58px; flex: none; }
+.unlock > div { min-width: 0; }
+.unlock b { display: block; color: var(--gold); font-size: 18px; font-weight: 800; }
+.unlock span { display: block; font-weight: 800; font-size: 16px; }
+.unlock small { display: block; color: var(--muted); font-weight: 700; font-size: 14px; line-height: 1.3; }
+.win-title { color: var(--gold); }
+.win-stars { display: flex; justify-content: center; align-items: flex-end; gap: 4px; }
+.win-stars svg { width: 62px; height: 62px; filter: drop-shadow(0 4px 0 rgba(0,0,0,.35)); animation: starpop .5s cubic-bezier(.3,1.6,.5,1) both; }
+.win-stars svg:nth-child(2) { width: 78px; height: 78px; animation-delay: .25s; }
+.win-stars svg:nth-child(3) { animation-delay: .5s; }
+@keyframes starpop { from { transform: scale(0) rotate(-40deg); } }
 .btn-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; }
 .btn-row .btn { font-size: 17px; padding-inline: 10px; gap: 8px; }
 .btn-row .btn svg { width: 20px; height: 20px; }
@@ -346,13 +403,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .lb-note { text-align: center; color: var(--muted); font-weight: 700; font-size: 15px; padding: 18px 8px; line-height: 1.4; }
 
 @media (prefers-reduced-motion: reduce) {
-  .portrait, .badge.new, .hp.low svg { animation: none; }
+  .portrait, .badge.new, .hp.low svg, .lvl.current, .unlock, .win-stars svg { animation: none; }
 }
 </style>
 
 <div class="stage" id="stage">
   <canvas id="game" tabindex="0" aria-label="Dice and Chain Defense"></canvas>
   <div class="toast" id="toast" role="status" hidden></div>
+  <div class="goals" id="goals" hidden></div>
 
   <div class="hud" id="hud" hidden>
     <div class="hud-side">
@@ -385,7 +443,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <button class="btn primary big" id="playBtn" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.9l10-6.5a1 1 0 000-1.7l-10-6.5A1 1 0 008 5.5z" fill="currentColor"/></svg>
         <span data-i18n="play"></span>
+        <small class="lvl-tag" id="playLevel"></small>
       </button>
+      <div class="btn-row">
+        <button class="btn secondary" id="mapBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5l5.5-2.5 7 2.5L21 4v13.5L15.5 20l-7-2.5L3 20z" fill="currentColor" opacity=".35"/><path d="M8.5 4v13.5M15.5 6.5V20" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.4" fill="currentColor"/></svg><span data-i18n="levels"></span></button>
+        <button class="btn secondary" id="endlessBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5a3.5 3.5 0 100 7c2.6 0 4-3.5 5-3.5s2.4 3.5 5 3.5a3.5 3.5 0 100-7c-2.6 0-4 3.5-5 3.5S9.6 8.5 7 8.5z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></svg><span data-i18n="endless"></span></button>
+      </div>
       <button class="btn share" id="titleInviteBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="inviteFriends"></span></button>
       <div class="btn-row">
         <button class="btn secondary" id="titleRecBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></button>
@@ -475,6 +538,37 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     </div>
   </section>
 
+  <section class="screen" id="mapScreen" hidden>
+    <div class="map-wrap">
+      <h2 class="map-title" data-i18n="levels"></h2>
+      <div class="map-list" id="mapList"></div>
+      <button class="btn ghost" id="mapBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="introScreen" hidden>
+    <div class="card">
+      <p class="intro-world" id="inWorld"></p>
+      <h2 id="inLevel"></h2>
+      <div class="intro-goals" id="inGoals"></div>
+      <div class="unlock" id="inUnlock" hidden><img id="inUnlockImg" alt=""><div><b id="inUnlockTitle"></b><span id="inUnlockName"></span><small id="inUnlockNote"></small></div></div>
+      <button class="btn primary big" id="inStart" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.9l10-6.5a1 1 0 000-1.7l-10-6.5A1 1 0 008 5.5z" fill="currentColor"/></svg><span data-i18n="start"></span></button>
+      <button class="btn ghost" id="inBack" type="button"><span data-i18n="levels"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="winScreen" hidden>
+    <div class="card">
+      <h2 class="win-title" data-i18n="levelComplete"></h2>
+      <div class="win-stars" id="winStars"></div>
+      <div class="big-score"><small data-i18n="score"></small><b id="winScore">0</b></div>
+      <div class="unlock" id="winUnlock" hidden><img id="winUnlockImg" alt=""><div><b id="winUnlockTitle"></b><span id="winUnlockName"></span><small id="winUnlockNote"></small></div></div>
+      <button class="btn primary big" id="winNext" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.9l10-6.5a1 1 0 000-1.7l-10-6.5A1 1 0 008 5.5z" fill="currentColor"/></svg><span data-i18n="nextLevel"></span></button>
+      <button class="btn share" id="winShare" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="challenge"></span></button>
+      <button class="btn ghost" id="winMap" type="button"><span data-i18n="levels"></span></button>
+    </div>
+  </section>
+
   <section class="screen center" id="settingsScreen" hidden>
     <div class="card">
       <h2 data-i18n="settings"></h2>
@@ -534,10 +628,68 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const GEMS = ["fire", "ice", "bolt", "poison", "heal"];
   const ALL_ELS = Object.keys(EL);
   const ENEMY = {
-    crawler: { r: 16, hp: 30,  speed: 30, dmg: 8,  pts: 10, c: "#e04ff0" },
-    runner:  { r: 12, hp: 16,  speed: 60, dmg: 6,  pts: 15, c: "#62d84a" },
-    brute:   { r: 26, hp: 150, speed: 18, dmg: 20, pts: 50, c: "#ff7a3d" }
+    crawler:  { r: 16, hp: 30,  speed: 30, dmg: 8,  pts: 10,  c: "#e04ff0" },
+    runner:   { r: 12, hp: 16,  speed: 60, dmg: 6,  pts: 15,  c: "#62d84a" },
+    brute:    { r: 26, hp: 150, speed: 18, dmg: 20, pts: 50,  c: "#ff7a3d" },
+    ghost:    { r: 15, hp: 40,  speed: 34, dmg: 10, pts: 25,  c: "#b9a6ff" },
+    splitter: { r: 22, hp: 90,  speed: 24, dmg: 14, pts: 35,  c: "#ff9a3d" },
+    boss:     { r: 46, hp: 900, speed: 6,  dmg: 40, pts: 500, c: "#ff4766" }
   };
+
+  // ---- Worlds & levels --------------------------------------------------
+  // Each world restyles the arena, board, power bar and Volya (frame, aura, crown, ambient effect).
+  const THEMES = [
+    { bg: ["#22389e", "#15226e", "#0b1243", "#060a26"], blobs: ["rgba(130,70,230,0.2)", "rgba(40,150,255,0.16)", "rgba(255,70,130,0.09)", "rgba(80,200,255,0.1)"], plat: "110,160,255", star: "#9fc4ff",
+      board: ["#3a4fc4", "#1d2878", "#0c1145"], bar: ["#5a47c9", "#33278a", "#160f4a"], aura: "#3d7bff",
+      rim: ["#fff6cc", "#f2b62e", "#8f4f00"], ring: ["#ff6a6a", "#a3121f", "#5e0a14", "#8a1220"], crown: null, ambient: null },
+    { bg: ["#4a9ad8", "#24609e", "#10325e", "#06162e"], blobs: ["rgba(210,245,255,0.2)", "rgba(120,200,255,0.16)", "rgba(255,255,255,0.1)", "rgba(80,160,255,0.12)"], plat: "200,240,255", star: "#e6fbff",
+      board: ["#5aa6e0", "#2a6aa8", "#0f3566"], bar: ["#4f8fd8", "#245a95", "#0c2a55"], aura: "#9fe8ff",
+      rim: ["#ffffff", "#bfe9ff", "#3f7fb8"], ring: ["#e6fbff", "#5fb8f0", "#1f5a8a", "#2f78b0"], crown: "ice", ambient: "snow" },
+    { bg: ["#3f9a52", "#1f5e34", "#0e301a", "#05140a"], blobs: ["rgba(140,255,120,0.16)", "rgba(170,90,230,0.18)", "rgba(60,200,120,0.12)", "rgba(255,230,90,0.06)"], plat: "160,255,140", star: "#d6ff9e",
+      board: ["#4a9a52", "#24602e", "#0c2e14"], bar: ["#7a4ab8", "#4a2880", "#1e0f40"], aura: "#6ee03a",
+      rim: ["#e6ffbf", "#7ccf3a", "#2a6a14"], ring: ["#d0a0ff", "#7a2fc0", "#3a1060", "#5a1f90"], crown: "leaf", ambient: "bubble" },
+    { bg: ["#c8501f", "#7a1f0c", "#3a0c05", "#140302"], blobs: ["rgba(255,150,40,0.22)", "rgba(255,60,30,0.16)", "rgba(255,220,90,0.1)", "rgba(120,20,10,0.2)"], plat: "255,180,100", star: "#ffd27a",
+      board: ["#c0522e", "#7a2814", "#300c05"], bar: ["#a8382a", "#601512", "#2a0806"], aura: "#ff7a3d",
+      rim: ["#fff2b0", "#ff9a1f", "#9a3500"], ring: ["#ffe066", "#d0700a", "#6a2a00", "#a04a00"], crown: "flame", ambient: "ember" },
+    { bg: ["#7a4fe0", "#3e1f8a", "#180c48", "#07041a"], blobs: ["rgba(255,90,220,0.2)", "rgba(120,200,255,0.14)", "rgba(255,230,120,0.1)", "rgba(170,90,255,0.18)"], plat: "230,170,255", star: "#ffd6ff",
+      board: ["#7a5ae0", "#3e2896", "#160c48"], bar: ["#c04fb8", "#7a2a80", "#300f40"], aura: "#c77dff",
+      rim: ["#fff0ff", "#ff8af0", "#8a2a9a"], ring: ["#ffe066", "#d09a00", "#6a4a00", "#a07a00"], crown: "star", ambient: "stars" }
+  ];
+  const LEVELS_PER_WORLD = 6;
+  // Powers and boosts unlock at these levels (Endless has everything).
+  const UNLOCK_AT = { poison: 3, wind: 5, nova: 8, boostBolt: 11, boostFire: 15, boostIce: 21, boostHeal: 27 };
+  // What the intro card announces before a level.
+  const INTRO = {
+    1: { kind: "enemy", id: "crawler" }, 3: { kind: "power", id: "poison" }, 5: { kind: "power", id: "wind" },
+    6: { kind: "enemy", id: "boss" }, 7: { kind: "enemy", id: "runner" }, 8: { kind: "power", id: "nova" },
+    11: { kind: "boost", id: "boostBolt", el: "bolt" }, 13: { kind: "enemy", id: "ghost" }, 15: { kind: "boost", id: "boostFire", el: "fire" },
+    19: { kind: "enemy", id: "brute" }, 20: { kind: "enemy", id: "splitter" }, 21: { kind: "boost", id: "boostIce", el: "ice" },
+    27: { kind: "boost", id: "boostHeal", el: "heal" }
+  };
+  const POOL_WEIGHT = { crawler: 5, runner: 3, ghost: 2, brute: 1, splitter: 1.5 };
+  function levelDef(n) {
+    const k = (n - 1) % LEVELS_PER_WORLD, w = Math.floor(((n - 1) % 30) / LEVELS_PER_WORLD);
+    const gems = n >= UNLOCK_AT.poison ? GEMS.slice() : GEMS.filter((e) => e !== "poison");
+    const col = (i) => gems[(n * 7 + i * 3) % gems.length];
+    let goals;
+    if (k === 0) goals = [{ type: "collect", el: col(0), need: 10 + Math.floor(n * 0.8) }];
+    else if (k === 1) goals = [{ type: "kill", need: 8 + Math.floor(n * 1.2) }];
+    else if (k === 2) goals = [{ type: "ice", need: Math.min(14, 5 + Math.floor(n / 2)) }];
+    else if (k === 3) {
+      const a = col(0); let b = col(1);
+      if (b === a) b = gems[(gems.indexOf(a) + 1) % gems.length];
+      goals = [{ type: "collect", el: a, need: 8 + Math.floor(n * 0.6) }, { type: "collect", el: b, need: 8 + Math.floor(n * 0.6) }];
+    } else if (k === 4) goals = [{ type: "crate", need: Math.min(12, 4 + Math.floor(n / 2)) }, { type: "kill", need: 6 + n }];
+    else goals = [{ type: "boss", need: 1 }];
+    const pool = ["crawler"];
+    if (n >= 7) pool.push("runner");
+    if (n >= 13) pool.push("ghost");
+    if (n >= 19) pool.push("brute");
+    if (n >= 20) pool.push("splitter");
+    return { n, w, k, gems, goals, pool, hpScale: 1 + (n - 1) * 0.06, spdScale: Math.min(1.7, 1 + (n - 1) * 0.02), spawnBase: Math.max(0.6, 1.9 - n * 0.035) };
+  }
+  let mode = "levels", levelN = 1, LV = null, goals = [], bossT = 0, BOARD_GEMS = GEMS, TH = THEMES[0];
+  const unlocked = (k) => !LV || !UNLOCK_AT[k] || levelN >= UNLOCK_AT[k];
   const POISON = { R: [0, 80, 115, 165], dur: [0, 4, 5, 6], dps: [0, 14, 30, 70] };
   const HEAL = { hp: [0, 15, 30, 60], guard: [0, 2.5, 3.5, 5] };
   const FIRE = { R: [0, 72, 108, 168], dmg: [0, 38, 95, 260] };
@@ -850,6 +1002,34 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: { myRecords: "Kỷ lục của tôi", personalBest: "Kỷ lục cá nhân", gamesPlayed: "Số ván", bestWave: "Đợt cao nhất", recordHistory: "Lịch sử kỷ lục", recentGames: "Ván gần đây", noGames: "Chơi một ván để lập kỷ lục đầu tiên!", improvedBy: "+{n} so với kỷ lục cũ", avgScore: "Trung bình" }
   };
   for (const k in STR_REC) Object.assign(STR[k], STR_REC[k]);
+  const LVL_KEYS = ["levels", "endless", "level", "levelComplete", "nextLevel", "start", "newPower", "newEnemy", "powerBoost",
+    "crawlerNote", "runnerNote", "ghostNote", "bruteNote", "splitterNote", "bossNote", "boostFire", "boostBolt", "boostIce", "boostHeal",
+    "world0", "world1", "world2", "world3", "world4"];
+  const STR_LVL = {
+    en: ["Levels", "Endless", "Level {n}", "Level complete!", "Next level", "Start", "New power!", "New enemy!", "Power boost!", "Slimes crawl toward Volya. Stop them!", "Fast flying imps", "Fades away and dodges spells while invisible", "Tough lava golem with lots of health", "Splits into two slimes when defeated", "A giant boss! Defeat it to finish the world", "Fire explosions are 25% bigger", "Lightning jumps to 2 more monsters", "Ice freezes 1 second longer", "Heal restores 50% more health", "Night City", "Frost Peaks", "Toxic Swamp", "Lava Land", "Cosmic Realm"],
+    fa: ["مراحل", "بی‌پایان", "مرحله {n}", "مرحله تمام شد!", "مرحلهٔ بعد", "شروع", "قدرت جدید!", "دشمن جدید!", "قدرت ارتقا یافت!", "اسلایم‌ها به سمت ولیا می‌خزند. جلویشان را بگیر!", "خفاش‌های پرنده و سریع", "ناپدید می‌شود و وقتی نامرئی است طلسم‌ها به او نمی‌خورند", "غول گدازه‌ای جان‌سخت", "وقتی شکست بخورد دو اسلایم می‌شود", "یک غول بزرگ! شکستش بده تا این دنیا تمام شود", "انفجار آتش ۲۵٪ بزرگ‌تر شد", "صاعقه به ۲ هیولای بیشتر می‌پرد", "یخ ۱ ثانیه بیشتر منجمد می‌کند", "شفا ۵۰٪ جان بیشتری برمی‌گرداند", "شهر شب", "قله‌های یخی", "مرداب سمی", "سرزمین گدازه", "قلمرو کیهان"],
+    ar: ["المراحل", "بلا نهاية", "المرحلة {n}", "اكتملت المرحلة!", "المرحلة التالية", "ابدأ", "قوة جديدة!", "عدو جديد!", "تقوية!", "الوحوش اللزجة تزحف نحو فوليا. أوقفها!", "عفاريت طائرة سريعة", "يختفي ويتفادى التعاويذ وهو غير مرئي", "عملاق حمم قوي كثير الصحة", "ينقسم إلى وحشين لزجين عند هزيمته", "زعيم عملاق! اهزمه لتنهي هذا العالم", "انفجارات النار أكبر بنسبة 25٪", "البرق يقفز إلى وحشين إضافيين", "الجليد يجمّد لثانية إضافية", "الشفاء يعيد صحة أكثر بنسبة 50٪", "مدينة الليل", "قمم الجليد", "المستنقع السام", "أرض الحمم", "عالم الكون"],
+    ru: ["Уровни", "Бесконечный", "Уровень {n}", "Уровень пройден!", "Следующий уровень", "Старт", "Новая сила!", "Новый враг!", "Усиление!", "Слизни ползут к Воле. Останови их!", "Быстрые летучие бесята", "Исчезает и уклоняется от заклинаний, пока невидим", "Крепкий лавовый голем с кучей здоровья", "Делится на двух слизней после победы", "Гигантский босс! Победи его, чтобы пройти мир", "Взрывы огня на 25% больше", "Молния бьёт ещё 2 монстров", "Лёд замораживает на 1 секунду дольше", "Лечение восстанавливает на 50% больше", "Ночной город", "Ледяные пики", "Ядовитое болото", "Земля лавы", "Космос"],
+    uk: ["Рівні", "Нескінченний", "Рівень {n}", "Рівень пройдено!", "Наступний рівень", "Старт", "Нова сила!", "Новий ворог!", "Посилення!", "Слизні повзуть до Волі. Зупини їх!", "Швидкі летючі чортенята", "Зникає й ухиляється від заклять, поки невидимий", "Міцний лавовий голем з купою здоров'я", "Ділиться на двох слизнів після перемоги", "Гігантський бос! Переможи його, щоб пройти світ", "Вибухи вогню на 25% більші", "Блискавка б'є ще 2 монстрів", "Лід заморожує на 1 секунду довше", "Лікування відновлює на 50% більше", "Нічне місто", "Крижані піки", "Отруйне болото", "Земля лави", "Космос"],
+    tr: ["Bölümler", "Sonsuz", "Bölüm {n}", "Bölüm tamamlandı!", "Sonraki bölüm", "Başla", "Yeni güç!", "Yeni düşman!", "Güç artışı!", "Balçıklar Volya'ya doğru sürünüyor. Durdur onları!", "Hızlı uçan cinler", "Kaybolur, görünmezken büyülerden kaçar", "Canı bol, sağlam lav golemi", "Yenilince iki balçığa bölünür", "Dev bir boss! Dünyayı bitirmek için onu yen", "Ateş patlamaları %25 daha büyük", "Şimşek 2 canavara daha sıçrar", "Buz 1 saniye daha uzun dondurur", "Şifa %50 daha fazla can verir", "Gece Şehri", "Buz Zirveleri", "Zehirli Bataklık", "Lav Diyarı", "Kozmik Diyar"],
+    az: ["Mərhələlər", "Sonsuz", "Mərhələ {n}", "Mərhələ bitdi!", "Növbəti mərhələ", "Başla", "Yeni güc!", "Yeni düşmən!", "Güc artımı!", "Seliklər Volyaya doğru sürünür. Onları dayandır!", "Sürətli uçan cinlər", "Yox olur, görünməz olanda sehrlərdən yayınır", "Canı çox olan möhkəm lava qolemi", "Məğlub olanda iki seliyə bölünür", "Nəhəng boss! Dünyanı bitirmək üçün onu məğlub et", "Od partlayışları 25% böyükdür", "İldırım daha 2 canavara sıçrayır", "Buz 1 saniyə çox dondurur", "Şəfa 50% çox can qaytarır", "Gecə şəhəri", "Buz zirvələri", "Zəhərli bataqlıq", "Lava diyarı", "Kosmik aləm"],
+    uz: ["Bosqichlar", "Cheksiz", "{n}-bosqich", "Bosqich tugadi!", "Keyingi bosqich", "Boshlash", "Yangi kuch!", "Yangi dushman!", "Kuch oshdi!", "Shilimshiqlar Volyaga qarab o'rmalaydi. Ularni to'xtat!", "Tez uchuvchi jinlar", "G'oyib bo'ladi va ko'rinmas paytda sehrlardan qochadi", "Joni ko'p, mustahkam lava golemi", "Yengilganda ikkita shilimshiqqa bo'linadi", "Ulkan boss! Dunyoni tugatish uchun uni yeng", "Olov portlashlari 25% kattaroq", "Chaqmoq yana 2 ta yirtqichga sakraydi", "Muz 1 soniya ko'proq muzlatadi", "Shifo 50% ko'proq jon qaytaradi", "Tungi shahar", "Muz cho'qqilari", "Zaharli botqoq", "Lava yurti", "Koinot olami"],
+    kk: ["Деңгейлер", "Шексіз", "{n}-деңгей", "Деңгей аяқталды!", "Келесі деңгей", "Бастау", "Жаңа күш!", "Жаңа жау!", "Күш артты!", "Шырышты құбыжықтар Воляға қарай жорғалайды. Оларды тоқтат!", "Жылдам ұшатын жындар", "Жоғалып кетеді, көрінбей тұрғанда сиқырдан жалтарады", "Жаны көп мықты лава големі", "Жеңілгенде екі шырыштыға бөлінеді", "Алып босс! Әлемді аяқтау үшін оны жең", "От жарылыстары 25% үлкен", "Найзағай тағы 2 құбыжыққа секіреді", "Мұз 1 секунд ұзақ қатырады", "Емдеу 50% көбірек жан қайтарады", "Түнгі қала", "Мұз шыңдары", "Улы батпақ", "Лава өлкесі", "Ғарыш әлемі"],
+    es: ["Niveles", "Infinito", "Nivel {n}", "¡Nivel completado!", "Siguiente nivel", "Empezar", "¡Nuevo poder!", "¡Nuevo enemigo!", "¡Poder mejorado!", "Los limos se arrastran hacia Volya. ¡Detenlos!", "Diablillos voladores y rápidos", "Se desvanece y esquiva hechizos mientras es invisible", "Gólem de lava resistente con mucha vida", "Se divide en dos limos al ser derrotado", "¡Un jefe gigante! Derrótalo para terminar el mundo", "Las explosiones de fuego son un 25% más grandes", "El rayo salta a 2 monstruos más", "El hielo congela 1 segundo más", "La curación devuelve un 50% más de vida", "Ciudad Nocturna", "Picos Helados", "Pantano Tóxico", "Tierra de Lava", "Reino Cósmico"],
+    pt: ["Fases", "Infinito", "Fase {n}", "Fase concluída!", "Próxima fase", "Começar", "Novo poder!", "Novo inimigo!", "Poder melhorado!", "As gosmas rastejam até o Volya. Pare-as!", "Diabinhos voadores e rápidos", "Some e desvia de feitiços enquanto está invisível", "Golem de lava resistente com muita vida", "Divide-se em duas gosmas ao ser derrotado", "Um chefão gigante! Derrote-o para terminar o mundo", "Explosões de fogo 25% maiores", "O raio pula para mais 2 monstros", "O gelo congela 1 segundo a mais", "A cura devolve 50% mais vida", "Cidade Noturna", "Picos Gelados", "Pântano Tóxico", "Terra de Lava", "Reino Cósmico"],
+    fr: ["Niveaux", "Infini", "Niveau {n}", "Niveau terminé !", "Niveau suivant", "Commencer", "Nouveau pouvoir !", "Nouvel ennemi !", "Pouvoir renforcé !", "Les gluants rampent vers Volya. Arrête-les !", "Diablotins volants et rapides", "Disparaît et esquive les sorts quand il est invisible", "Golem de lave coriace avec beaucoup de vie", "Se divise en deux gluants une fois vaincu", "Un boss géant ! Bats-le pour finir le monde", "Les explosions de feu sont 25 % plus grandes", "La foudre touche 2 monstres de plus", "La glace gèle 1 seconde de plus", "Le soin rend 50 % de vie en plus", "Ville de nuit", "Pics glacés", "Marais toxique", "Terre de lave", "Royaume cosmique"],
+    de: ["Level", "Endlos", "Level {n}", "Level geschafft!", "Nächstes Level", "Start", "Neue Kraft!", "Neuer Gegner!", "Kraft verstärkt!", "Schleime kriechen auf Volya zu. Halte sie auf!", "Schnelle fliegende Kobolde", "Verschwindet und weicht Zaubern aus, solange er unsichtbar ist", "Zäher Lavagolem mit viel Leben", "Teilt sich beim Besiegen in zwei Schleime", "Ein Riesenboss! Besiege ihn, um die Welt abzuschließen", "Feuerexplosionen sind 25 % größer", "Der Blitz springt auf 2 weitere Monster", "Eis friert 1 Sekunde länger ein", "Heilung gibt 50 % mehr Leben", "Nachtstadt", "Frostgipfel", "Giftsumpf", "Lavaland", "Kosmisches Reich"],
+    it: ["Livelli", "Infinito", "Livello {n}", "Livello completato!", "Livello successivo", "Inizia", "Nuovo potere!", "Nuovo nemico!", "Potere potenziato!", "Le melme strisciano verso Volya. Fermale!", "Diavoletti volanti e veloci", "Svanisce e schiva gli incantesimi quando è invisibile", "Golem di lava robusto con tanta vita", "Si divide in due melme quando viene sconfitto", "Un boss gigante! Sconfiggilo per finire il mondo", "Le esplosioni di fuoco sono più grandi del 25%", "Il fulmine salta su altri 2 mostri", "Il ghiaccio congela 1 secondo in più", "La cura restituisce il 50% di vita in più", "Città notturna", "Picchi ghiacciati", "Palude tossica", "Terra di lava", "Regno cosmico"],
+    nl: ["Levels", "Eindeloos", "Level {n}", "Level gehaald!", "Volgend level", "Start", "Nieuwe kracht!", "Nieuwe vijand!", "Kracht versterkt!", "Slijmen kruipen naar Volya. Houd ze tegen!", "Snelle vliegende duiveltjes", "Verdwijnt en ontwijkt spreuken zolang hij onzichtbaar is", "Taaie lavagolem met veel leven", "Splitst in twee slijmen als hij verslagen is", "Een reuzenbaas! Versla hem om de wereld te voltooien", "Vuurexplosies zijn 25% groter", "Bliksem springt naar 2 extra monsters", "IJs bevriest 1 seconde langer", "Genezen geeft 50% meer leven terug", "Nachtstad", "IJspieken", "Gifmoeras", "Lavaland", "Kosmisch rijk"],
+    pl: ["Poziomy", "Bez końca", "Poziom {n}", "Poziom ukończony!", "Następny poziom", "Start", "Nowa moc!", "Nowy wróg!", "Wzmocnienie!", "Gluty pełzną do Volyi. Zatrzymaj je!", "Szybkie latające diablęta", "Znika i unika zaklęć, gdy jest niewidzialny", "Wytrzymały lawowy golem z dużą ilością życia", "Po pokonaniu dzieli się na dwa gluty", "Ogromny boss! Pokonaj go, by ukończyć świat", "Wybuchy ognia są o 25% większe", "Piorun przeskakuje na 2 kolejne potwory", "Lód zamraża o 1 sekundę dłużej", "Leczenie przywraca o 50% więcej życia", "Nocne miasto", "Lodowe szczyty", "Trujące bagno", "Kraina lawy", "Kosmiczne królestwo"],
+    id: ["Level", "Tanpa akhir", "Level {n}", "Level selesai!", "Level berikutnya", "Mulai", "Kekuatan baru!", "Musuh baru!", "Kekuatan meningkat!", "Lendir merayap ke arah Volya. Hentikan mereka!", "Iblis kecil terbang yang cepat", "Menghilang dan menghindari mantra saat tak terlihat", "Golem lava tangguh dengan banyak nyawa", "Terbelah jadi dua lendir saat dikalahkan", "Bos raksasa! Kalahkan untuk menamatkan dunia", "Ledakan api 25% lebih besar", "Petir melompat ke 2 monster lagi", "Es membekukan 1 detik lebih lama", "Penyembuhan memulihkan 50% lebih banyak nyawa", "Kota Malam", "Puncak Es", "Rawa Beracun", "Negeri Lava", "Alam Kosmik"],
+    hi: ["स्तर", "अंतहीन", "स्तर {n}", "स्तर पूरा!", "अगला स्तर", "शुरू", "नई शक्ति!", "नया दुश्मन!", "शक्ति बढ़ी!", "चिपचिपे राक्षस वोल्या की ओर रेंग रहे हैं। उन्हें रोको!", "तेज़ उड़ने वाले शैतान", "गायब हो जाता है और अदृश्य रहते हुए मंत्रों से बचता है", "ढेर सारी जान वाला मज़बूत लावा गोलेम", "हारने पर दो चिपचिपे राक्षसों में बँट जाता है", "एक विशाल बॉस! दुनिया पूरी करने के लिए उसे हराओ", "आग के धमाके 25% बड़े", "बिजली 2 और राक्षसों पर कूदती है", "बर्फ़ 1 सेकंड ज़्यादा जमाती है", "इलाज 50% ज़्यादा जान लौटाता है", "रात का शहर", "बर्फ़ीली चोटियाँ", "ज़हरीला दलदल", "लावा भूमि", "ब्रह्मांड लोक"],
+    zh: ["关卡", "无尽模式", "第 {n} 关", "关卡完成！", "下一关", "开始", "新力量！", "新敌人！", "力量强化！", "史莱姆正爬向 Volya，拦住它们！", "飞得很快的小恶魔", "会隐身，隐身时法术打不到它", "血量很厚的熔岩巨人", "被击败后会分裂成两只史莱姆", "巨型首领！击败它才能通关这个世界", "火焰爆炸范围增大 25%", "闪电多跳 2 个怪物", "寒冰冻结时间多 1 秒", "治疗量增加 50%", "夜之城", "冰霜山峰", "毒沼泽", "熔岩之地", "宇宙领域"],
+    ja: ["ステージ", "エンドレス", "ステージ {n}", "ステージクリア！", "次のステージ", "スタート", "新しい力！", "新しい敵！", "パワーアップ！", "スライムが Volya に向かって這ってくる。止めろ！", "すばやく飛ぶ小悪魔", "姿を消し、見えない間は呪文をよける", "体力の多いタフな溶岩ゴーレム", "倒すと2匹のスライムに分裂する", "巨大ボス！倒してワールドをクリアしよう", "炎の爆発が25%大きくなる", "雷がさらに2体へ連鎖する", "氷が1秒長く凍らせる", "回復量が50%アップ", "夜の街", "氷の峰", "毒の沼", "溶岩の地", "宇宙の国"],
+    ko: ["스테이지", "무한 모드", "스테이지 {n}", "스테이지 클리어!", "다음 스테이지", "시작", "새로운 힘!", "새로운 적!", "힘 강화!", "슬라임이 Volya에게 기어 오고 있어요. 막아요!", "빠르게 나는 꼬마 악마", "사라져서 보이지 않는 동안 주문을 피합니다", "체력이 많은 튼튼한 용암 골렘", "쓰러지면 슬라임 두 마리로 나뉩니다", "거대한 보스! 쓰러뜨려야 월드를 클리어해요", "불 폭발이 25% 커집니다", "번개가 몬스터 2마리에게 더 튑니다", "얼음이 1초 더 오래 얼립니다", "회복량이 50% 늘어납니다", "밤의 도시", "얼음 봉우리", "독 늪지대", "용암 땅", "우주 왕국"],
+    vi: ["Màn chơi", "Vô tận", "Màn {n}", "Hoàn thành màn!", "Màn tiếp theo", "Bắt đầu", "Sức mạnh mới!", "Kẻ địch mới!", "Tăng sức mạnh!", "Chất nhờn đang bò về phía Volya. Chặn chúng lại!", "Tiểu quỷ bay nhanh", "Biến mất và né phép khi đang tàng hình", "Người lửa dung nham trâu bò, nhiều máu", "Tách thành hai chất nhờn khi bị hạ", "Trùm khổng lồ! Hạ nó để hoàn thành thế giới", "Vụ nổ lửa lớn hơn 25%", "Sét nhảy thêm 2 quái vật", "Băng đóng băng lâu hơn 1 giây", "Hồi máu nhiều hơn 50%", "Thành phố đêm", "Đỉnh băng", "Đầm lầy độc", "Vùng dung nham", "Vương quốc vũ trụ"]
+  };
+  for (const k in STR_LVL) STR_LVL[k].forEach((v, i) => { STR[k][LVL_KEYS[i]] = v; });
   for (const k in PRAISE) PRAISE[k].forEach((w, i) => { STR[k]["praise" + (i + 2)] = w; });
 
   // ---- Setup -----------------------------------------------------------
@@ -934,6 +1114,34 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { localStorage.setItem(STATS_KEY, data); } catch (e) {}
     const cs = tgCloud();
     if (cs) try { cs.setItem(STATS_KEY, data, () => {}); } catch (e) {}
+  }
+  const PROGRESS_KEY = "dice-chain-progress-v1";
+  let progress = { unlocked: 1, stars: {} };
+  function mergeProgress(a, b) {
+    const st = Object.assign({}, a.stars || {});
+    for (const k in b.stars || {}) st[k] = Math.max(st[k] || 0, +b.stars[k] || 0);
+    return { unlocked: Math.max(+a.unlocked || 1, +b.unlocked || 1), stars: st };
+  }
+  function loadProgress() {
+    try { progress = mergeProgress(progress, JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}")); } catch (e) {}
+    const cs = tgCloud();
+    if (cs) {
+      try {
+        cs.getItem(PROGRESS_KEY, (err, val) => {
+          if (err || !val) return;
+          try {
+            progress = mergeProgress(progress, JSON.parse(val));
+            if (state === "title" && !$("titleScreen").hidden) { setTheme(levelDef(progress.unlocked).w); showScreen("titleScreen"); }
+          } catch (e) {}
+        });
+      } catch (e) {}
+    }
+  }
+  function saveProgress() {
+    const data = JSON.stringify(progress);
+    try { localStorage.setItem(PROGRESS_KEY, data); } catch (e) {}
+    const cs = tgCloud();
+    if (cs) try { cs.setItem(PROGRESS_KEY, data, () => {}); } catch (e) {}
   }
   function recordRun(run, isRecord, prev) {
     stats.games++; stats.total += run.s; stats.kills += run.k;
@@ -1116,7 +1324,29 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     return { img: c, white: silhouette(c, "#ffffff"), ice: silhouette(c, "#9fe8ff"), toxic: silhouette(c, "#7cff3a"), size };
   }
 
-  function paintSlime(g, r) {
+  function paintGhost(g, r) {
+    g.beginPath();
+    g.moveTo(-r, r * 0.7);
+    g.lineTo(-r, -r * 0.05);
+    g.arc(0, -r * 0.05, r, Math.PI, 0);
+    g.lineTo(r, r * 0.7);
+    for (let i = 0; i < 4; i++) { const xs = r - (i * r) / 2; g.quadraticCurveTo(xs - r / 4, r * 1.08, xs - r / 2, r * 0.7); }
+    g.closePath();
+    const gr = g.createRadialGradient(-r * 0.3, -r * 0.4, r * 0.1, 0, 0, r * 1.2);
+    gr.addColorStop(0, "#ffffff"); gr.addColorStop(0.55, "#dcd2ff"); gr.addColorStop(1, "#9a8ae0");
+    g.fillStyle = gr; g.fill();
+    g.strokeStyle = "#3a2a7a"; g.lineWidth = r * 0.1; g.stroke();
+    g.fillStyle = "#1a1035";
+    for (const sx of [-1, 1]) { g.beginPath(); g.ellipse(sx * r * 0.32, -r * 0.12, r * 0.14, r * 0.2, 0, 0, TAU); g.fill(); }
+    g.beginPath(); g.ellipse(0, r * 0.28, r * 0.12, r * 0.15, 0, 0, TAU); g.fill();
+    g.fillStyle = "#ffffff";
+    for (const sx of [-1, 1]) { g.beginPath(); g.arc(sx * r * 0.32 - r * 0.05, -r * 0.2, r * 0.05, 0, TAU); g.fill(); }
+    g.fillStyle = "rgba(255,120,180,0.45)";
+    for (const sx of [-1, 1]) { g.beginPath(); g.ellipse(sx * r * 0.58, r * 0.12, r * 0.13, r * 0.08, 0, 0, TAU); g.fill(); }
+    g.fillStyle = "rgba(255,255,255,0.7)";
+    g.beginPath(); g.ellipse(-r * 0.45, -r * 0.6, r * 0.18, r * 0.1, -0.6, 0, TAU); g.fill();
+  }
+  function paintSlime(g, r, cols = { hi: "#ffc4fb", base: "#e04ff0", dark: "#7a1aa6", line: "#3d0a52" }) {
     g.beginPath();
     g.moveTo(-r, r * 0.55);
     g.bezierCurveTo(-r * 1.08, -r * 0.45, -r * 0.55, -r * 1.05, 0, -r);
@@ -1127,16 +1357,16 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     g.quadraticCurveTo(-r * 0.78, r * 0.88, -r, r * 0.55);
     g.closePath();
     const gr = g.createRadialGradient(-r * 0.35, -r * 0.45, r * 0.1, 0, 0, r * 1.25);
-    gr.addColorStop(0, "#ffc4fb"); gr.addColorStop(0.45, "#e04ff0"); gr.addColorStop(1, "#7a1aa6");
+    gr.addColorStop(0, cols.hi); gr.addColorStop(0.45, cols.base); gr.addColorStop(1, cols.dark);
     g.fillStyle = gr; g.fill();
-    g.strokeStyle = "#3d0a52"; g.lineWidth = r * 0.12; g.stroke();
+    g.strokeStyle = cols.line; g.lineWidth = r * 0.12; g.stroke();
     g.fillStyle = "rgba(255,255,255,0.7)";
     g.beginPath(); g.ellipse(-r * 0.45, -r * 0.5, r * 0.22, r * 0.12, -0.6, 0, TAU); g.fill();
     g.beginPath(); g.arc(-r * 0.15, -r * 0.72, r * 0.06, 0, TAU); g.fill();
     // eye white (pupil drawn live so it watches Volya)
     g.fillStyle = "#ffffff";
     g.beginPath(); g.arc(0, -r * 0.12, r * 0.42, 0, TAU); g.fill();
-    g.strokeStyle = "#3d0a52"; g.lineWidth = r * 0.08; g.stroke();
+    g.strokeStyle = cols.line; g.lineWidth = r * 0.08; g.stroke();
     // mouth + fangs
     g.beginPath(); g.arc(0, r * 0.22, r * 0.3, 0.2 * Math.PI, 0.8 * Math.PI);
     g.lineWidth = r * 0.1; g.stroke();
@@ -1233,7 +1463,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     SPR = {
       crawler: sprite(c * 2.6, (x) => paintSlime(x, c)),
       runner: [sprite(b * 4.6, (x) => paintBat(x, b, true)), sprite(b * 4.6, (x) => paintBat(x, b, false))],
-      brute: sprite(g * 2.8, (x) => paintGolem(x, g))
+      brute: sprite(g * 2.8, (x) => paintGolem(x, g)),
+      ghost: sprite(ENEMY.ghost.r * 2.8, (x) => paintGhost(x, ENEMY.ghost.r)),
+      splitter: sprite(ENEMY.splitter.r * 2.6, (x) => paintSlime(x, ENEMY.splitter.r, { hi: "#ffe6b0", base: "#ff9a3d", dark: "#b04a10", line: "#4a1a05" })),
+      boss: sprite(ENEMY.boss.r * 2.8, (x) => paintGolem(x, ENEMY.boss.r))
     };
   }
 
@@ -1484,7 +1717,45 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     glint(g, -r * 0.35, -r * 0.4, r * 0.3);
     glint(g, r * 0.4, r * 0.3, r * 0.15);
   }
-  let GEMSPR = {}, ROCKET = null, BOMBS = {}, RAINBOW = null;
+  let GEMSPR = {}, ROCKET = null, BOMBS = {}, RAINBOW = null, CRATE = null;
+  function paintCrate(g, s) {
+    const h = s * 0.42;
+    g.fillStyle = "rgba(0,0,30,0.4)"; rrPath(g, -h, -h + s * 0.07, h * 2, h * 2, s * 0.08); g.fill();
+    const wg = g.createLinearGradient(0, -h, 0, h); wg.addColorStop(0, "#ecbd82"); wg.addColorStop(1, "#a8692f");
+    rrPath(g, -h, -h, h * 2, h * 2, s * 0.08); g.fillStyle = wg; g.fill();
+    g.strokeStyle = "#4a2a10"; g.lineWidth = s * 0.05; g.stroke();
+    g.strokeStyle = "rgba(74,42,16,0.6)"; g.lineWidth = s * 0.035;
+    rrPath(g, -h * 0.74, -h * 0.74, h * 1.48, h * 1.48, s * 0.04); g.stroke();
+    g.lineCap = "round";
+    g.lineWidth = s * 0.08; g.strokeStyle = "#c08040";
+    g.beginPath(); g.moveTo(-h * 0.66, h * 0.66); g.lineTo(h * 0.66, -h * 0.66); g.stroke();
+    g.lineWidth = s * 0.025; g.strokeStyle = "#4a2a10"; g.stroke();
+    g.fillStyle = "#3a2a20";
+    for (const [x, y] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { g.beginPath(); g.arc(x * h * 0.84, y * h * 0.84, s * 0.03, 0, TAU); g.fill(); }
+    g.fillStyle = "rgba(255,255,255,0.25)"; rrPath(g, -h + 3, -h + 3, h * 2 - 6, h * 0.35, s * 0.05); g.fill();
+  }
+  function paintIce(g, s, layers) {
+    rrPath(g, -s / 2, -s / 2, s, s, s * 0.22);
+    const ig = g.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
+    ig.addColorStop(0, layers > 1 ? "rgba(235,252,255,0.75)" : "rgba(230,250,255,0.6)"); ig.addColorStop(1, layers > 1 ? "rgba(120,200,255,0.55)" : "rgba(110,200,255,0.35)");
+    g.fillStyle = ig; g.fill();
+    g.strokeStyle = "rgba(255,255,255,0.95)"; g.lineWidth = layers > 1 ? 3.5 : 2; g.stroke();
+    g.lineCap = "round"; g.strokeStyle = "rgba(255,255,255,0.85)"; g.lineWidth = 3;
+    g.beginPath(); g.moveTo(-s * 0.3, -s * 0.06); g.lineTo(-s * 0.06, -s * 0.3); g.stroke();
+    g.beginPath(); g.moveTo(-s * 0.3, s * 0.12); g.lineTo(-s * 0.24, s * 0.06); g.stroke();
+    if (layers > 1) {
+      g.strokeStyle = "#ffffff"; g.lineWidth = 1.6;
+      g.beginPath();
+      for (let k = 0; k < 3; k++) { const a = (k / 3) * Math.PI, x0 = s * 0.27, y0 = s * 0.27, l = s * 0.1; g.moveTo(x0 - Math.cos(a) * l, y0 - Math.sin(a) * l); g.lineTo(x0 + Math.cos(a) * l, y0 + Math.sin(a) * l); }
+      g.stroke();
+    }
+  }
+  const drawIce = (s2, layers) => paintIce(ctx, s2, layers);
+  function iceFx(r, c, wood) {
+    const p = cellCenter(r, c);
+    emit("shard", p.x, p.y, { n: 6, spd: [100, 260], life: [0.4, 0.7], size: [3, 6], colors: wood ? ["#c48a4a", "#e8b67a", "#7a4a1a"] : ["#ffffff", "#bff4ff", "#7fd0ff"], g: 600, vy: -140, vr: 12, list: boardParts });
+    tone(wood ? 220 : 1600, wood ? 140 : 2200, 0.1, wood ? "square" : "triangle", 0.06);
+  }
   function spriteOf(s, paint) {
     const res = dpr * 1.25, pad = s * 0.12;
     const c = mk((s + pad * 2) * res, (s + pad * 2) * res), g = c.getContext("2d");
@@ -1499,6 +1770,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       BOMBS[el] = spriteOf(cell, (g) => paintBomb(g, cell, el));
     }
     ROCKET = spriteOf(cell, (g) => paintRocket(g, cell));
+    CRATE = spriteOf(cell, (g) => paintCrate(g, cell));
     RAINBOW = spriteOf(cell, (g) => paintRainbow(g, cell));
   }
 
@@ -1509,7 +1781,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     W = stage.clientWidth; H = stage.clientHeight;
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-    hudH = 84;
+    hudH = 100;
     cell = Math.floor(Math.min(52, (W - 32) / COLS, H * 0.06));
     boardX = (W - cell * COLS) / 2;
     boardY = H - cell * ROWS - 20;
@@ -1524,14 +1796,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     buildDiceSprites();
     buildGemSprites();
   }
+  function setTheme(i) {
+    const t = THEMES[((i % THEMES.length) + THEMES.length) % THEMES.length];
+    if (t === TH && bg) return;
+    TH = t;
+    if (W) buildBg();
+  }
   function buildBg() {
     bg = mk(canvas.width, canvas.height);
     const b = bg.getContext("2d");
     b.scale(dpr, dpr);
     const base = b.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * 0.65);
-    base.addColorStop(0, "#22389e"); base.addColorStop(0.35, "#15226e"); base.addColorStop(0.7, "#0b1243"); base.addColorStop(1, "#060a26");
+    base.addColorStop(0, TH.bg[0]); base.addColorStop(0.35, TH.bg[1]); base.addColorStop(0.7, TH.bg[2]); base.addColorStop(1, TH.bg[3]);
     b.fillStyle = base; b.fillRect(0, 0, W, H);
-    const blobs = ["rgba(130,70,230,0.2)", "rgba(40,150,255,0.16)", "rgba(255,70,130,0.09)", "rgba(80,200,255,0.1)"];
+    const blobs = TH.blobs;
     for (let i = 0; i < 7; i++) {
       const x = rand(0, W), y = rand(0, H), r = rand(80, 220);
       const g = b.createRadialGradient(x, y, 0, x, y, r);
@@ -1541,11 +1819,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     // glowing arena platform under Volya
     const pr = Math.min(W, trayTop - hudH) * 0.42;
     const pg = b.createRadialGradient(cx, cy, 0, cx, cy, pr);
-    pg.addColorStop(0, "rgba(110,160,255,0.28)"); pg.addColorStop(0.7, "rgba(80,120,255,0.1)");
-    pg.addColorStop(0.9, "rgba(140,190,255,0.16)"); pg.addColorStop(1, "rgba(140,190,255,0)");
+    pg.addColorStop(0, `rgba(${TH.plat},0.28)`); pg.addColorStop(0.7, `rgba(${TH.plat},0.1)`);
+    pg.addColorStop(0.9, `rgba(${TH.plat},0.16)`); pg.addColorStop(1, `rgba(${TH.plat},0)`);
     b.fillStyle = pg; b.beginPath(); b.arc(cx, cy, pr, 0, TAU); b.fill();
     for (let i = 0; i < 26; i++) {
-      b.fillStyle = `rgba(160,190,255,${rand(0.03, 0.09)})`;
+      b.fillStyle = `rgba(${TH.plat},${rand(0.03, 0.09)})`;
       b.beginPath(); b.arc(rand(0, W), rand(0, H), rand(3, 16), 0, TAU); b.fill();
     }
     const vg = b.createRadialGradient(cx, cy, Math.min(W, H) * 0.35, cx, cy, Math.hypot(W, H) * 0.62);
@@ -1566,11 +1844,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const die = (el, tier = 1) => ({ el, tier, drop: 0, pop: 0 });
 
   function reset() {
+    goals = LV ? LV.goals.map((g) => Object.assign({}, g, { have: 0 })) : [];
+    bossT = LV && LV.k === 5 ? 4 : 0;
     playTime = 0; hp = MAX_HP; score = 0; shownScore = 0; combo = 0; comboT = 0; comboPop = 0; bestCombo = 0; kills = 0;
     elapsed = 0; wave = 1; spawnT = 2.5; guard = 0; zones = []; flyers = [];
     powers = { nova: 0, wind: 0 }; rageMeter = 0; castQueue = []; castCD = 0; carry = {}; danger = 0;
     boardParts = []; boardFx = []; pendingCreates = []; moveSpecials = 0; moveNova = false;
     initBoard();
+    if (LV) placeBlockers();
     enemies = []; projectiles = []; particles = []; texts = []; rings = []; bolts = []; decals = []; blade = [];
     rage = null; timeScale = 1; shake = 0; flash = 0; flashColor = "#ffffff"; coreKick = 0; coreTurn = 0; shieldT = 0; newBest = false;
     banner = { text: tr("wave", 1), t: 1.8 };
@@ -1579,27 +1860,44 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
 
   // ---- Spawning --------------------------------------------------------
-  function spawn(forceType) {
-    const t = elapsed, r = Math.random();
-    let type = forceType || "crawler";
-    if (!forceType) { if (t > 40 && r < 0.14) type = "brute"; else if (t > 18 && r < 0.42) type = "runner"; }
-    const d = ENEMY[type];
-    const hpScale = 1 + t / 70;
-    const m = d.r * 2;
-    let x, y;
+  function edgePoint(m) {
     switch ((Math.random() * 4) | 0) {
-      case 0: x = rand(0, W); y = -m; break;
-      case 1: x = W + m; y = rand(hudH * 0.5, trayTop); break;
-      case 2: x = rand(0, W); y = trayTop + m; break;
-      default: x = -m; y = rand(hudH * 0.5, trayTop);
+      case 0: return [rand(0, W), -m];
+      case 1: return [W + m, rand(hudH * 0.5, trayTop)];
+      case 2: return [rand(0, W), trayTop + m];
+      default: return [-m, rand(hudH * 0.5, trayTop)];
     }
-    enemies.push({
-      type, x, y, r: d.r, hp: d.hp * hpScale, maxHp: d.hp * hpScale,
-      speed: d.speed * Math.min(1 + t / 120, 2.4) * S, dmg: d.dmg, pts: d.pts, c: d.c,
-      frozen: 0, slow: 0, flash: 0, hit: 0, kx: 0, ky: 0, phase: rand(0, TAU), dead: false
-    });
   }
-  const spawnInterval = () => Math.max(0.3, 1.45 - elapsed * 0.012);
+  function spawnAt(type, x, y, hpMul = 1) {
+    const d = ENEMY[type], t = elapsed;
+    const hpScale = (LV ? LV.hpScale * (1 + t / 160) : 1 + t / 70) * hpMul;
+    const spd = LV ? LV.spdScale * Math.min(1 + t / 200, 1.4) : Math.min(1 + t / 120, 2.4);
+    const e = { type, x, y, r: d.r, hp: d.hp * hpScale, maxHp: d.hp * hpScale, speed: d.speed * spd * S, dmg: d.dmg, pts: d.pts, c: d.c,
+      frozen: 0, slow: 0, flash: 0, hit: 0, kx: 0, ky: 0, phase: rand(0, TAU), ghostT: rand(0, 2), dead: false, boss: type === "boss" };
+    enemies.push(e);
+    return e;
+  }
+  function spawn(forceType) {
+    let type = forceType;
+    if (!type && LV) {
+      let total = 0;
+      for (const k of LV.pool) total += POOL_WEIGHT[k];
+      let x = Math.random() * total;
+      for (const k of LV.pool) { x -= POOL_WEIGHT[k]; if (x <= 0) { type = k; break; } }
+    } else if (!type) {
+      const t = elapsed, r = Math.random();
+      type = "crawler";
+      if (t > 40 && r < 0.12) type = "brute";
+      else if (t > 75 && r < 0.2) type = "splitter";
+      else if (t > 55 && r < 0.3) type = "ghost";
+      else if (t > 18 && r < 0.45) type = "runner";
+    }
+    type = type || "crawler";
+    const [x, y] = edgePoint(ENEMY[type].r * 2);
+    return spawnAt(type, x, y);
+  }
+  const spawnInterval = () => LV ? Math.max(0.5, LV.spawnBase - elapsed * 0.006) * (LV.k === 5 ? 1.4 : 1) : Math.max(0.3, 1.45 - elapsed * 0.012);
+  const ghostFaded = (e) => e.type === "ghost" && e.ghostT % 3.2 > 2.0;
 
   // ---- Effects ---------------------------------------------------------
   function emit(kind, x, y, o) {
@@ -1644,14 +1942,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function nearestEnemy(x, y, exclude, maxD) {
     let bestE = null, bd = maxD * maxD;
     for (const e of enemies) {
-      if (e.dead || (exclude && exclude.has(e))) continue;
+      if (e.dead || ghostFaded(e) || (exclude && exclude.has(e))) continue;
       const d = (e.x - x) ** 2 + (e.y - y) ** 2;
       if (d < bd) { bd = d; bestE = e; }
     }
     return bestE;
   }
   function damage(e, amt, fromX, fromY, push = 0, quiet = false) {
-    if (e.dead) return;
+    if (e.dead || ghostFaded(e)) return;
+    if (e.boss) push *= 0.15;
     e.hp -= amt;
     if (!quiet) { e.flash = 0.14; e.hit = 1; }
     if (push && fromX != null) {
@@ -1671,12 +1970,35 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     addText("+" + fmt(pts), e.x, e.y - e.r, how === "slice" ? "#ffffff" : "#ffe066", 18 + Math.min(combo, 20) * 0.5, 0.85);
     if (how === "slice") sliceApart(e, ang || 0); else poof(e);
     sfx("pop");
+    goalProgress("kill", 1);
+    if (e.boss) {
+      goalProgress("boss", 1);
+      emit("glow", e.x, e.y, { n: 24, spd: [60, 420], life: [0.6, 1.2], size: [20, 44], colors: ["#ff7a3d", "#ffd84d", "#ffffff"], drag: 0.9 });
+      emit("star", e.x, e.y, { n: 20, spd: [150, 420], life: [0.9, 1.4], size: [7, 12], colors: ["#ffd84d"], g: 300, vy: -200, vr: 8 });
+      addShake(18); doFlash("#ffffff", 0.5); sfx("nova"); haptic("heavy");
+    }
+    if (e.type === "splitter") {
+      for (const sg of [-1, 1]) { const m = spawnAt("crawler", e.x + sg * 14, e.y + rand(-8, 8), 0.6); m.kx = sg * 140; m.ky = rand(-60, 60); }
+    }
     if (combo > 1 && combo % 10 === 0) {
       addText(tr("combo") + " ×" + fmt(combo), cx, cy - coreR - 56, "#ff8af0", 32, 1.2, -30);
       haptic("success");
     }
   }
   function hitCore(e) {
+    if (e.boss) {
+      if (e.hitCD > 0) return;
+      e.hitCD = 1.2;
+      const dx = e.x - cx, dy = e.y - cy, d = Math.hypot(dx, dy) || 1;
+      e.kx += (dx / d) * 420 * S; e.ky += (dy / d) * 420 * S;
+      if (guard > 0) { ring(cx, cy, coreR * 2.4, "#ff9fd0", 0.4, 8); return; }
+      hp = Math.max(0, hp - e.dmg);
+      addShake(14); doFlash("#ff2448", 0.4); coreKick = 1; shieldT = 1; combo = 0;
+      addText("-" + fmt(e.dmg), cx, cy - coreR - 18, "#ff6b6b", 30, 1);
+      sfx("hurt"); haptic("error");
+      if (hp <= 0) gameOver();
+      return;
+    }
     if (guard > 0) {
       e.dead = true; kills++;
       poof(e);
@@ -1719,7 +2041,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function detonate(p) {
     const t = p.tier;
     if (p.el === "fire") {
-      const R = FIRE.R[t] * S;
+      const R = FIRE.R[t] * S * (unlocked("boostFire") ? 1.25 : 1);
       for (const e of enemies) if (Math.hypot(e.x - p.x, e.y - p.y) < R + e.r) damage(e, FIRE.dmg[t], p.x, p.y, 60 + t * 30);
       emit("glow", p.x, p.y, { n: 1, spd: [0, 0], life: [0.28, 0.28], size: [R * 1.3, R * 1.3], colors: ["#ffd27a"], grow: 0.8 });
       emit("glow", p.x, p.y, { n: 10 + t * 6, spd: [40, R * 2.4], life: [0.45, 0.8], size: [R * 0.3, R * 0.55], colors: ["#ff5a1f", "#ff9a2f", "#ffd84d", "#ff3b30"], drag: 0.86, grow: 0.5 });
@@ -1740,7 +2062,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       addShake(2 + t * 2);
       sfx("boom", 1);
     } else {
-      const R = ICE.R[t] * S, fz = ICE.freeze[t];
+      const R = ICE.R[t] * S, fz = ICE.freeze[t] + (unlocked("boostIce") ? 1 : 0);
       for (const e of enemies) {
         if (e.dead || Math.hypot(e.x - p.x, e.y - p.y) >= R + e.r) continue;
         e.frozen = Math.max(e.frozen, fz);
@@ -1759,7 +2081,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
   function healUp(t) {
-    const amt = Math.min(MAX_HP - hp, HEAL.hp[t]);
+    const amt = Math.min(MAX_HP - hp, Math.round(HEAL.hp[t] * (unlocked("boostHeal") ? 1.5 : 1)));
     hp += amt;
     guard = Math.max(guard, HEAL.guard[t]);
     if (amt > 0) addText("+" + fmt(amt), cx, cy - coreR - 20, "#ff8fc8", 26, 1);
@@ -1777,7 +2099,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     emit("glow", cx, cy, { n: 1, spd: [0, 0], life: [0.5, 0.5], size: [coreR * 6, coreR * 6], colors: ["#ffffff"], grow: 3 });
     emit("glow", cx, cy, { n: 30, spd: [200, 700], life: [0.6, 1.1], size: [16, 34], colors: ["#c77dff", "#f3d9ff", "#ffe066"], drag: 0.93 });
     emit("star", cx, cy, { n: 30, spd: [250, 650], life: [0.8, 1.3], size: [7, 12], colors: ["#ffd84d"], drag: 0.95, g: 120, vr: 8 });
-    for (const e of enemies) if (!e.dead) kill(e, "spell");
+    for (const e of enemies) if (!e.dead) { if (e.boss) damage(e, 600); else kill(e, "spell"); }
     addShake(22);
     doFlash("#ffffff", 0.75);
     sfx("nova");
@@ -1813,7 +2135,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     const range = BOLT.range[t] * S;
     let i = 0;
-    while (cur && i < BOLT.chains[t]) {
+    while (cur && i < BOLT.chains[t] + (unlocked("boostBolt") ? 2 : 0)) {
       hit.add(cur);
       pts.push({ x: cur.x, y: cur.y });
       emit("glow", cur.x, cur.y, { n: 1, spd: [0, 0], life: [0.25, 0.25], size: [30 + t * 8, 30 + t * 8], colors: ["#fff3a0"] });
@@ -1833,7 +2155,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // "bomb" (blast around it) or "rainbow" (clears one whole colour).
   const newGem = (el, fy, sp = null) => ({ el, sp, fy, vy: 0, ox: 0, oy: 0, pop: 0, delay: 0, id: gemId++ });
   const gemAt = (r, c) => (r >= 0 && r < ROWS && c >= 0 && c < COLS ? grid[r][c] : null);
-  const matchable = (g) => g && g.el !== "rainbow";
+  const matchable = (g) => g && g.el !== "rainbow" && g.el !== "crate";
+  const movable = (g) => g && g.el !== "crate" && !g.ice;
   function lineAt(r, c) {
     const g = gemAt(r, c); if (!matchable(g)) return false;
     const same = (k, l) => { const o = gemAt(k, l); return o && o.el === g.el; };
@@ -1848,7 +2171,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       let el, tries = 0;
       do {
-        el = pick(GEMS); tries++;
+        el = pick(BOARD_GEMS); tries++;
       } while (tries < 20 && ((c >= 2 && grid[r][c - 1].el === el && grid[r][c - 2].el === el) || (r >= 2 && grid[r - 1][c].el === el && grid[r - 2][c].el === el)));
       grid[r][c] = newGem(el, r - ROWS - 1 - Math.random() * 0.5);
     }
@@ -1864,6 +2187,29 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     grid[spots[0][0]][spots[0][1]].sp = pick(["rocketH", "rocketV"]);
     boardState = "fall"; cascade = 0; selected = null; idleT = 0; hintMove = null;
   }
+  function placeBlockers() {
+    const cells = [];
+    for (let r = 1; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!grid[r][c].sp) cells.push([r, c]);
+    cells.sort(() => Math.random() - 0.5);
+    let i = 0;
+    for (const g of goals) {
+      if (g.type === "ice") {
+        let placed = 0;
+        while (placed < g.need && i < cells.length) { const [r, c] = cells[i++]; grid[r][c].ice = levelN >= 16 && Math.random() < 0.4 ? 2 : 1; placed++; }
+        g.need = placed;
+      } else if (g.type === "crate") {
+        let placed = 0;
+        while (placed < g.need && i < cells.length) {
+          const [r, c] = cells[i++];
+          if (r < 2) continue;
+          const old = grid[r][c], hp2 = levelN >= 14 && Math.random() < 0.4 ? 2 : 1;
+          const cr = newGem("crate", old.fy); cr.hp = hp2; cr.maxHp = hp2;
+          grid[r][c] = cr; placed++;
+        }
+        g.need = placed;
+      }
+    }
+  }
   function swapCells(a, b) {
     const t = grid[a[0]][a[1]]; grid[a[0]][a[1]] = grid[b[0]][b[1]]; grid[b[0]][b[1]] = t;
   }
@@ -1876,14 +2222,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     for (const [r, c] of order) {
       for (const [dr, dc] of [[0, 1], [1, 0]]) {
         const r2 = r + dr, c2 = c + dc;
-        if (r2 >= ROWS || c2 >= COLS) continue;
+        if (r2 >= ROWS || c2 >= COLS || !movable(grid[r][c]) || !movable(grid[r2][c2])) continue;
         swapCells([r, c], [r2, c2]);
         const ok = lineAt(r, c) || lineAt(r2, c2);
         swapCells([r, c], [r2, c2]);
         if (ok) return [[r, c], [r2, c2]];
       }
     }
-    for (const [r, c] of order) if (grid[r][c] && grid[r][c].sp) return [[r, c], [r, c]];
+    for (const [r, c] of order) if (grid[r][c] && grid[r][c].sp && !grid[r][c].ice) return [[r, c], [r, c]];
     return null;
   }
   function findGroups() {
@@ -1932,6 +2278,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   let swapPair = null, boardClearT = 0;
   function trySwap(a, b) {
     if (boardState !== "idle" || rage || state !== "play") return;
+    const A = grid[a[0]][a[1]], B = grid[b[0]][b[1]];
+    if (!movable(A) || !movable(B)) { if (A) A.hitT = 1; if (B) B.hitT = 1; sfx("nope"); selected = null; return; }
     swapCells(a, b);
     const ga = grid[a[0]][a[1]], gb = grid[b[0]][b[1]];
     ga.ox = b[1] - a[1]; ga.oy = b[0] - a[0];
@@ -1944,10 +2292,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
   // Clear a set of cells; specials caught in it go off too, chaining outwards.
   function blast(entries) {
-    const clear = new Map(), queue = [];
+    const clear = new Map(), queue = [], hit = new Set();
     const add = (r, c, d) => {
       const g = gemAt(r, c); if (!g || g.pop > 0) return;
       const k = r * COLS + c;
+      // blockers take one hit per blast: crates crack, thick ice thins, thin ice frees its gem
+      if (g.el === "crate" || g.ice) {
+        if (hit.has(k)) { if (g.el === "crate" || g.ice) return; }
+        else {
+          hit.add(k); g.hitT = 1; iceFx(r, c, g.el === "crate");
+          if (g.el === "crate") { g.hp--; if (g.hp > 0) return; goalProgress("crate", 1); }
+          else if (g.ice > 1) { g.ice--; return; }
+          else { g.ice = 0; goalProgress("ice", 1); }
+        }
+      }
       if (clear.has(k) && clear.get(k) <= d) return;
       clear.set(k, d);
       if (g.sp && !g.used) { g.used = true; queue.push([r, c, d]); }
@@ -1957,19 +2315,26 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const [r, c, d] = queue.shift();
       activate(r, c, d, add);
     }
+    // a clear next to a crate cracks it
+    for (const [k, d] of [...clear]) {
+      const r = Math.floor(k / COLS), c = k % COLS;
+      if (grid[r][c].el === "crate") continue;
+      for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = gemAt(r + dr, c + dc); if (n && n.el === "crate") add(r + dr, c + dc, d + 0.05); }
+    }
     let total = 0, maxD = 0;
     const counts = {}, sums = {};
     for (const [k, d] of clear) {
       const r = Math.floor(k / COLS), c = k % COLS, g = grid[r][c];
       g.pop = 0.001; g.delay = d; maxD = Math.max(maxD, d);
       total++;
-      if (g.el !== "rainbow") {
+      if (g.el !== "rainbow" && g.el !== "crate") {
         counts[g.el] = (counts[g.el] || 0) + 1;
         const p = cellCenter(r, c);
         sums[g.el] = sums[g.el] || [0, 0];
         sums[g.el][0] += p.x; sums[g.el][1] += p.y;
       }
     }
+    goalProgress("collect", counts);
     // Each colour cleared charges a spell; small leftovers carry over to the next clear.
     for (const el in counts) {
       const n = counts[el] + (carry[el] || 0);
@@ -2048,7 +2413,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function later(delay, fn) { if (delay <= 0) fn(); else timers.push({ t: delay, fn }); }
 
   function grantPower(kind, x, y) {
-    if (state !== "play") return;
+    if (state !== "play" || !unlocked(kind)) return;
     const i = SPECIALS.indexOf(kind), r = specRect(i);
     flyers.push({ x, y, tx: r.x + r.s / 2, ty: r.y + r.s / 2, t: 0, dur: 0.45, c: EL[kind].c, done: () => {
       powers[kind] = Math.min(SPECIAL_CAP, powers[kind] + 1); specPop[kind] = 1; sfx("charge");
@@ -2057,7 +2422,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function castSpecial(i) {
     const kind = SPECIALS[i];
-    if (!powers[kind] || state !== "play" || rage) return;
+    if (!powers[kind] || state !== "play" || rage || !unlocked(kind)) return;
     powers[kind]--;
     if (!settings.tutSpecial) { settings.tutSpecial = true; saveSettings(); }
     cast(die(kind, 1));
@@ -2068,7 +2433,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const entries = [];
     for (const g of groups) {
       let sp = null;
-      if (g.maxRun >= 5) sp = "rainbow";
+      if (g.maxRun >= 5) sp = unlocked("nova") ? "rainbow" : "bomb";
       else if (g.lt) sp = "bomb";
       else if (g.maxRun === 4) sp = g.hMax >= 4 ? "rocketV" : "rocketH";
       if (sp) {
@@ -2170,7 +2535,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function tapSpecial(r, c) {
     const g = gemAt(r, c);
-    if (!g || !g.sp || boardState !== "idle" || rage || state !== "play") return false;
+    if (!g || !g.sp || g.ice || boardState !== "idle" || rage || state !== "play") return false;
     selected = null; idleT = 0; hintMove = null;
     startMove();
     blast([[r, c, 0]]);
@@ -2193,7 +2558,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const missing = ROWS - keep.length;
       for (let k = 0; k < keep.length; k++) grid[ROWS - 1 - k][c] = keep[k];
       for (let r = missing - 1; r >= 0; r--) {
-        let el = pick(GEMS), sp = null;
+        let el = pick(BOARD_GEMS), sp = null;
         const below = gemAt(r + 1, c), side = gemAt(r, c - 1);
         if (below && matchable(below) && Math.random() < REFILL_BIAS) el = below.el;
         else if (side && matchable(side) && Math.random() < REFILL_BIAS) el = side.el;
@@ -2217,21 +2582,21 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function shuffleBoard() {
     const els = [];
-    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!grid[r][c].sp) els.push(grid[r][c].el);
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!grid[r][c].sp && grid[r][c].el !== "crate") els.push(grid[r][c].el);
     let tries = 0;
     do {
       els.sort(() => Math.random() - 0.5);
       let k = 0;
-      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!grid[r][c].sp) { grid[r][c].el = els[k++]; grid[r][c].pop = 0; }
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!grid[r][c].sp && grid[r][c].el !== "crate") { grid[r][c].el = els[k++]; grid[r][c].pop = 0; }
       tries++;
     } while (tries < 50 && (findGroups().length || !findMove()));
     if (findGroups().length || !findMove()) initBoard();
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) grid[r][c].spawn = 1;
   }
   function popFx(r, c, g) {
-    const p = cellCenter(r, c), col = g.el === "rainbow" ? "#c77dff" : EL[g.el].c;
+    const p = cellCenter(r, c), col = g.el === "rainbow" ? "#c77dff" : g.el === "crate" ? "#c48a4a" : EL[g.el].c;
     emit("glow", p.x, p.y, { n: 3, spd: [20, 110], life: [0.25, 0.5], size: [cell * 0.4, cell * 0.75], colors: [col, "#ffffff"], list: boardParts });
-    emit("shard", p.x, p.y, { n: 7, spd: [120, 340], life: [0.45, 0.8], size: [3, 7], colors: [col, g.el === "rainbow" ? "#ffd23f" : EL[g.el].top, "#ffffff"], g: 650, vy: -160, vr: 12, list: boardParts });
+    emit("shard", p.x, p.y, { n: 7, spd: [120, 340], life: [0.45, 0.8], size: [3, 7], colors: [col, g.el === "rainbow" ? "#ffd23f" : g.el === "crate" ? "#e8b67a" : EL[g.el].top, "#ffffff"], g: 650, vy: -160, vr: 12, list: boardParts });
     emit("spark", p.x, p.y, { n: 3, spd: [150, 320], life: [0.2, 0.4], size: [1.5, 2.5], colors: ["#ffffff", col], drag: 0.9, list: boardParts });
     boardFx.push({ kind: "ring", x: p.x, y: p.y, R: cell * 0.75, life: 0.25, max: 0.25, c: col });
     if (Math.random() < 0.35) emit("star", p.x, p.y, { n: 1, spd: [60, 160], life: [0.5, 0.8], size: [4, 7], colors: ["#ffd84d"], g: 500, vy: -200, vr: 8, list: boardParts });
@@ -2260,6 +2625,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       }
       if (g.land) g.land = Math.max(0, g.land - dt * 5);
       if (g.spawn) g.spawn = Math.max(0, g.spawn - dt * 3);
+      if (g.hitT) g.hitT = Math.max(0, g.hitT - dt * 4);
     }
     for (const f of boardFx) {
       if (f.wait > 0) { f.wait -= dt; continue; }
@@ -2296,7 +2662,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
 
   // ---- Auto-cast with smart targets -------------------------------------
-  const onScreen = (e) => !e.dead && e.x > -8 && e.x < W + 8 && e.y > -8 && e.y < trayTop + 8;
+  const onScreen = (e) => !e.dead && !ghostFaded(e) && e.x > -8 && e.x < W + 8 && e.y > -8 && e.y < trayTop + 8;
   function eta(e) {
     const d = Math.hypot(e.x - cx, e.y - cy) - coreR;
     return Math.max(0, d) / Math.max(1, e.speed * (e.slow > 0 ? 0.45 : 1)) + Math.max(0, e.frozen);
@@ -2338,25 +2704,38 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen"]) $(s).hidden = s !== id;
-    $("hud").hidden = !(state === "play" || state === "paused" || state === "over");
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen"]) $(s).hidden = s !== id;
+    if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
+    hudCache.goals = null;
+    renderGoalsHud();
+    $("hud").hidden = !(state === "play" || state === "paused" || state === "over" || state === "won");
     syncBackButton();
   }
   function syncBackButton() {
     const bb = tg && tg.BackButton;
     if (!bb) return;
-    try { if (state === "title" && $("settingsScreen").hidden && $("lbScreen").hidden && $("recScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
+    try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("recScreen").hidden) closeRecords();
+    if (!$("introScreen").hidden) closeIntro();
+    else if (!$("mapScreen").hidden) showScreen("titleScreen");
+    else if (!$("winScreen").hidden) openMap();
+    else if (!$("recScreen").hidden) closeRecords();
     else if (!$("lbScreen").hidden) closeLeaderboard();
     else if (!$("settingsScreen").hidden) closeSettings();
     else if (state === "play") pauseGame();
     else if (state === "paused") resumeGame();
     else if (state === "over") toMenu();
   }
-  function startGame() {
+  function startGame(m, n) {
+    if (m) mode = m;
+    if (n) levelN = n;
+    LV = mode === "levels" ? levelDef(levelN) : null;
+    BOARD_GEMS = LV ? LV.gems : GEMS;
+    setTheme(LV ? LV.w : 0);
     reset();
+    if (LV) banner = { text: tr("level", levelN), t: 2 };
+    $("hud").classList.toggle("levels", !!LV);
     runBestStart = best; runRecordShown = false;
     state = "play"; stateT = 0;
     showScreen(null);
@@ -2378,6 +2757,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function toMenu() {
     state = "title";
+    LV = null; BOARD_GEMS = GEMS;
+    setTheme(levelDef(progress.unlocked).w);
     reset();
     showScreen("titleScreen");
   }
@@ -2398,14 +2779,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     addShake(22);
     for (const e of enemies) if (!e.dead) { e.dead = true; poof(e); }
     const prevBest = best;
-    if (score > best) {
+    if (!LV && score > best) {
       best = score; newBest = true;
       try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
     }
-    recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
+    if (!LV) recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
     sfx("over");
     haptic("error");
-    const submitted = submitScore({ score, wave, kills, duration: Math.round(playTime) });
+    const submitted = LV ? Promise.resolve(null) : submitScore({ score, wave, kills, duration: Math.round(playTime) });
     setTimeout(() => {
       if (state !== "over") return;
       showRankLine(null);
@@ -2417,12 +2798,146 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const b = $("ovBest");
       b.className = "badge" + (newBest ? " new" : "");
       b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span></span>';
-      b.querySelector("span").textContent = newBest ? tr("newBest") : tr("best") + " " + fmt(best);
+      b.querySelector("span").textContent = LV ? tr("level", levelN) : newBest ? tr("newBest") : tr("best") + " " + fmt(best);
       const imp = $("ovImprove");
       imp.hidden = !(newBest && prevBest > 0);
       if (!imp.hidden) imp.textContent = tr("improvedBy", score - prevBest);
       showScreen("overScreen");
     }, 1200);
+  }
+
+  // ---- Level goals ---------------------------------------------------------
+  function goalProgress(type, v) {
+    if (!LV || state !== "play") return;
+    for (const g of goals) {
+      if (g.type !== type || g.have >= g.need) continue;
+      const add = type === "collect" ? v[g.el] || 0 : v;
+      if (add) g.have = Math.min(g.need, g.have + add);
+    }
+  }
+  const ICONS = {};
+  function goalIcon(g) {
+    const key = g.type + (g.el || "");
+    if (ICONS[key]) return ICONS[key];
+    const sz = 44, c = mk(sz * 2, sz * 2), x = c.getContext("2d");
+    x.scale(2, 2); x.translate(sz / 2, sz / 2);
+    if (g.type === "collect") paintGem(x, sz * 0.92, g.el);
+    else if (g.type === "kill") x.drawImage(SPR.crawler.img, -sz / 2, -sz / 2, sz, sz);
+    else if (g.type === "boss") x.drawImage(SPR.boss.img, -sz / 2, -sz / 2, sz, sz);
+    else if (g.type === "crate") paintCrate(x, sz * 0.95);
+    else if (g.type === "ice") { paintGem(x, sz * 0.8, "ice"); paintIce(x, sz * 0.86, 1); }
+    return (ICONS[key] = c.toDataURL());
+  }
+  function enemyIcon(type) {
+    const key = "enemy" + type;
+    if (ICONS[key]) return ICONS[key];
+    const sp = SPR[type], spr = Array.isArray(sp) ? sp[0] : sp;
+    return (ICONS[key] = spr.img.toDataURL());
+  }
+  function renderGoalsHud() {
+    const box = $("goals");
+    box.hidden = !LV || !["play", "paused", "over", "won"].includes(state);
+    box.textContent = "";
+    if (box.hidden) return;
+    for (const g of goals) {
+      const d = document.createElement("div");
+      d.className = "goal" + (g.have >= g.need ? " done" : "");
+      const im = document.createElement("img"); im.src = goalIcon(g); im.alt = "";
+      const b = document.createElement("b"); b.textContent = g.have >= g.need ? "✓" : fmt(g.need - g.have);
+      d.append(im, b);
+      box.appendChild(d);
+    }
+  }
+  const STAR_PATH = "M12 2.5l2.9 6.4 7 .7-5.3 4.7 1.6 6.9L12 17.6l-6.2 3.6 1.6-6.9L2.1 9.6l7-.7z";
+  const starSvg = (on, size) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"><path d="${STAR_PATH}" fill="${on ? "#ffd23f" : "rgba(0,0,0,.35)"}" stroke="${on ? "#9a5a00" : "rgba(255,255,255,.25)"}" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+  const LOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7.5a4 4 0 018 0V10" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="5" y="10" width="14" height="10" rx="3" fill="currentColor"/></svg>';
+  function fillUnlock(prefix, n) {
+    const u = n <= 30 ? INTRO[n] : null, box = $(prefix + "Unlock");
+    box.hidden = !u;
+    if (!u) return;
+    if (u.kind === "enemy") {
+      $(prefix + "UnlockImg").src = enemyIcon(u.id);
+      $(prefix + "UnlockTitle").textContent = tr("newEnemy");
+      $(prefix + "UnlockName").textContent = "";
+      $(prefix + "UnlockNote").textContent = tr(u.id + "Note");
+    } else {
+      const el = u.kind === "boost" ? u.el : u.id;
+      $(prefix + "UnlockImg").src = dieDataURL(el);
+      $(prefix + "UnlockTitle").textContent = tr(u.kind === "boost" ? "powerBoost" : "newPower");
+      $(prefix + "UnlockName").textContent = tr(el);
+      $(prefix + "UnlockNote").textContent = tr(u.kind === "boost" ? u.id : el + "Note");
+    }
+  }
+  let introReturn = "title";
+  function openIntro(n, from) {
+    introReturn = from || "title";
+    levelN = n;
+    const L = levelDef(n);
+    setTheme(L.w);
+    const wname = tr("world" + L.w) + (n > 30 ? " " + fmt(Math.floor((n - 1) / 30) + 1) : "");
+    $("inWorld").textContent = wname;
+    $("inWorld").style.color = THEMES[L.w].star;
+    $("inLevel").textContent = tr("level", n);
+    const box = $("inGoals");
+    box.textContent = "";
+    for (const g of L.goals) {
+      const d = document.createElement("div"); d.className = "intro-goal";
+      const im = document.createElement("img"); im.src = goalIcon(g); im.alt = "";
+      const b = document.createElement("span"); b.textContent = fmt(g.need);
+      d.append(im, b); box.appendChild(d);
+    }
+    fillUnlock("in", n);
+    showScreen("introScreen");
+  }
+  function closeIntro() { if (introReturn === "map") openMap(); else showScreen("titleScreen"); }
+  function openMap() {
+    const list = $("mapList");
+    list.textContent = "";
+    const total = Math.max(30, Math.ceil(progress.unlocked / 30) * 30);
+    let current = null;
+    for (let wi = 0; wi < total / LEVELS_PER_WORLD; wi++) {
+      const th = THEMES[wi % THEMES.length], loop = Math.floor(wi / THEMES.length);
+      const box = document.createElement("div"); box.className = "world";
+      box.style.background = `linear-gradient(135deg, ${th.board[0]}, ${th.board[2]})`;
+      const h = document.createElement("h3"); h.textContent = tr("world" + (wi % THEMES.length)) + (loop ? " " + fmt(loop + 1) : "");
+      h.style.color = th.star;
+      const lv = document.createElement("div"); lv.className = "lvls";
+      for (let k = 1; k <= LEVELS_PER_WORLD; k++) {
+        const n = wi * LEVELS_PER_WORLD + k, locked = n > progress.unlocked, st = progress.stars[n] || 0;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "lvl" + (locked ? " locked" : "") + (n === progress.unlocked ? " current" : "") + (k === LEVELS_PER_WORLD ? " boss" : "");
+        b.innerHTML = `<span>${locked ? LOCK_SVG : fmt(n)}</span>` + (st ? `<i>${[1, 2, 3].map((x) => starSvg(x <= st, 12)).join("")}</i>` : "");
+        b.setAttribute("aria-label", tr("level", n));
+        if (!locked) b.addEventListener("click", () => { sfx("click"); openIntro(n, "map"); });
+        if (n === progress.unlocked) current = b;
+        lv.appendChild(b);
+      }
+      box.append(h, lv);
+      list.appendChild(box);
+    }
+    showScreen("mapScreen");
+    if (current) current.scrollIntoView({ block: "center" });
+  }
+  function levelWin() {
+    state = "won"; stateT = 0; rage = null; blade = [];
+    for (const e of enemies) if (!e.dead) { e.dead = true; poof(e); }
+    emit("star", cx, cy, { n: 40, spd: [200, 520], life: [1, 1.6], size: [7, 12], colors: ["#ffd84d"], g: 260, vy: -260, vr: 8 });
+    emit("glow", cx, cy, { n: 30, spd: [100, 500], life: [0.6, 1.2], size: [14, 30], colors: [TH.aura, TH.star, "#ffffff", "#ff8af0"], drag: 0.92 });
+    ring(cx, cy, Math.max(W, H) * 0.8, TH.star, 1.0, 16);
+    doFlash("#ffffff", 0.5);
+    const stars = hp >= 70 ? 3 : hp >= 35 ? 2 : 1;
+    progress.stars[levelN] = Math.max(progress.stars[levelN] || 0, stars);
+    progress.unlocked = Math.max(progress.unlocked, levelN + 1);
+    saveProgress();
+    sfx("rainbow"); haptic("success");
+    setTimeout(() => {
+      if (state !== "won") return;
+      $("winStars").innerHTML = [1, 2, 3].map((x) => starSvg(x <= stars, 62)).join("");
+      $("winScore").textContent = fmt(score);
+      fillUnlock("win", levelN + 1);
+      showScreen("winScreen");
+    }, 1400);
   }
 
   // ---- My records screen -------------------------------------------------
@@ -2507,7 +3022,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function showRankLine(res) {
     const el = $("ovRank");
-    if (!canSubmit()) { el.hidden = true; return; }
+    if (!canSubmit() || LV) { el.hidden = true; return; }
     el.hidden = false;
     el.textContent = "";
     if (!res) { el.textContent = tr("loading"); return; }
@@ -2661,7 +3176,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (danger > 0.45 && now - lastWarn > 1.6) { lastWarn = now; haptic("warning"); sfx("warn"); }
       elapsed += wdt;
       playTime += dt;
-      if (!runRecordShown && runBestStart > 0 && score > runBestStart) {
+      if (!LV && !runRecordShown && runBestStart > 0 && score > runBestStart) {
         runRecordShown = true;
         banner = { text: tr("newBest"), t: 1.8 };
         emit("star", cx, hudH, { n: 18, spd: [120, 320], life: [0.8, 1.2], size: [6, 10], colors: ["#ffd84d"], g: 300, vy: -60, vr: 8 });
@@ -2670,11 +3185,21 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (combo > 0) { comboT -= wdt; if (comboT <= 0) combo = 0; }
       spawnT -= wdt;
       if (spawnT <= 0) { spawn(); spawnT = spawnInterval(); }
+      if (bossT > 0) {
+        bossT -= wdt;
+        if (bossT <= 0) { spawnAt("boss", cx, -70); banner = { text: "BOSS!", t: 2 }; addShake(10); sfx("rage"); haptic("heavy"); }
+      }
       const w = 1 + Math.floor(elapsed / 25);
       if (w > wave) {
         wave = w;
-        banner = { text: tr("wave", wave), t: 1.8 };
-        for (let i = 0; i < wave + 3; i++) spawn(i % 3 === 0 ? "runner" : null);
+        if (!LV) {
+          banner = { text: tr("wave", wave), t: 1.8 };
+          const ti = Math.floor((wave - 1) / 4) % THEMES.length;
+          if (THEMES[ti] !== TH) { setTheme(ti); doFlash("#ffffff", 0.5); }
+          if (wave % 5 === 0) { spawnAt("boss", cx, -70); banner = { text: "BOSS!", t: 2 }; }
+        }
+        const swarm = LV ? 2 + Math.floor(levelN / 5) : wave + 3;
+        for (let i = 0; i < swarm; i++) spawn(i % 3 === 0 && (!LV || levelN >= 7) ? "runner" : null);
         sfx("wave");
         haptic("medium");
       }
@@ -2692,6 +3217,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         e.x += e.kx * wdt; e.y += e.ky * wdt;
         const kd = Math.pow(0.02, wdt); e.kx *= kd; e.ky *= kd;
         e.slow -= wdt;
+        if (e.type === "ghost") e.ghostT += wdt;
+        if (e.hitCD) e.hitCD = Math.max(0, e.hitCD - wdt);
+        if (e.boss) {
+          e.summonT = (e.summonT == null ? 6 : e.summonT) - wdt;
+          if (e.summonT <= 0) { e.summonT = 6; for (let k = 0; k < 2; k++) spawnAt("crawler", e.x + rand(-40, 40), e.y + rand(10, 40), 0.8); }
+        }
         if (e.poison) e.poison = Math.max(0, e.poison - wdt);
         e.flash -= dt;
         e.hit = Math.max(0, e.hit - dt * 5);
@@ -2719,9 +3250,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       }
       projectiles = projectiles.filter((p) => !p.done);
       enemies = enemies.filter((e) => !e.dead);
+      if (LV && state === "play" && goals.length && goals.every((g) => g.have >= g.need)) levelWin();
     }
 
     if (state !== "paused") updateBoard(dt);
+    ambient(dt);
     for (const f of flyers) {
       f.t += dt;
       if (f.t >= f.dur && !f.fired) { f.fired = true; f.done(); }
@@ -2769,6 +3302,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (Math.abs(score - shownScore) < 1) shownScore = score;
   }
 
+  function ambient(dt) {
+    const a = TH.ambient;
+    if (!a || reduceMotion || Math.random() > dt * 9 || particles.length > MAXP * 0.7) return;
+    if (a === "snow") emit("flake", rand(0, W), hudH * 0.5, { n: 1, spd: [0, 15], life: [5, 8], size: [4, 8], colors: ["#ffffff"], vy: 40, vr: 2 });
+    else if (a === "bubble") emit("glow", rand(0, W), trayTop, { n: 1, spd: [0, 10], life: [3, 5], size: [3, 7], colors: ["#9dff6a", "#d0a0ff"], vy: -40 });
+    else if (a === "ember") emit("glow", rand(0, W), trayTop, { n: 1, spd: [0, 20], life: [2, 4], size: [3, 6], colors: ["#ff9a2f", "#ffd84d", "#ff5a1f"], vy: -60 });
+    else if (a === "stars") emit("glow", rand(0, W), rand(hudH, trayTop), { n: 1, spd: [0, 5], life: [1, 2], size: [3, 7], colors: ["#ffd6ff", "#9fe8ff", "#ffe066"] });
+  }
+
   // ---- Rage slicing ----------------------------------------------------
   function distToSeg(px, py, ax, ay, bx, by) {
     const vx = bx - ax, vy = by - ay, l = vx * vx + vy * vy || 1;
@@ -2779,7 +3321,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const ang = Math.atan2(by - ay, bx - ax);
     let n = 0;
     for (const e of enemies) {
-      if (!e.dead && distToSeg(e.x, e.y, ax, ay, bx, by) < e.r + 16) { kill(e, "slice", ang); n++; }
+      if (e.dead || ghostFaded(e) || distToSeg(e.x, e.y, ax, ay, bx, by) >= e.r + 16) continue;
+      if (e.boss) { if (now - (e.sliceT || 0) > 0.15) { e.sliceT = now; damage(e, 45); n++; } continue; }
+      kill(e, "slice", ang); n++;
     }
     if (n) {
       addShake(3 + n);
@@ -2806,7 +3350,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       $("hpPill").classList.toggle("low", hp / MAX_HP <= 0.3);
       hudCache.hp = hp;
     }
-    if (hudCache.wave !== wave) { $("waveChip").textContent = tr("wave", wave); hudCache.wave = wave; }
+    const wc = LV ? tr("level", levelN) : tr("wave", wave);
+    if (hudCache.wave !== wc) { $("waveChip").textContent = wc; hudCache.wave = wc; }
+    const gk = LV ? goals.map((g) => g.have + "/" + g.need).join(",") + state : "";
+    if (hudCache.goals !== gk) { hudCache.goals = gk; renderGoalsHud(); }
   }
 
   // ---- Render ----------------------------------------------------------
@@ -2821,7 +3368,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.globalCompositeOperation = "lighter";
     for (const s of starsBg) {
       ctx.globalAlpha = 0.25 + 0.35 * (0.5 + 0.5 * Math.sin(now * s.sp + s.ph));
-      ctx.drawImage(glow("#9fc4ff"), s.x - s.s, s.y - s.s, s.s * 2, s.s * 2);
+      ctx.drawImage(glow(TH.star), s.x - s.s, s.y - s.s, s.s * 2, s.s * 2);
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
@@ -2903,7 +3450,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
   function drawBoardInner() {
-    chunky(boardX - 8, boardY - 8, cell * COLS + 16, cell * ROWS + 16, 22, "#3a4fc4", "#1d2878", "#0c1145");
+    chunky(boardX - 8, boardY - 8, cell * COLS + 16, cell * ROWS + 16, 22, TH.board[0], TH.board[1], TH.board[2]);
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       const x = boardX + c * cell, y = boardY + r * cell;
       rrPath(ctx, x + 2, y + 2, cell - 4, cell - 4, cell * 0.24);
@@ -2934,7 +3481,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         ctx.globalCompositeOperation = "source-over";
         ctx.globalAlpha = alpha;
       }
-      let spr = g.sp === "bomb" ? BOMBS[g.el] : g.sp === "rainbow" ? RAINBOW : GEMSPR[g.el];
+      if (g.hitT) ctx.translate(rand(-3, 3) * g.hitT, 0);
+      let spr = g.el === "crate" ? CRATE : g.sp === "bomb" ? BOMBS[g.el] : g.sp === "rainbow" ? RAINBOW : GEMSPR[g.el];
       if (g.sp === "rainbow") ctx.rotate(now * 1.5);
       if (spr) ctx.drawImage(spr.img, -spr.full / 2, -spr.full / 2, spr.full, spr.full);
       if (g.sp === "rocketH" || g.sp === "rocketV") {
@@ -2950,10 +3498,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         ctx.drawImage(glow("#ffd27a"), cell * 0.22 - 9 * f, -cell * 0.47 - 9 * f, 18 * f, 18 * f);
         ctx.globalCompositeOperation = "source-over";
       }
+      if (g.el === "crate" && g.hp < g.maxHp) {
+        ctx.strokeStyle = "#3a1e08"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-cell * 0.2, -cell * 0.3); ctx.lineTo(-cell * 0.05, -cell * 0.05); ctx.lineTo(-cell * 0.18, cell * 0.12); ctx.moveTo(-cell * 0.05, -cell * 0.05); ctx.lineTo(cell * 0.2, 0); ctx.stroke();
+      }
+      if (g.ice) drawIce(cell * 0.92, g.ice);
       if (popping) {
         ctx.globalCompositeOperation = "lighter";
         ctx.globalAlpha = (1 - g.pop) * 0.8;
-        ctx.drawImage(glow(g.el === "rainbow" ? "#ffffff" : EL[g.el].c2), -cell * 0.6, -cell * 0.6, cell * 1.2, cell * 1.2);
+        ctx.drawImage(glow(g.el === "rainbow" || g.el === "crate" ? "#ffffff" : EL[g.el].c2), -cell * 0.6, -cell * 0.6, cell * 1.2, cell * 1.2);
       }
       ctx.restore();
     }
@@ -3021,7 +3574,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function drawEnemies() {
     ctx.fillStyle = "rgba(0,0,20,0.35)";
     for (const e of enemies) {
-      const fly = e.type === "runner";
+      if (ghostFaded(e)) continue;
+      const fly = e.type === "runner" || e.type === "ghost";
       ctx.beginPath();
       ctx.ellipse(e.x, e.y + e.r * (fly ? 1.6 : 0.85), e.r * (fly ? 0.7 : 0.95), e.r * 0.28, 0, 0, TAU);
       ctx.fill();
@@ -3032,8 +3586,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const face = cx < e.x ? -1 : 1;
       let bob = 0, sxx = 1, syy = 1, rot = 0;
       if (e.frozen <= 0) {
-        if (e.type === "crawler") { const s = Math.sin(e.phase); sxx = 1 + s * 0.08; syy = 1 - s * 0.08; }
-        else if (e.type === "runner") bob = Math.sin(e.phase * 0.5) * 3;
+        if (e.type === "crawler" || e.type === "splitter") { const s = Math.sin(e.phase); sxx = 1 + s * 0.08; syy = 1 - s * 0.08; }
+        else if (e.type === "runner" || e.type === "ghost") bob = Math.sin(e.phase * 0.5) * 3;
         else { rot = Math.sin(e.phase) * 0.08; bob = -Math.abs(Math.sin(e.phase)) * 2; }
       }
       sxx *= 1 + e.hit * 0.25; syy *= 1 - e.hit * 0.2;
@@ -3041,7 +3595,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       ctx.translate(e.x, e.y + bob);
       ctx.rotate(rot);
       ctx.scale(face * sxx, syy);
-      const z = spr.size;
+      const z = spr.size, ga = e.type === "ghost" ? (ghostFaded(e) ? 0.18 : 0.92) : 1;
+      ctx.globalAlpha = ga;
       ctx.drawImage(spr.img, -z / 2, -z / 2, z, z);
       if (e.frozen > 0) { ctx.globalAlpha = 0.5; ctx.drawImage(spr.ice, -z / 2, -z / 2, z, z); }
       else if (e.slow > 0) { ctx.globalAlpha = 0.25; ctx.drawImage(spr.ice, -z / 2, -z / 2, z, z); }
@@ -3049,7 +3604,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (e.flash > 0) { ctx.globalAlpha = clamp(e.flash / 0.14, 0, 1) * 0.85; ctx.drawImage(spr.white, -z / 2, -z / 2, z, z); }
       ctx.globalAlpha = 1;
       ctx.restore();
-      if (e.type === "crawler") {
+      if (e.type === "crawler" || e.type === "splitter") {
         const dx = cx - e.x, dy = cy - e.y, d = Math.hypot(dx, dy) || 1;
         const ex = e.x + (dx / d) * e.r * 0.17, ey = e.y + bob - e.r * 0.12 * syy + (dy / d) * e.r * 0.17;
         ctx.fillStyle = e.frozen > 0 ? "#3a6a8a" : "#1a0526";
@@ -3068,7 +3623,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         ctx.beginPath(); ctx.moveTo(x + s * 0.2, y + s * 0.45); ctx.lineTo(x + s * 0.45, y + s * 0.2); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(x + s * 0.25, y + s * 0.62); ctx.lineTo(x + s * 0.3, y + s * 0.57); ctx.stroke();
       }
-      if (e.hp < e.maxHp || e.type === "brute") {
+      if (!e.boss && !ghostFaded(e) && (e.hp < e.maxHp || e.type === "brute")) {
         const w = e.r * 1.8, y = e.y - e.r - (e.type === "runner" ? 14 : 10);
         rrPath(ctx, e.x - w / 2 - 1.5, y - 1.5, w + 3, 8, 4); ctx.fillStyle = "rgba(10,8,30,0.7)"; ctx.fill();
         const f = clamp(e.hp / e.maxHp, 0, 1);
@@ -3087,13 +3642,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const R = coreR * (1 + Math.sin(now * 2.5) * 0.03 + coreKick * 0.15);
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = 0.55 + Math.sin(now * 2) * 0.1;
-    ctx.drawImage(glow("#3d7bff"), cx - R * 3.4, cy - R * 3.7, R * 6.8, R * 6.8);
+    ctx.drawImage(glow(TH.aura), cx - R * 3.4, cy - R * 3.7, R * 6.8, R * 6.8);
     if (hp / MAX_HP <= 0.3) { ctx.globalAlpha = 0.35 + Math.sin(now * 10) * 0.25; ctx.drawImage(glow("#ff3b3b"), cx - R * 3, cy - R * 3, R * 6, R * 6); }
     if (castFx) { ctx.globalAlpha = castFx.t / 0.35; ctx.drawImage(glow(castFx.c), cx - R * 2.8, cy - R * 2.8, R * 5.6, R * 5.6); }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
 
-    const orbs = GEMS.map((el, k) => { const a = now * 1.4 + (k / GEMS.length) * TAU; return { el, x: cx + Math.cos(a) * R * 1.75, y: cy + Math.sin(a) * R * 0.6 - R * 0.4, front: Math.sin(a) > 0 }; });
+    const orbs = BOARD_GEMS.map((el, k) => { const a = now * 1.4 + (k / BOARD_GEMS.length) * TAU; return { el, x: cx + Math.cos(a) * R * 1.75, y: cy + Math.sin(a) * R * 0.6 - R * 0.4, front: Math.sin(a) > 0 }; });
     const drawOrb = (o) => {
       ctx.globalCompositeOperation = "lighter";
       ctx.drawImage(glow(EL[o.el].c), o.x - 12, o.y - 12, 24, 24);
@@ -3106,19 +3661,19 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     // 3D pedestal: a short glowing cylinder Volya hovers over
     const pw = R * 1.3, ph = R * 0.4, pd = R * 0.32, py = cy + R * 1.05;
     const side = ctx.createLinearGradient(cx - pw, 0, cx + pw, 0);
-    side.addColorStop(0, "#0d1650"); side.addColorStop(0.35, "#3552c4"); side.addColorStop(0.6, "#22339a"); side.addColorStop(1, "#0a1140");
+    side.addColorStop(0, TH.board[2]); side.addColorStop(0.35, TH.board[0]); side.addColorStop(0.6, TH.board[1]); side.addColorStop(1, TH.board[2]);
     ctx.beginPath();
     ctx.moveTo(cx - pw, py); ctx.lineTo(cx - pw, py + pd);
     ctx.ellipse(cx, py + pd, pw, ph, 0, Math.PI, 0, true);
     ctx.lineTo(cx + pw, py); ctx.closePath();
     ctx.fillStyle = side; ctx.fill();
     const top = ctx.createRadialGradient(cx - pw * 0.3, py - ph * 0.4, 0, cx, py, pw);
-    top.addColorStop(0, "#7fa6ff"); top.addColorStop(0.6, "#3a5ad6"); top.addColorStop(1, "#2a3fae");
+    top.addColorStop(0, mix(TH.board[0], "#ffffff", 0.4)); top.addColorStop(0.6, TH.board[0]); top.addColorStop(1, TH.board[1]);
     ctx.beginPath(); ctx.ellipse(cx, py, pw, ph, 0, 0, TAU); ctx.fillStyle = top; ctx.fill();
-    ctx.lineWidth = 2.5; ctx.strokeStyle = "#9fe8ff"; ctx.stroke();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = TH.star; ctx.stroke();
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = 0.5 + Math.sin(now * 3) * 0.15;
-    ctx.drawImage(glow("#58c8ff"), cx - pw * 1.2, py - ph * 1.6, pw * 2.4, ph * 3.2);
+    ctx.drawImage(glow(TH.aura), cx - pw * 1.2, py - ph * 1.6, pw * 2.4, ph * 3.2);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
     ctx.beginPath(); ctx.ellipse(cx, py, pw * 0.72, ph * 0.62, 0, 0, TAU);
@@ -3141,11 +3696,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     for (let k = 6; k >= 1; k--) {
       const f = k / 6;
       ctx.beginPath(); ctx.arc(ex * f, depth * 0.5 * f, R + R * 0.12, 0, TAU);
-      ctx.fillStyle = k > 3 ? "#5e0a14" : "#8a1220"; ctx.fill();
+      ctx.fillStyle = k > 3 ? TH.ring[2] : TH.ring[3]; ctx.fill();
     }
     ctx.beginPath(); ctx.arc(0, 0, R + R * 0.12, 0, TAU);
     const outer = ctx.createLinearGradient(0, -R, 0, R);
-    outer.addColorStop(0, "#ff6a6a"); outer.addColorStop(1, "#a3121f");
+    outer.addColorStop(0, TH.ring[0]); outer.addColorStop(1, TH.ring[1]);
     ctx.fillStyle = outer; ctx.fill();
     // portrait face with spherical shading
     ctx.save();
@@ -3170,11 +3725,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.restore();
     // beveled gold rim
     const rim = ctx.createLinearGradient(0, -R, 0, R);
-    rim.addColorStop(0, "#fff6cc"); rim.addColorStop(0.45, "#f2b62e"); rim.addColorStop(1, "#8f4f00");
+    rim.addColorStop(0, TH.rim[0]); rim.addColorStop(0.45, TH.rim[1]); rim.addColorStop(1, TH.rim[2]);
     ctx.lineWidth = R * 0.13; ctx.strokeStyle = rim;
     ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.stroke();
     ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,0.8)";
     ctx.beginPath(); ctx.arc(0, 0, R + R * 0.04, 1.1 * Math.PI, 1.65 * Math.PI); ctx.stroke();
+    drawCrown(TH.crown, R);
     ctx.restore();
 
     if (guard > 0) {
@@ -3194,6 +3750,54 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       ctx.globalAlpha = 1;
     }
     orbs.filter((o) => o.front).forEach(drawOrb);
+  }
+
+  // World crowns for Volya's medallion (drawn in its local, turning coordinates).
+  function drawCrown(kind, R) {
+    if (!kind) return;
+    ctx.save();
+    ctx.lineJoin = "round"; ctx.lineWidth = Math.max(1.5, R * 0.06); ctx.strokeStyle = "#1a1035";
+    if (kind === "ice") {
+      for (let i = -2; i <= 2; i++) {
+        const a = -Math.PI / 2 + i * 0.32, rr = R * 1.06, h = R * (i === 0 ? 0.6 : Math.abs(i) === 1 ? 0.45 : 0.32);
+        const bx = Math.cos(a) * rr, by = Math.sin(a) * rr, tx = Math.cos(a) * (rr + h), ty = Math.sin(a) * (rr + h);
+        const px = -Math.sin(a) * R * 0.12, py = Math.cos(a) * R * 0.12;
+        ctx.beginPath(); ctx.moveTo(bx - px, by - py); ctx.lineTo(tx, ty); ctx.lineTo(bx + px, by + py); ctx.closePath();
+        const g = ctx.createLinearGradient(bx, by, tx, ty); g.addColorStop(0, "#6fc8ff"); g.addColorStop(1, "#ffffff");
+        ctx.fillStyle = g; ctx.fill(); ctx.stroke();
+      }
+    } else if (kind === "leaf") {
+      for (let i = -3; i <= 3; i++) {
+        const a = -Math.PI / 2 + i * 0.27;
+        ctx.save(); ctx.translate(Math.cos(a) * R * 1.08, Math.sin(a) * R * 1.08); ctx.rotate(a + Math.PI / 2 + (i % 2 ? 0.35 : -0.35));
+        ctx.beginPath(); ctx.ellipse(0, -R * 0.14, R * 0.12, R * 0.26, 0, 0, TAU);
+        ctx.fillStyle = i % 2 ? "#4fc24a" : "#8ee86a"; ctx.fill(); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.beginPath(); ctx.arc(0, -R * 1.22, R * 0.15, 0, TAU); ctx.fillStyle = "#ff8af0"; ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -R * 1.22, R * 0.06, 0, TAU); ctx.fillStyle = "#ffe066"; ctx.fill();
+    } else if (kind === "flame") {
+      for (let i = -2; i <= 2; i++) {
+        const a = -Math.PI / 2 + i * 0.34, h = R * (0.42 + (i === 0 ? 0.2 : 0) + Math.sin(now * 12 + i * 1.7) * 0.07);
+        ctx.save(); ctx.translate(Math.cos(a) * R * 1.02, Math.sin(a) * R * 1.02); ctx.rotate(a + Math.PI / 2);
+        ctx.beginPath(); ctx.moveTo(-R * 0.14, 0); ctx.quadraticCurveTo(-R * 0.16, -h * 0.6, 0, -h); ctx.quadraticCurveTo(R * 0.16, -h * 0.6, R * 0.14, 0); ctx.closePath();
+        const g = ctx.createLinearGradient(0, 0, 0, -h); g.addColorStop(0, "#ff4a1f"); g.addColorStop(1, "#ffe066");
+        ctx.fillStyle = g; ctx.fill(); ctx.stroke();
+        ctx.restore();
+      }
+    } else if (kind === "star") {
+      ctx.translate(0, -R * 1.0);
+      const w = R * 0.95, h = R * 0.55;
+      ctx.beginPath();
+      ctx.moveTo(-w / 2, 0); ctx.lineTo(-w / 2, -h * 0.6); ctx.lineTo(-w * 0.25, -h * 0.25); ctx.lineTo(0, -h);
+      ctx.lineTo(w * 0.25, -h * 0.25); ctx.lineTo(w / 2, -h * 0.6); ctx.lineTo(w / 2, 0); ctx.closePath();
+      const g = ctx.createLinearGradient(0, -h, 0, 0); g.addColorStop(0, "#fff3a8"); g.addColorStop(1, "#e0a020");
+      ctx.fillStyle = g; ctx.fill(); ctx.stroke();
+      for (const [x, y, c] of [[-w / 2, -h * 0.6, "#ff5ab8"], [0, -h, "#3fd0ff"], [w / 2, -h * 0.6, "#ff5ab8"]]) {
+        ctx.beginPath(); ctx.arc(x, y, R * 0.08, 0, TAU); ctx.fillStyle = c; ctx.fill(); ctx.stroke();
+      }
+    }
+    ctx.restore();
   }
 
   function drawProjectiles() {
@@ -3397,8 +4001,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const x = rtl ? 22 + w + 16 : 24;
     return { x, y: trayTop + trayH / 2 - 12, w: W - 48 - w - 16, h: 24 };
   }
+  function drawLock(x, y, s) {
+    ctx.save(); ctx.translate(x, y);
+    ctx.strokeStyle = "rgba(255,255,255,0.55)"; ctx.lineWidth = s * 0.22;
+    ctx.beginPath(); ctx.arc(0, -s * 0.25, s * 0.45, Math.PI, 0); ctx.stroke();
+    rrPath(ctx, -s * 0.7, -s * 0.25, s * 1.4, s * 1.1, s * 0.25); ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.fill();
+    ctx.restore();
+  }
   function drawPowerBar() {
-    chunky(10, trayTop, W - 20, trayH, 20, "#5a47c9", "#33278a", "#160f4a");
+    chunky(10, trayTop, W - 20, trayH, 20, TH.bar[0], TH.bar[1], TH.bar[2]);
     const m = meterRect();
     rrPath(ctx, m.x, m.y, m.w, m.h, m.h / 2); ctx.fillStyle = "rgba(10,6,40,0.6)"; ctx.fill();
     ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 2; ctx.stroke();
@@ -3431,6 +4042,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       rrPath(ctx, r.x, r.y, r.s, r.s, r.s * 0.3);
       ctx.fillStyle = "rgba(10,6,40,0.55)"; ctx.fill();
       ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 3; ctx.stroke();
+      if (!unlocked(k)) { drawLock(r.x + r.s / 2, r.y + r.s / 2, r.s * 0.32); continue; }
       drawDie(r.x, r.y, r.s, { el: k, tier: 1, drop: 1, pop: specPop[k] }, n ? 1 : 0.22);
       if (n) {
         ctx.globalCompositeOperation = "lighter";
@@ -3477,12 +4089,23 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
 
   function drawCombo() {
+    const boss = state === "play" && enemies.find((e) => e.boss && !e.dead);
+    if (boss) {
+      const w = Math.min(240, W - 110), x = cx - w / 2, y = hudH + 4, f = clamp(boss.hp / boss.maxHp, 0, 1);
+      rrPath(ctx, x - 3, y - 3, w + 6, 16, 8); ctx.fillStyle = "rgba(10,8,30,0.8)"; ctx.fill();
+      if (f > 0) {
+        const g = ctx.createLinearGradient(0, y, 0, y + 10); g.addColorStop(0, "#ff9a7a"); g.addColorStop(1, "#c81e2a");
+        rrPath(ctx, x, y, Math.max(10, w * f), 10, 5); ctx.fillStyle = g; ctx.fill();
+      }
+      ctx.drawImage(SPR.boss.img, x - 30, y - 12, 34, 34);
+    }
     if (state === "play" && combo >= 2) {
       const sz = 26 * (1 + comboPop * 0.35);
       const c = combo >= 20 ? "#ff8af0" : combo >= 10 ? "#ffe066" : "#8fe3ff";
-      chunkyText(tr("combo") + " ×" + fmt(combo), cx, hudH + 12, sz, c);
+      const yy = hudH + (boss ? 34 : 14);
+      chunkyText(tr("combo") + " ×" + fmt(combo), cx, yy, sz, c);
       const w = 90 * clamp(comboT / COMBO_WINDOW, 0, 1);
-      if (w > 0) { rrPath(ctx, cx - w / 2, hudH + 30, w, 5, 2.5); ctx.fillStyle = c; ctx.fill(); }
+      if (w > 0) { rrPath(ctx, cx - w / 2, yy + 18, w, 5, 2.5); ctx.fillStyle = c; ctx.fill(); }
     }
     if (banner && state === "play") {
       const k = banner.t / 1.8, pop = k > 0.85 ? 0.6 + ((1 - k) / 0.15) * 0.5 : 1;
@@ -3588,9 +4211,17 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   document.addEventListener("visibilitychange", () => { if (document.hidden) pauseGame(); });
 
   const clickSfx = (fn) => () => { sfx("click"); fn(); };
-  $("playBtn").addEventListener("click", startGame);
-  $("againBtn").addEventListener("click", startGame);
-  $("restartBtn").addEventListener("click", startGame);
+  $("playBtn").addEventListener("click", clickSfx(() => openIntro(progress.unlocked, "title")));
+  $("againBtn").addEventListener("click", () => startGame());
+  $("restartBtn").addEventListener("click", () => startGame());
+  $("mapBtn").addEventListener("click", clickSfx(openMap));
+  $("endlessBtn").addEventListener("click", () => startGame("endless"));
+  $("mapBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
+  $("inStart").addEventListener("click", () => startGame("levels", levelN));
+  $("inBack").addEventListener("click", clickSfx(openMap));
+  $("winNext").addEventListener("click", clickSfx(() => openIntro(levelN + 1, "map")));
+  $("winMap").addEventListener("click", clickSfx(openMap));
+  $("winShare").addEventListener("click", clickSfx(() => share(tr("challengeText", score))));
   $("pauseBtn").addEventListener("click", clickSfx(pauseGame));
   $("resumeBtn").addEventListener("click", clickSfx(resumeGame));
   $("pauseMenuBtn").addEventListener("click", clickSfx(toMenu));
@@ -3634,9 +4265,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
 
   loadStats();
+  loadProgress();
   buildEnemySprites();
   layout();
   setLang();
+  setTheme(levelDef(progress.unlocked).w);
   reset();
   showScreen("titleScreen");
   if (window.ResizeObserver) new ResizeObserver(layout).observe(stage);
