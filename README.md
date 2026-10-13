@@ -3,6 +3,8 @@
 An action defense game for a Telegram Mini App, in plain HTML5 Canvas and JavaScript. One file, no build step, no external assets besides Google Fonts.
 
 - `index.html` is the deployable page. It loads Telegram's Web App SDK so the app expands to full height, vertical swipes don't close it, the Telegram back button pauses or closes menus, and taps give haptic feedback. Host it anywhere with HTTPS (GitHub Pages works) and set that URL as your bot's Mini App URL in @BotFather.
+
+- Bot: [@VolyaGemDefenseBot](https://t.me/VolyaGemDefenseBot) — invite links use `https://t.me/VolyaGemDefenseBot?startapp=ref_<id>`, which opens the game directly when the bot has a **Main Mini App** set in @BotFather (Bot Settings → Configure Mini App).
 - `game.html` is the same game without the document wrapper, used for the Claude Artifact preview.
 - `assets/volya.jpg` is the character portrait cropped from the poster. It is embedded in both pages as a data URI.
 - `server/` is the global leaderboard API (Cloudflare Worker + D1). See [Global leaderboard](#global-leaderboard).
