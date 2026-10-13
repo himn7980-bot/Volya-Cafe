@@ -65,6 +65,31 @@ Press **Play** to continue the campaign, **Levels** to open the map, or **Endles
 - 1–3 stars by remaining health and leftover moves/time; unused moves are paid out as bonus points. Progress is saved locally and in Telegram CloudStorage.
 - Move budgets were tuned with a bot that plays random valid moves (it clears roughly 70% of limited-move levels; a real player aiming at the goals does better).
 
+## Characters
+
+Tap the portrait or **Characters** on the title screen. 16 heroes, each with a small perk, unlock as you progress through the levels:
+
+| Hero | Unlocks | Perk |
+|---|---|---|
+| Volya | start | slowly regenerates health |
+| Pink Bull | L3 | Rage bar fills 25% faster |
+| Baby Shark | L6 | Rage Mode lasts 2 s longer |
+| Notcoin | L9 | +25% score |
+| Gramcat | L12 | lightning jumps to 2 extra enemies |
+| Pengu | L15 | ice freezes 50% longer |
+| Teddy | L18 | healing, guard and Shield 50% stronger |
+| Virus | L21 | poison clouds 40% bigger and longer |
+| Utya | L24 | starts every run with a Wind charge |
+| Egor | L27 | hits on crates and stones count double |
+| telegram.dog | L30 | darts hit two targets |
+| Yoda | L35 | +3 moves / +15 s on limited levels |
+| Memegram | L40 | starts every run with a Nova charge |
+| PAWS | L45 | Rage slices hit bosses twice as hard |
+| Yaya | L50 | rockets and bombs drop twice as often |
+| Noctis Veyl | L60 | ghosts can't fade, enemies 10% slower |
+
+**Community links:** `https://t.me/VolyaGemDefenseBot?startapp=h_<id>` (ids: `pinkbull, babyshark, notcoin, gramcat, pengu, teddy, virus, utya, egor, tgdog, yoda, memegram, paws, yaya, noctis`) unlocks and selects that hero for whoever opens it. Invite links shared from the game carry the sharer's hero too (`ref_<uid>_h_<id>`). The chosen hero is sent with leaderboard scores (`hero` field) so per-community boards can be added on the server later. Portrait crops and card images live in `assets/chars/` and are embedded in the page.
+
 ## Personal records
 
 Each player has a **My records** screen (title and game-over screens) comparing them with themselves: personal best, games played, average score, best wave and best combo, a chart of how their record has climbed with the date and gain of each new record, and the last 15 games as bars (record runs in gold, dashed line at the current best). Passing the old best mid-game shows "New record!", and the game-over screen says how far the old record was beaten. History is stored on the device and, inside Telegram, in the player's Telegram Cloud Storage so it follows them to other phones.
