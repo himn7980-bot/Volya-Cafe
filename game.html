@@ -37,6 +37,7 @@ body {
 [hidden] { display: none !important; }
 .stage { position: relative; height: 100%; max-width: 520px; margin: 0 auto; overflow: hidden; }
 #game { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
+body.raging #hud, body.raging #goals { opacity: 0; visibility: hidden; transition: opacity .15s, visibility 0s .15s; }
 button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
@@ -2155,7 +2156,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function ring(x, y, R, c, life = 0.45, w = 6) { rings.push({ x, y, R, c, life, max: life, w }); }
   function decal(x, y, R, c, life, a) { decals.push({ x, y, R, c, life, max: life, a }); }
-  function addText(text, x, y, c, size, life = 0.9, vy = -50) { texts.push({ text, x, y, c, size, life, max: life, vy }); }
+  function addText(text, x, y, c, size, life = 0.9, vy = -50) { if (rage) return; texts.push({ text, x, y, c, size, life, max: life, vy }); }
   function addShake(v) { shake = Math.min(22, shake + v * (reduceMotion ? 0.3 : 1)); }
   function doFlash(c, v) { flashColor = c; flash = Math.max(flash, v); }
 
@@ -3145,7 +3146,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     cast(die(el, tier), t ? t.x : null, t ? t.y : null);
   }
   function triggerRage(el) {
-    rage = { t: RAGE_TIME, el: EL[el] && !EL[el].special ? el : "fire" };
+    rage = { t: RAGE_TIME, el: EL[el] && !EL[el].special ? el : "fire", sec: Math.ceil(RAGE_TIME), pop: 1 };
+    texts = []; banner = null; praise = null; hintMove = null;
     rageMeter = 0;
     blade = [];
     selected = null;
@@ -3165,6 +3167,16 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     $("hud").hidden = !(state === "play" || state === "paused" || state === "over" || state === "won");
     syncBackButton();
   }
+  // While a run is going, swipes must never close or minimise the mini app.
+  function exitGuard(on) {
+    if (!tg) return;
+    const v = (x) => !tg.isVersionAtLeast || tg.isVersionAtLeast(x);
+    try {
+      if (v("7.7") && tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      if (v("6.2")) on ? tg.enableClosingConfirmation() : tg.disableClosingConfirmation();
+      if (v("8.0") && tg.lockOrientation) on ? tg.lockOrientation() : tg.unlockOrientation();
+    } catch (e) {}
+  }
   function syncBackButton() {
     const bb = tg && tg.BackButton;
     if (!bb) return;
@@ -3177,7 +3189,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     else if (!$("recScreen").hidden) closeRecords();
     else if (!$("lbScreen").hidden) closeLeaderboard();
     else if (!$("settingsScreen").hidden) closeSettings();
-    else if (state === "play") pauseGame();
+    else if (state === "play") { if (!rage) pauseGame(); }
     else if (state === "paused") resumeGame();
     else if (state === "over") toMenu();
   }
@@ -3193,6 +3205,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     runBestStart = best; runRecordShown = false;
     state = "play"; stateT = 0;
     showScreen(null);
+    exitGuard(true);
     sfx("wave");
     haptic("medium");
     canvas.focus({ preventScroll: true });
@@ -3211,6 +3224,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function toMenu() {
     state = "title";
+    exitGuard(false);
     LV = null; BOARD_GEMS = GEMS;
     setTheme(levelDef(progress.unlocked).w);
     reset();
@@ -3227,6 +3241,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function gameOver() {
     state = "over"; stateT = 0; rage = null;
+    exitGuard(false);
     emit("glow", cx, cy, { n: 20, spd: [60, 400], life: [0.6, 1.2], size: [20, 40], colors: ["#3d7bff", "#ff4a3d", "#ffffff", "#3fd0ff"], drag: 0.9, grow: 0.4 });
     emit("star", cx, cy, { n: 16, spd: [150, 420], life: [0.9, 1.4], size: [7, 12], colors: ["#ffd84d"], g: 300, vy: -200, vr: 8 });
     ring(cx, cy, Math.max(W, H) * 0.7, "#ff6b6b", 1.0, 14);
@@ -3428,6 +3443,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function levelWin() {
     state = "won"; stateT = 0; rage = null; blade = [];
+    exitGuard(false);
     for (const e of enemies) if (!e.dead) { e.dead = true; poof(e); }
     emit("star", cx, cy, { n: 40, spd: [200, 520], life: [1, 1.6], size: [7, 12], colors: ["#ffd84d"], g: 260, vy: -260, vr: 8 });
     emit("glow", cx, cy, { n: 30, spd: [100, 500], life: [0.6, 1.2], size: [14, 30], colors: [TH.aura, TH.star, "#ffffff", "#ff8af0"], drag: 0.92 });
@@ -3661,8 +3677,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (state === "play") {
       if (rage) {
         rage.t -= dt;
-        shake = Math.max(shake, reduceMotion ? 1.5 : 5);
-        if (rage.t <= 0) { rage = null; blade = []; }
+        shake = Math.max(shake, reduceMotion ? 1.5 : 3);
+        rage.pop = Math.max(0, rage.pop - dt * 4);
+        const sec = Math.ceil(rage.t);
+        if (sec !== rage.sec && sec > 0) { rage.sec = sec; rage.pop = 1; tone(sec <= 2 ? 1320 : 880, null, 0.08, "triangle", 0.07); if (sec <= 2) haptic("light"); }
+        if (rage.t <= 0) { const c = EL[rage.el].c; rage = null; blade = []; doFlash("#ffffff", 0.25); ring(cx, cy, Math.max(W, H) * 0.6, c, 0.6, 10); }
       }
       guard = Math.max(0, guard - dt);
       for (const z of zones) {
@@ -3703,7 +3722,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         if (bossT <= 0) {
           const b = spawnAt("boss", cx, -70, LV && LV.mini ? 0.45 : 1);
           b.fxT = 5; b.mini = LV && LV.mini;
-          banner = { text: LV && LV.mini ? tr("miniBoss") + "!" : "BOSS!", t: 2 }; addShake(10); sfx("rage"); haptic("heavy");
+          banner = { text: LV && LV.mini ? tr("miniBoss") + "!" : "BOSS", t: 2 }; addShake(10); sfx("rage"); haptic("heavy");
         }
       }
       const w = 1 + Math.floor(elapsed / 25);
@@ -3713,7 +3732,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
           banner = { text: tr("wave", wave), t: 1.8 };
           const ti = Math.floor((wave - 1) / 4) % THEMES.length;
           if (THEMES[ti] !== TH) { setTheme(ti); doFlash("#ffffff", 0.5); }
-          if (wave % 5 === 0) { spawnAt("boss", cx, -70); banner = { text: "BOSS!", t: 2 }; }
+          if (wave % 5 === 0) { spawnAt("boss", cx, -70); banner = { text: "BOSS", t: 2 }; }
         }
         const swarm = LV ? 2 + Math.min(8, Math.floor(levelN / 12)) : wave + 3;
         for (let i = 0; i < swarm; i++) spawn(i % 3 === 0 && (!LV || levelN >= 8) ? "runner" : null);
@@ -3861,6 +3880,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     let n = 0;
     for (const e of enemies) {
       if (e.dead || ghostFaded(e) || distToSeg(e.x, e.y, ax, ay, bx, by) >= e.r + 16) continue;
+      const col = rage ? EL[rage.el] : EL.fire;
+      emit("spark", e.x, e.y, { n: 10, spd: [220, 560], dir: ang, spread: 0.35, life: [0.2, 0.4], size: [2, 3.5], colors: ["#ffffff", col.c2, col.c], drag: 0.9 });
+      emit("spark", e.x, e.y, { n: 6, spd: [160, 380], dir: ang + Math.PI, spread: 0.35, life: [0.15, 0.3], size: [1.5, 3], colors: ["#ffffff", col.c], drag: 0.9 });
+      ring(e.x, e.y, e.r * 2.6, col.c2, 0.25, 5);
       if (e.boss) { if (now - (e.sliceT || 0) > 0.15) { e.sliceT = now; damage(e, 45); n++; } continue; }
       kill(e, "slice", ang); n++;
     }
@@ -3926,11 +3949,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     drawBolts();
     drawParticles(true);
     ctx.globalCompositeOperation = "source-over";
-    drawTexts();
+    if (!rage) drawTexts();
     ctx.restore();
 
-    if (state === "play") drawDanger();
-    drawPowerBar();
+    if (document.body.classList.contains("raging") !== !!rage) document.body.classList.toggle("raging", !!rage);
+    if (state === "play" && !rage) drawDanger();
+    if (!rage) drawPowerBar();
     drawBoard();
     drawParticles(false, boardParts);
     ctx.globalCompositeOperation = "lighter";
@@ -3949,7 +3973,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       ctx.restore();
     }
     if (state === "play") drawHints();
-    drawCombo();
+    if (!rage) drawCombo();
     if (rage) drawRage();
     if (flash > 0) {
       ctx.globalAlpha = Math.min(0.55, flash);
@@ -4127,7 +4151,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.restore();
     if (rage) {
       rrPath(ctx, boardX - 8, boardY - 8, cell * COLS + 16, cell * ROWS + 16, 22);
-      ctx.fillStyle = "rgba(5,8,30,0.45)"; ctx.fill();
+      ctx.fillStyle = "rgba(5,8,30,0.62)"; ctx.fill();
     }
   }
   function drawDanger() {
@@ -4740,16 +4764,32 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vg.addColorStop(0, rgba(col.c, 0)); vg.addColorStop(1, rgba(col.c, 0.32 + pulse * 0.12));
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 
-    const y = hudH + 64;
-    const wob = Math.sin(now * 9) * 0.04;
+    // the only thing on screen besides the action: a big countdown ring
+    const f = clamp(rage.t / RAGE_TIME, 0, 1), R = clamp(W * 0.12, 34, 48), y = Math.max(R + 18, hudH * 0.55);
+    const hot = rage.t <= 2, ringC = hot && Math.sin(now * 16) > 0 ? "#ff4766" : col.c;
+    const intro = ease(clamp((RAGE_TIME - rage.t) / 0.3, 0, 1)), sc = (0.4 + 0.6 * intro) * (1 + rage.pop * 0.12);
     ctx.save();
-    ctx.translate(cx, y); ctx.rotate(wob); ctx.scale(1 + pulse * 0.06, 1 + pulse * 0.06);
-    chunkyText(tr("rage"), 0, 0, Math.min(46, W * 0.11), "#ffffff", col.dark);
+    ctx.translate(cx, y); ctx.scale(sc, sc);
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.5 + pulse * 0.3;
+    ctx.drawImage(glow(ringC), -R * 2.2, -R * 2.2, R * 4.4, R * 4.4);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.beginPath(); ctx.arc(0, 3, R, 0, TAU); ctx.fillStyle = "rgba(0,0,20,0.45)"; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fillStyle = "rgba(12,8,36,0.85)"; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = col.dark; ctx.stroke();
+    ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(0, 0, R - 8, 0, TAU); ctx.strokeStyle = "rgba(255,255,255,0.12)"; ctx.lineWidth = 9; ctx.stroke();
+    if (f > 0) {
+      const a0 = -Math.PI / 2, a1 = a0 + TAU * f;
+      ctx.beginPath(); ctx.arc(0, 0, R - 8, a0, a1); ctx.strokeStyle = ringC; ctx.lineWidth = 9; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, R - 8, a0, a1); ctx.strokeStyle = "rgba(255,255,255,0.55)"; ctx.lineWidth = 3; ctx.stroke();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(glow("#ffffff"), Math.cos(a1) * (R - 8) - 12, Math.sin(a1) * (R - 8) - 12, 24, 24);
+      ctx.globalCompositeOperation = "source-over";
+    }
+    chunkyText(fmt(Math.max(1, rage.sec)), 0, 2, R * (0.95 + rage.pop * 0.35), "#ffffff", col.dark);
     ctx.restore();
-    chunkyText(tr("swipe"), cx, y + 36, 18, col.c2, "#1a1035");
-    const w = Math.min(220, W - 80), f = clamp(rage.t / RAGE_TIME, 0, 1);
-    rrPath(ctx, cx - w / 2, y + 56, w, 10, 5); ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fill();
-    if (f > 0) { rrPath(ctx, cx - w / 2, y + 56, Math.max(10, w * f), 10, 5); ctx.fillStyle = col.c; ctx.fill(); }
 
     if (blade.length > 1) {
       ctx.globalCompositeOperation = "lighter";
@@ -4788,7 +4828,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (!ptr.down || ev.pointerId !== ptr.id) return;
     const p = pos(ev);
     ptr.x = p.x; ptr.y = p.y;
-    if (rage) slice(ptr.lx, ptr.ly, p.x, p.y);
+    if (rage) {
+      slice(ptr.lx, ptr.ly, p.x, p.y);
+      const sp = Math.hypot(p.x - ptr.lx, p.y - ptr.ly);
+      if (sp > 28 && now - (ptr.whoosh || 0) > 0.14) { ptr.whoosh = now; tone(700, 220, 0.12, "sine", 0.05); }
+    }
     else if (ptr.cell && !ptr.swiped) {
       const dx = p.x - ptr.sx, dy = p.y - ptr.sy;
       if (Math.max(Math.abs(dx), Math.abs(dy)) > cell * 0.32) {
@@ -4820,6 +4864,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   canvas.addEventListener("pointercancel", (ev) => release(ev, true));
   canvas.addEventListener("contextmenu", (ev) => ev.preventDefault());
   document.addEventListener("pointerdown", () => audio(), { passive: true });
+  // no page scroll / overscroll / pull gestures while playing
+  document.addEventListener("touchmove", (ev) => { if (state === "play" && ev.cancelable) ev.preventDefault(); }, { passive: false });
   window.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" || ev.key === "p") { if (state === "play") pauseGame(); else if (state === "paused") resumeGame(); return; }
     if (state !== "play" || rage) return;
