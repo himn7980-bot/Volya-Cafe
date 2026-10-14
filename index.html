@@ -2829,6 +2829,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (!movable(A) || !movable(B)) { if (A) A.hitT = 1; if (B) B.hitT = 1; sfx("nope"); selected = null; return; }
     swapCells(a, b);
     const ga = grid[a[0]][a[1]], gb = grid[b[0]][b[1]];
+    // the gems now live in their new rows; the offsets animate them there
+    ga.fy = a[0]; gb.fy = b[0];
     ga.ox = b[1] - a[1]; ga.oy = b[0] - a[0];
     gb.ox = a[1] - b[1]; gb.oy = a[0] - b[0];
     boardState = "swap"; swapPair = [a, b];
@@ -3121,6 +3123,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (sp) { startMove(); blast([[sp[0], sp[1], 0]]); return; }
     swapCells(a, b);
     const ga2 = grid[a[0]][a[1]], gb2 = grid[b[0]][b[1]];
+    ga2.fy = a[0]; gb2.fy = b[0];
     ga2.ox = b[1] - a[1]; ga2.oy = b[0] - a[0];
     gb2.ox = a[1] - b[1]; gb2.oy = a[0] - b[0];
     boardState = "back";
@@ -3322,6 +3325,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         g.ox = Math.abs(g.ox) <= sp ? 0 : g.ox - Math.sign(g.ox) * sp;
         g.oy = Math.abs(g.oy) <= sp ? 0 : g.oy - Math.sign(g.oy) * sp;
       }
+      if (g.fy > r && !g.vy) g.fy = r;
       if (g.fy < r) {
         moving = true;
         g.vy += 38 * dt; g.fy += g.vy * dt;
