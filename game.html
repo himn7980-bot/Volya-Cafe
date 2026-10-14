@@ -56,6 +56,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   background: rgba(8, 12, 44, 0.7);
   box-shadow: inset 0 0 0 2px rgba(255,255,255,0.1);
 }
+#hpPill { display: none; }
 .hp svg { width: 22px; height: 22px; flex: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,.35)); }
 .hp-bar { flex: 1; height: 12px; border-radius: 999px; background: rgba(0,0,0,0.45); overflow: hidden; }
 .hp-bar i {
@@ -2265,6 +2266,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const die = (el, tier = 1) => ({ el, tier, drop: 0, pop: 0 });
 
   function reset() {
+    hpSeen = MAX_HP; hpLag = 1;
     goals = LV ? LV.goals.map((g) => Object.assign({}, g, { have: 0 })) : [];
     bossT = LV && LV.boss ? 4 : 0;
     movesLeft = LV && LV.moves ? LV.moves + (perk("yoda") ? 3 : 0) : 0; timeLeft = LV && LV.time ? LV.time + (perk("yoda") ? 15 : 0) : 0;
@@ -5043,10 +5045,56 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const j = rtl ? n - 1 - i : i;
     return { x: x0 + j * (s + gap), y: trayTop + (trayH - s) / 2, s };
   }
+  // the power bar holds two stacked bars next to the board: health on top, rage below
   function meterRect() {
     const w = slotDims().w;
     const x = rtl ? 22 + w + 16 : 24;
-    return { x, y: trayTop + trayH / 2 - 12, w: W - 48 - w - 16, h: 24 };
+    return { x, y: trayTop + trayH / 2 + 1, w: W - 48 - w - 16, h: 19 };
+  }
+  function hpRect() { const m = meterRect(); return { x: m.x, y: trayTop + 9, w: m.w, h: 16 }; }
+  let hpLag = 1, hpSeen = MAX_HP, hpHitT = -9, hpHealT = -9;
+  function drawHpBar() {
+    const m = hpRect(), f = clamp(hp / MAX_HP, 0, 1);
+    if (hp < hpSeen) hpHitT = now; else if (hp > hpSeen) hpHealT = now;
+    hpSeen = hp;
+    hpLag = hpLag > f ? Math.max(f, hpLag - 0.012) : f;
+    const hit = clamp(1 - (now - hpHitT) / 0.35, 0, 1), heal = clamp(1 - (now - hpHealT) / 0.6, 0, 1), low = f <= 0.3;
+    ctx.save();
+    if (hit) ctx.translate(rand(-3, 3) * hit, rand(-2, 2) * hit);
+    rrPath(ctx, m.x, m.y, m.w, m.h, m.h / 2); ctx.fillStyle = "rgba(10,6,40,0.6)"; ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 2; ctx.stroke();
+    const at = (k) => { const fw = Math.max(m.h, m.w * k); return [rtl ? m.x + m.w - fw : m.x, fw]; };
+    if (hpLag > f + 0.005) { const [lx, lw] = at(hpLag); rrPath(ctx, lx, m.y, lw, m.h, m.h / 2); ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.fill(); }
+    if (f > 0) {
+      const [fx, fw] = at(f);
+      const g = ctx.createLinearGradient(0, m.y, 0, m.y + m.h);
+      if (low) { g.addColorStop(0, "#ffb0a6"); g.addColorStop(0.55, "#ff3b4a"); g.addColorStop(1, "#a8162a"); }
+      else if (f <= 0.6) { g.addColorStop(0, "#fff0a0"); g.addColorStop(0.55, "#ffc21a"); g.addColorStop(1, "#b86200"); }
+      else { g.addColorStop(0, "#c8ffb0"); g.addColorStop(0.55, "#4fd04a"); g.addColorStop(1, "#1f7a1a"); }
+      rrPath(ctx, fx, m.y, fw, m.h, m.h / 2); ctx.fillStyle = g; ctx.fill();
+      rrPath(ctx, fx + 4, m.y + 2, Math.max(0, fw - 8), m.h * 0.3, m.h * 0.15); ctx.fillStyle = "rgba(255,255,255,0.35)"; ctx.fill();
+      if (hit || heal || low) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = Math.max(hit, heal, low ? 0.3 + Math.sin(now * 10) * 0.25 : 0);
+        ctx.drawImage(glow(hit || low ? "#ff3b4a" : "#7dff8a"), fx - 10, m.y - 14, fw + 20, m.h + 28);
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+      }
+    }
+    font(800, 11);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.fillText(fmt(Math.ceil(hp)), m.x + m.w / 2, m.y + m.h / 2 + 1);
+    // heart badge
+    const pulse = low ? 1 + Math.sin(now * 12) * 0.12 : 1 + hit * 0.25;
+    ctx.translate(rtl ? m.x + m.w - 4 : m.x + 4, m.y + m.h / 2);
+    ctx.scale(pulse, pulse);
+    ctx.beginPath(); ctx.arc(0, 0, m.h * 0.72, 0, TAU);
+    ctx.fillStyle = "#2a1f78"; ctx.fill(); ctx.strokeStyle = "#ff8a9a"; ctx.lineWidth = 2; ctx.stroke();
+    const k = m.h * 0.042;
+    ctx.scale(k, k); ctx.translate(-12, -12.5);
+    const heart = new Path2D("M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 5.4 3.2 1.8-2 3.2-3.2 5.4-3.2 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z");
+    ctx.fillStyle = "#ff4a5a"; ctx.fill(heart);
+    ctx.strokeStyle = "#7a0d1d"; ctx.lineWidth = 1.8; ctx.stroke(heart);
+    ctx.restore();
   }
   function drawLock(x, y, s) {
     ctx.save(); ctx.translate(x, y);
@@ -5080,10 +5128,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.fillStyle = "#2a1f78"; ctx.fill(); ctx.strokeStyle = "#ffcf3d"; ctx.lineWidth = 2; ctx.stroke();
     paintIcon(ctx, "fire", m.h * 0.34, EL.fire);
     ctx.restore();
-    font(800, 12);
+    font(800, 11);
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.fillText(tr("rage"), m.x + m.w / 2, m.y + m.h / 2 + 1);
+    if (state !== "title") drawHpBar();
     for (let i = 0; i < SPECIALS.length; i++) {
       const k = SPECIALS[i], r = specRect(i), n = powers[k];
       rrPath(ctx, r.x, r.y, r.s, r.s, r.s * 0.3);
