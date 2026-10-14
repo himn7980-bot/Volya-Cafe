@@ -5,6 +5,7 @@ import { Alert, View } from 'react-native';
 
 import { Avatar, Banner, Button, Row, Screen, Section, TextField } from '@/components/ui';
 import { signOut } from '@/features/auth/auth';
+import { useSyncStatus } from '@/features/loans/service';
 import { useAvatarUrl, useChangeAvatar, useProfile, useRemoveAvatar, useUpdateProfile } from '@/features/profile/api';
 import { currencyName, usePrefs } from '@/i18n';
 import { space } from '@/theme';
@@ -39,7 +40,8 @@ export default function Profile() {
   }
 
   function confirmSignOut() {
-    Alert.alert(t('profile.signOut'), t('profile.signOutConfirm'), [
+    const unsent = useSyncStatus.getState().pending > 0;
+    Alert.alert(t('profile.signOut'), unsent ? t('sync.signOutPending') : t('profile.signOutConfirm'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('profile.signOut'), style: 'destructive', onPress: () => void signOut() },
     ]);

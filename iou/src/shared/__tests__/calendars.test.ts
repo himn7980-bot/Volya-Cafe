@@ -1,4 +1,4 @@
-import { daysInMonth, fromIso, toIso } from '../calendars';
+import { addDays, addMonths, daysInMonth, fromIso, toIso, weekdayOfIso } from '../calendars';
 
 describe('calendars', () => {
   it('converts well-known dates', () => {
@@ -27,5 +27,23 @@ describe('calendars', () => {
         if (toIso(d, cal) !== iso) throw new Error(`${cal} round-trip failed for ${iso}`);
       }
     }
+  });
+});
+
+
+describe('date helpers', () => {
+  it('knows weekdays', () => {
+    expect(weekdayOfIso('2000-01-01')).toBe(6); // Saturday
+    expect(weekdayOfIso('2026-10-14')).toBe(3); // Wednesday
+  });
+  it('adds days across months and years', () => {
+    expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
+    expect(addDays('2024-03-01', -1)).toBe('2024-02-29');
+  });
+  it('adds months in each calendar, clamping the day', () => {
+    expect(addMonths('2026-01-31', 1, 'gregory')).toBe('2026-02-28');
+    // 31 Shahrivar 1405 + 1 month = 30 Mehr 1405 (Mehr has 30 days)
+    expect(addMonths('2026-09-22', 1, 'persian')).toBe('2026-10-22');
+    expect(addMonths('2026-10-14', 12, 'islamic')).toBe(addMonths(addMonths('2026-10-14', 6, 'islamic'), 6, 'islamic'));
   });
 });

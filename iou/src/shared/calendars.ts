@@ -171,3 +171,24 @@ export function daysInMonth(year: number, month: number, calendar: CalendarSyste
       return month % 2 === 1 ? 30 : 29;
   }
 }
+
+/** Day of the week, 0 = Sunday ... 6 = Saturday (same in every calendar). */
+export function weekdayOfIso(iso: string): number {
+  const g = parseIsoDate(iso);
+  return (gregorianToJdn(g.year, g.month, g.day) + 1) % 7;
+}
+
+/** Add whole days to an ISO date. */
+export function addDays(iso: string, days: number): string {
+  const g = parseIsoDate(iso);
+  return toIsoDate(jdnToGregorian(gregorianToJdn(g.year, g.month, g.day) + days));
+}
+
+/** Add calendar months in the given calendar, clamping the day (31 Jan + 1 month = 28/29 Feb). */
+export function addMonths(iso: string, months: number, calendar: CalendarSystem): string {
+  const d = fromIso(iso, calendar);
+  const index = d.year * 12 + (d.month - 1) + months;
+  const year = Math.floor(index / 12);
+  const month = (index % 12) + 1;
+  return toIso({ year, month, day: Math.min(d.day, daysInMonth(year, month, calendar)) }, calendar);
+}

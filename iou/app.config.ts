@@ -71,6 +71,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         cameraPermission: 'Allow $(PRODUCT_NAME) to take a photo of a receipt.',
       },
     ],
+    [
+      'expo-contacts',
+      {
+        contactsPermission: 'Allow $(PRODUCT_NAME) to fill in the name and number of the person you lend to or borrow from.',
+      },
+    ],
+    'expo-sqlite',
   ],
   experiments: {
     typedRoutes: true,

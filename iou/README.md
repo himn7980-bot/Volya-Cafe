@@ -14,8 +14,8 @@ The work is delivered in phases, with a review after each one.
 | Phase | Scope | State |
 | --- | --- | --- |
 | 1 | Project setup, i18n + RTL foundation, auth, profile | **done** |
-| 2 | Loans CRUD, local cache and sync | next |
-| 3 | Share link + public confirmation web page | |
+| 2 | Loans CRUD, local cache and sync | **done** |
+| 3 | Share link + public confirmation web page | next |
 | 4 | Repayments, reminders, push notifications | |
 | 5 | Dashboard, export, settings, polish | |
 | 6 | Tests, EAS build config, store publishing guide | |
@@ -37,15 +37,23 @@ src/
   app/                     screens (Expo Router: every file is a route)
     onboarding.tsx         language picker, then welcome
     sign-in.tsx, verify.tsx, auth-callback.tsx
-    (app)/                 signed-in area: dashboard, profile, settings
-  components/              UI kit (large tap targets, RTL-safe)
-  features/                auth, profile data hooks
+    (app)/                 signed-in area: dashboard, loans/, profile, settings
+  components/              UI kit, calendar-aware date picker, currency list
+  features/
+    auth/, profile/        sign-in and profile data
+    loans/
+      localStore.ts        SQLite cache + outbox of unsent changes
+      syncEngine.ts        push/pull logic (pure, unit-tested)
+      remote.ts            Supabase implementation of the sync "Remote"
+      service.ts           hooks, sync scheduling, photos
+      LoanForm.tsx, components.tsx
   i18n/
     locales/*.json         one file per language  <- add languages here
     languages.ts           registry + device language matching
     direction.ts           RTL switching
   shared/                  pure TS (no React Native): money, currencies,
-                           calendars, digits, formatting. Reused by the web page.
+                           calendars, digits, formatting, loan rules.
+                           Reused by the web page.
   stores/settings.ts       device preferences (persisted)
   theme/                   colors (light/dark), type scale, fonts
 supabase/
@@ -73,7 +81,8 @@ Useful scripts:
 ```bash
 npm run typecheck     # TypeScript
 npm run lint          # ESLint (also blocks left/right styles, see "RTL rules")
-npm test              # unit tests (money parsing, calendars, formatting, languages)
+npm test              # unit tests (money, calendars, formatting, languages, loan rules,
+                      #   local store + sync engine on a real SQLite database)
 npm run i18n:check    # every locale has every key and matching {{variables}}
 npm run test:db       # database migrations + RLS tests (see below)
 ```
@@ -191,9 +200,43 @@ back to English at runtime.
   `⁦…⁩` inside a sentence).
 - Never hard-code user-facing text: add a key to `en.json` (and the other locales).
 
-## Privacy and security (Phase 1)
+## Records (loans), offline use and sync
 
-- Row Level Security on every table: a person can read and change only their own profile.
+- **Create / edit / cancel** a record: direction (I lent / I borrowed), the other person
+  (typed or picked from contacts, phone optional), amount and currency, date, optional
+  pay-back date, note and a receipt photo. Dates are picked in the person's calendar.
+- **Nothing is ever overwritten.** Every change, cancellation included, creates a new
+  version in `loan_versions` (written by a database trigger, not by the app), and the
+  record screen shows that history. Records are cancelled, never deleted.
+- **Re-confirmation.** Changing the amount, currency, dates, note or photo of a record
+  the other person already confirmed (or disputed) puts it back to *waiting for
+  confirmation*. Renaming the other person doesn't.
+- **Local-first.** Every screen reads from a SQLite copy on the phone, so the app works
+  fully offline. Changes go into an outbox and are sent when the network is back: on app
+  start, on return to the foreground, on reconnect, every minute, and on pull-to-refresh.
+  - Records get their ID on the phone, so a retry after a lost reply never creates a
+    duplicate.
+  - Several edits made offline are merged into one change.
+  - If the server copy changed in the meantime (e.g. the other person confirmed), the
+    edit is re-applied on top of the latest version: the fields you changed win, and
+    the server's rules still apply.
+  - If the server refuses a change for good (the record was settled meanwhile), the
+    change is dropped and a short notice explains it.
+- Photos are copied into the app's storage and uploaded with the next sync. Old photos
+  are kept, because older versions in the history refer to them.
+- Signing out deletes this account's local data from the phone (with a warning if some
+  changes haven't been sent yet).
+
+## Privacy and security
+
+- Row Level Security on every table: a person can read and change only their own
+  profile. A record and its history are visible only to its two parties, and only its
+  creator can edit it.
+- The app can't confirm its own records, mark them settled, change who the parties are,
+  or touch the share token. Column privileges and triggers enforce this in the database,
+  and `supabase/tests/002_loans.test.sql` checks each rule.
+- Receipt photos live in a private bucket under `<record id>/`. Both parties can view
+  them; only the creator can add them.
 - `phone` and `email` on a profile are copied from the verified sign-in by a database
   trigger and cannot be written by the app, so nobody can claim someone else's number.
 - Avatars live in a private bucket under `<user id>/`. Only the owner can read or write

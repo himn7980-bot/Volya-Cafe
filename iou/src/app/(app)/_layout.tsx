@@ -5,6 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { useStackOptions } from '@/components/navigation';
 import { AppText, Button, Screen } from '@/components/ui';
 import { signOut } from '@/features/auth/auth';
+import { useSyncLoop } from '@/features/loans/service';
 import { useProfile } from '@/features/profile/api';
 import { useReconcilePrefs } from '@/features/profile/prefs';
 import { space, useColors } from '@/theme';
@@ -15,6 +16,8 @@ export default function AppLayout() {
   const stackOptions = useStackOptions();
   const profile = useProfile();
   useReconcilePrefs(profile.data);
+  // Loans are local-first: keep syncing even before the profile has loaded.
+  useSyncLoop(true);
 
   if (!profile.data) {
     return (
@@ -47,6 +50,9 @@ export default function AppLayout() {
         <Stack.Screen name="settings/index" options={{ title: t('settings.title') }} />
         <Stack.Screen name="settings/language" options={{ title: t('settings.language') }} />
         <Stack.Screen name="settings/currency" options={{ title: t('currency.title') }} />
+        <Stack.Screen name="loans/new" options={{ title: t('loans.newRecord') }} />
+        <Stack.Screen name="loans/[id]/index" options={{ title: t('loans.detailTitle') }} />
+        <Stack.Screen name="loans/[id]/edit" options={{ title: t('loans.editTitle') }} />
       </Stack.Protected>
     </Stack>
   );

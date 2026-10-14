@@ -114,6 +114,10 @@ export async function signInWithGoogle(): Promise<boolean> {
   return completeSignInFromUrl(result.url);
 }
 
+/** Sign out and forget this account's data on the phone. */
 export async function signOut() {
+  // Imported lazily: the loans service pulls in SQLite, which auth doesn't need otherwise.
+  const { clearLocalData } = await import('@/features/loans/service');
   await supabase.auth.signOut();
+  await clearLocalData();
 }
