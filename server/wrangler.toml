@@ -23,6 +23,10 @@ ALLOWED_ORIGIN = "https://himn7980-bot.github.io"
 GAME_URL = "https://himn7980-bot.github.io/Volya-Cafe/"
 # World Boss health (shared by everyone each weekend)
 RAID_HP = "3000000"
+# Android app (Bubblewrap/PWABuilder): package id and the SHA-256 fingerprint of the signing key.
+# Served at /.well-known/assetlinks.json so the app opens without a browser bar.
+ANDROID_PACKAGE = "app.volya.gemdefense"
+ANDROID_SHA256 = ""
 
 # The bot token is a secret, never put it in this file:
 #   npx wrangler secret put BOT_TOKEN

@@ -41,6 +41,18 @@ function raidWindow(env, now) {
   return { week: weekOf(now), open, opensIn: open ? 0 : 4 * 86400 - into, endsIn: 7 * 86400 - into, maxHp: Number(env.RAID_HP) || 3_000_000 };
 }
 
+// Digital Asset Links for the Android (TWA) build: proves this domain belongs to the app,
+// so it opens full-screen without a browser bar. Set ANDROID_PACKAGE and ANDROID_SHA256
+// (the signing certificate fingerprint, comma-separated if several) in wrangler.toml.
+function assetLinks(env) {
+  const fps = String(env.ANDROID_SHA256 || "").split(",").map((x) => x.trim()).filter(Boolean);
+  if (!env.ANDROID_PACKAGE || !fps.length) return new Response("[]", { status: 404, headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify([{
+    relation: ["delegate_permission/common.handle_all_urls"],
+    target: { namespace: "android_app", package_name: env.ANDROID_PACKAGE, sha256_cert_fingerprints: fps }
+  }]), { headers: { "Content-Type": "application/json", "Cache-Control": "max-age=3600" } });
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -51,6 +63,7 @@ export default {
       "Access-Control-Max-Age": "86400"
     };
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+    if (url.pathname === "/.well-known/assetlinks.json") return assetLinks(env);
     try {
       if (url.pathname === "/top" && req.method === "GET") return json(await top(env, url), cors);
       if (url.pathname === "/score" && req.method === "POST") return json(await submit(env, await readJson(req)), cors);

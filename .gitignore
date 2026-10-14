@@ -1,3 +1,5 @@
 server/public/
 server/.wrangler/
 node_modules/
+*.keystore
+*.jks

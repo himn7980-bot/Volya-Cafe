@@ -152,7 +152,7 @@ Every run played inside Telegram is sent to a small API when the game ends. Play
 3. **Workers & Pages → Create → Create Worker**, name it `volya-leaderboard`, **Deploy**, then **Edit code**: replace everything with `server/worker.js` and **Deploy** again.
 4. In the Worker: **Settings → Bindings → Add → D1 database**, variable name `DB`, database `volya-leaderboard`.
 5. **Settings → Variables and Secrets**: add **Secrets** `BOT_TOKEN` (the token from @BotFather) and `WEBHOOK_SECRET` (any long random text), and **Text** variables `ALLOWED_ORIGIN` = `https://himn7980-bot.github.io` and `GAME_URL` = the game's address.
-6. Copy the Worker URL (`https://volya-leaderboard.<your-subdomain>.workers.dev`) into `LEADERBOARD_API` at the top of the game script, in both `game.html` and `index.html`.
+6. Copy the Worker URL (`https://volya-leaderboard.<your-subdomain>.workers.dev`) into `LEADERBOARD_API` at the top of the game script, in `game.html`, then run `./build.sh` to rebuild `index.html`.
 
 Command-line alternative: `cd server && npx wrangler d1 create volya-leaderboard` (put the id in `wrangler.toml`), `npx wrangler d1 execute volya-leaderboard --remote --file schema.sql`, `npx wrangler secret put BOT_TOKEN`, `npx wrangler deploy`.
 
@@ -168,3 +168,30 @@ WEBHOOK_SECRET=<printed by deploy.sh> ./server/setup-bot.sh https://volya-leader
 ```
 
 The game detects that it runs on `*.workers.dev` and uses the same origin for the leaderboard, so nothing else needs editing. The Cloudflare account needs its `workers.dev` subdomain chosen once (open **Workers & Pages** in the dashboard).
+
+## Installable app (PWA) and Android
+
+`game.html` is the source; `./build.sh` turns it into `index.html` (adds the web-app manifest, icons and meta tags from `web/head.html`). Run it after every change to `game.html`.
+
+Outside Telegram (e.g. opening the GitHub Pages link in Chrome) the game is a full Progressive Web App:
+
+- `manifest.webmanifest` + `icons/` — "Add to home screen" installs it with its own icon, full screen, portrait.
+- `sw.js` — offline play: pages are loaded fresh when online and from cache when offline.
+- An **Install app** button appears on the title screen when the browser offers installation.
+- The phone's back button steps back through menus (and pauses a run); on the title screen it leaves the app.
+- Inside Telegram none of this activates — the Mini App works exactly as before.
+- `privacy.html` — privacy policy page required by app stores. Replace `[CONTACT EMAIL]` with a support address first.
+
+### Building an Android app (APK/AAB)
+
+The Android app is a Trusted Web Activity: a thin wrapper that opens the hosted game full screen.
+
+1. Make sure the GitHub Pages site is live: `https://himn7980-bot.github.io/Volya-Cafe/`.
+2. Easiest: open <https://www.pwabuilder.com>, paste that URL, choose **Android → Generate**. Keep the downloaded signing key safe — every update must be signed with it.
+   Or with the CLI: `npm i -g @bubblewrap/cli`, then `bubblewrap init --manifest https://himn7980-bot.github.io/Volya-Cafe/manifest.webmanifest` (settings are pre-filled in `android/twa-manifest.json`) and `bubblewrap build`.
+3. **Remove the address bar**: Android checks `https://<domain>/.well-known/assetlinks.json`. A GitHub *project* page can't serve files at the domain root, so either
+   - host the game on the Cloudflare Worker (`server/deploy.sh` copies the game there) and set `ANDROID_SHA256` (the fingerprint printed by PWABuilder/Bubblewrap) in `server/wrangler.toml` — the Worker serves `assetlinks.json` automatically; build the app with that Worker URL; or
+   - create a repo named `himn7980-bot.github.io` containing `.well-known/assetlinks.json`.
+4. Stores: the generated `.aab` is for Google Play, the `.apk` for Cafe Bazaar / Myket. Each store has its own payment and ad SDKs — Telegram Stars and Adsgram only work inside Telegram, so in the Android build Stars items show a "Telegram only" notice (gold items still work) and ads are skipped until a store's billing and ad SDK are added.
+
+Never commit the Android signing key (`*.keystore`, `*.jks`) — they are git-ignored.

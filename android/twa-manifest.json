@@ -1,0 +1,22 @@
+{
+  "packageId": "app.volya.gemdefense",
+  "host": "himn7980-bot.github.io",
+  "name": "Volya Gem Defense",
+  "launcherName": "Volya",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "themeColor": "#070b2a",
+  "navigationColor": "#070b2a",
+  "backgroundColor": "#070b2a",
+  "enableNotifications": false,
+  "startUrl": "/Volya-Cafe/",
+  "iconUrl": "https://himn7980-bot.github.io/Volya-Cafe/icons/icon-512.png",
+  "maskableIconUrl": "https://himn7980-bot.github.io/Volya-Cafe/icons/icon-maskable-512.png",
+  "webManifestUrl": "https://himn7980-bot.github.io/Volya-Cafe/manifest.webmanifest",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "signingKey": { "path": "./android.keystore", "alias": "volya" },
+  "fallbackType": "customtabs",
+  "features": {},
+  "generatorApp": "bubblewrap-cli"
+}

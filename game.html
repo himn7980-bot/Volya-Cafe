@@ -605,6 +605,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       </div>
       <button class="btn share" id="titleInviteBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="inviteFriends"></span></button>
       <p class="invite-note" id="inviteNote" data-i18n="inviteReward"></p>
+      <button class="btn ghost" id="installBtn" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3" fill="currentColor" opacity=".35"/><path d="M12 6v8M8.5 10.5L12 14l3.5-3.5M9 18h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="installApp"></span></button>
       <div class="btn-row three">
         <button class="btn secondary" id="titleRecBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></button>
         <button class="btn secondary" id="titleLbBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></button>
@@ -1555,6 +1556,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: ["Vàng", "Quà hằng ngày", "Ngày {n}", "Nhận", "Mai quay lại nhận quà tiếp nhé!", "Thử thách ngày", "Hôm nay đã xong ✓", "Vật phẩm hỗ trợ", "Bắt đầu với 2 tên lửa", "+5 lượt hoặc +20 giây", "Bắt đầu với khiên", "Chơi tiếp?", "Tiếp tục", "Xem quảng cáo", "Bỏ cuộc", "Nhiệm vụ tuần", "Hạ {n} quái vật", "Thắng {n} màn", "Tạo {n} phi tiêu", "Tạo {n} bom", "Phá {n} viên ngọc", "Hạ {n} trùm", "Dùng Cuồng nộ {n} lần", "Chơi Vô tận {n} lần", "Nhiệm vụ mới sau {n} ngày", "Cửa hàng", "Mở khóa ngay", "Cấp {n}", "Cấp tối đa", "Thẻ điểm", "Lưu ảnh", "Chiến tranh đội", "Mọi điểm Vô tận tuần này được cộng cho đội nhân vật của bạn", "Không đủ vàng", "Cảm ơn! Đã cộng vào tài khoản", "Tốt nhất hôm nay", "Tính năng trực tuyến chưa sẵn sàng"]
   };
   for (const k in STR_META) STR_META[k].forEach((v, i) => { STR[k][META_KEYS[i]] = v; });
+  const STR_PWA = {"en": "Install app", "fa": "نصب برنامه", "ar": "ثبّت التطبيق", "ru": "Установить приложение", "uk": "Встановити застосунок", "tr": "Uygulamayı yükle", "az": "Tətbiqi quraşdır", "uz": "Ilovani o'rnatish", "kk": "Қолданбаны орнату", "es": "Instalar app", "pt": "Instalar app", "fr": "Installer l'app", "de": "App installieren", "it": "Installa app", "nl": "App installeren", "pl": "Zainstaluj aplikację", "id": "Pasang aplikasi", "hi": "ऐप इंस्टॉल करो", "zh": "安装应用", "ja": "アプリをインストール", "ko": "앱 설치", "vi": "Cài ứng dụng"};
+  for (const k in STR_PWA) STR[k].installApp = STR_PWA[k];
   const WHEEL_KEYS = ["luckyWheel", "freeSpin", "spin"];
   const STR_WHEEL = {"en": ["Lucky wheel", "Free spin!", "Spin"], "fa": ["چرخ شانس", "چرخش رایگان!", "بچرخان"], "ar": ["عجلة الحظ", "دورة مجانية!", "أدر"], "ru": ["Колесо удачи", "Бесплатное вращение!", "Крутить"], "uk": ["Колесо удачі", "Безкоштовне обертання!", "Крутити"], "tr": ["Şans çarkı", "Ücretsiz çevirme!", "Çevir"], "az": ["Şans çarxı", "Pulsuz fırlatma!", "Fırlat"], "uz": ["Omad g'ildiragi", "Bepul aylantirish!", "Aylantirish"], "kk": ["Сәттілік дөңгелегі", "Тегін айналдыру!", "Айналдыру"], "es": ["Ruleta de la suerte", "¡Giro gratis!", "Girar"], "pt": ["Roda da sorte", "Giro grátis!", "Girar"], "fr": ["Roue de la chance", "Tour gratuit !", "Tourner"], "de": ["Glücksrad", "Gratis-Dreh!", "Drehen"], "it": ["Ruota della fortuna", "Giro gratis!", "Gira"], "nl": ["Geluksrad", "Gratis draai!", "Draaien"], "pl": ["Koło fortuny", "Darmowy obrót!", "Zakręć"], "id": ["Roda keberuntungan", "Putaran gratis!", "Putar"], "hi": ["किस्मत का पहिया", "मुफ़्त स्पिन!", "घुमाओ"], "zh": ["幸运转盘", "免费转一次！", "转动"], "ja": ["ラッキールーレット", "無料スピン！", "回す"], "ko": ["행운의 룰렛", "무료 스핀!", "돌리기"], "vi": ["Vòng quay may mắn", "Quay miễn phí!", "Quay"]};
   for (const k in STR_WHEEL) STR_WHEEL[k].forEach((v, i) => { STR[k][WHEEL_KEYS[i]] = v; });
@@ -6605,6 +6608,37 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     $("vibSw").setAttribute("aria-checked", String(settings.vib));
     haptic("medium"); sfx("click");
   });
+
+  // ---- Installable web app (PWA / Android TWA) ------------------------
+  // Only the GitHub Pages build links a manifest; the Telegram copy never registers a worker.
+  const IN_TG = !!(tg && tg.initData);
+  const STANDALONE = (() => {
+    try { return matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches || navigator.standalone === true || document.referrer.startsWith("android-app://"); } catch (e) { return false; }
+  })();
+  if (!IN_TG && "serviceWorker" in navigator && document.querySelector('link[rel="manifest"]') && (location.protocol === "https:" || location.hostname === "localhost")) {
+    addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+  }
+  let installEvt = null;
+  addEventListener("beforeinstallprompt", (e) => {
+    if (IN_TG || STANDALONE) return;
+    e.preventDefault(); installEvt = e; $("installBtn").hidden = false;
+  });
+  addEventListener("appinstalled", () => { installEvt = null; $("installBtn").hidden = true; });
+  $("installBtn").addEventListener("click", clickSfx(async () => {
+    if (!installEvt) return;
+    installEvt.prompt();
+    try { await installEvt.userChoice; } catch (e) {}
+    installEvt = null; $("installBtn").hidden = true;
+  }));
+  // Android back button / browser back: step back through screens, leave only from the title screen
+  if (!IN_TG && history.pushState) {
+    try { history.pushState({ volya: 1 }, ""); } catch (e) {}
+    addEventListener("popstate", () => {
+      if (state === "title" && !$("titleScreen").hidden) { history.back(); return; }
+      onBack();
+      try { history.pushState({ volya: 1 }, ""); } catch (e) {}
+    });
+  }
 
   // ---- Boot ------------------------------------------------------------
   if (tg) {

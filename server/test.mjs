@@ -224,5 +224,13 @@ sqlite.prepare("UPDATE users SET last_remind = last_remind - 86400").run();
 await remind(env);
 assert.equal(sqlite.prepare("SELECT can_write FROM users WHERE user_id = 555").get().can_write, 0, "blocked bots stop getting messages");
 
+// Android asset links: hidden until configured, then served for the TWA package
+const links = async () => worker.fetch(new Request("https://lb.example/.well-known/assetlinks.json"), env);
+assert.equal((await links()).status, 404);
+env.ANDROID_PACKAGE = "app.volya.gemdefense"; env.ANDROID_SHA256 = "AA:BB, CC:DD";
+const al = await (await links()).json();
+assert.equal(al[0].target.package_name, "app.volya.gemdefense");
+assert.deepEqual(al[0].target.sha256_cert_fingerprints, ["AA:BB", "CC:DD"]);
+
 await wait(0);
 console.log("server tests passed");

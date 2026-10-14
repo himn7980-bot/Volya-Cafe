@@ -18,7 +18,9 @@ $W d1 execute volya-leaderboard --remote --file schema.sql --yes
 
 # 2. Game files
 mkdir -p public
-cp ../index.html public/index.html
+(cd .. && ./build.sh)
+cp ../index.html ../manifest.webmanifest ../sw.js ../privacy.html public/
+cp -r ../icons public/
 
 # 3. Worker + bot token secret
 $W deploy
