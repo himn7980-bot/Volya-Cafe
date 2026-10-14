@@ -10,6 +10,10 @@
 //   POST /invoice { initData, product }    -> { link } (Telegram Stars invoice)
 //   POST /claim { initData }               -> { products: [...] } paid purchases not yet delivered
 //   POST /tg-webhook                       -> Telegram bot updates (payments, /start)
+//   POST /ping { initData, write? }        -> remembers the player for reminders -> { refs }
+//   POST /ref { initData, ref }            -> credits an invite (both players get gold; 5 invites = a hero)
+//   GET  /raid?uid= / POST /raid { initData, damage, duration } -> weekend World Boss shared by everyone
+//   cron (scheduled)                        -> daily reminder message to players who allowed it
 //   GET  /  (anything else)                -> the game (static assets in ./public)
 
 const MAX_AUTH_AGE = 24 * 60 * 60; // seconds an initData signature stays valid
@@ -23,11 +27,19 @@ export const PRODUCTS = {
   gold_m: { stars: 150, title: "2,000 Gold", description: "A chest of 2,000 gold for boosters and continues." },
   gold_l: { stars: 400, title: "6,000 Gold", description: "A treasure of 6,000 gold for boosters and continues." },
   boosts: { stars: 100, title: "Booster pack", description: "5 rocket, 5 extra-moves and 5 shield boosters." },
+  pass: { stars: 300, title: "Season Pass Premium", description: "Unlocks the premium track of the current season pass." },
   ...Object.fromEntries(HEROES.slice(1).map((h) => [`hero_${h}`, { stars: 75, title: "Unlock hero", description: `Unlock the ${h} hero right away.` }]))
 };
 const nowSec = () => Math.floor(Date.now() / 1000);
 const weekOf = (sec) => Math.floor((sec / 86400 + 3) / 7);   // weeks start on Monday 00:00 UTC
 const dayOf = (sec) => Math.floor(sec / 86400);
+const REF_LIMIT_HERO = 5;
+// World Boss: open Friday 00:00 UTC until Monday 00:00 UTC
+function raidWindow(env, now) {
+  const into = now - (weekOf(now) * 7 - 3) * 86400, day = Math.floor(into / 86400);
+  const open = env.RAID_ALWAYS === "1" || day >= 4;
+  return { week: weekOf(now), open, opensIn: open ? 0 : 4 * 86400 - into, endsIn: 7 * 86400 - into, maxHp: Number(env.RAID_HP) || 3_000_000 };
+}
 
 export default {
   async fetch(req, env) {
@@ -48,6 +60,10 @@ export default {
       if (url.pathname === "/invoice" && req.method === "POST") return json(await invoice(env, await readJson(req)), cors);
       if (url.pathname === "/claim" && req.method === "POST") return json(await claim(env, await readJson(req)), cors);
       if (url.pathname === "/tg-webhook" && req.method === "POST") return await webhook(env, req);
+      if (url.pathname === "/ping" && req.method === "POST") return json(await ping(env, await readJson(req)), cors);
+      if (url.pathname === "/ref" && req.method === "POST") return json(await referral(env, await readJson(req)), cors);
+      if (url.pathname === "/raid" && req.method === "GET") return json(await raidStatus(env, int(url.searchParams.get("uid"))), cors);
+      if (url.pathname === "/raid" && req.method === "POST") return json(await raidHit(env, await readJson(req)), cors);
       // Everything else is the game itself (static files deployed with the Worker).
       if (env.ASSETS && (req.method === "GET" || req.method === "HEAD")) return env.ASSETS.fetch(req);
       return json({ error: "not_found" }, cors, 404);
@@ -56,7 +72,8 @@ export default {
       console.error(e);
       return json({ error: "server_error" }, cors, 500);
     }
-  }
+  },
+  async scheduled(event, env, ctx) { ctx.waitUntil(remind(env)); }
 };
 
 class HttpError extends Error {
@@ -241,7 +258,15 @@ async function claim(env, body) {
   const rows = await env.DB.prepare("SELECT charge_id, product FROM purchases WHERE user_id = ? AND claimed = 0").bind(user.id).all();
   const list = rows.results || [];
   for (const r of list) await env.DB.prepare("UPDATE purchases SET claimed = 1 WHERE charge_id = ?").bind(r.charge_id).run();
-  return { products: list.map((r) => r.product) };
+  const products = list.map((r) => r.product);
+  const raids = await env.DB.prepare(
+    "SELECT h.week FROM raid_hits h JOIN raid_state s ON s.week = h.week WHERE h.user_id = ? AND h.claimed = 0 AND h.damage > 0 AND s.defeated_at IS NOT NULL"
+  ).bind(user.id).all();
+  for (const r of raids.results || []) {
+    await env.DB.prepare("UPDATE raid_hits SET claimed = 1 WHERE week = ? AND user_id = ?").bind(r.week, user.id).run();
+    products.push("raid_reward");
+  }
+  return { products };
 }
 
 async function webhook(env, req) {
@@ -267,6 +292,7 @@ async function webhook(env, req) {
   }
   if (msg && typeof msg.text === "string" && msg.text.startsWith("/start") && env.GAME_URL) {
     // pass the deep-link payload (ref_…, h_…) on to the game
+    if (msg.from) await touchUser(env, msg.from, true);
     const param = msg.text.split(" ")[1] || "";
     const safe = /^[A-Za-z0-9_-]{1,64}$/.test(param) ? param : "";
     const url = env.GAME_URL + (safe ? (env.GAME_URL.includes("?") ? "&" : "?") + "startapp=" + safe : "");
@@ -297,3 +323,122 @@ async function top(env, url) {
   }
   return { top: list, total: await total(env), me };
 }
+
+
+// ---- Players, invites, World Boss, reminders ------------------------------
+async function touchUser(env, user, write) {
+  const now = nowSec();
+  await env.DB.prepare(
+    `INSERT INTO users (user_id, name, lang, first_seen, last_seen, can_write, refs) VALUES (?, ?, ?, ?, ?, ?, 0)
+     ON CONFLICT(user_id) DO UPDATE SET name = excluded.name, lang = excluded.lang, last_seen = excluded.last_seen,
+       can_write = CASE WHEN excluded.can_write = 1 THEN 1 ELSE users.can_write END`
+  ).bind(user.id, displayName(user), user.language_code || null, now, now, write ? 1 : 0).run();
+}
+
+async function ping(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  await touchUser(env, user, !!(body && body.write));
+  const row = await env.DB.prepare("SELECT refs FROM users WHERE user_id = ?").bind(user.id).first();
+  return { refs: row ? row.refs : 0 };
+}
+
+const grant = (env, chargeId, userId, product) =>
+  env.DB.prepare("INSERT OR IGNORE INTO purchases (charge_id, user_id, product, stars, claimed, created_at) VALUES (?, ?, ?, 0, 0, ?)").bind(chargeId, userId, product, nowSec()).run();
+
+// An invite counts once, only for a brand-new player who arrived through someone else's link.
+async function referral(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  const inviter = int(body && body.ref), now = nowSec();
+  if (!Number.isSafeInteger(inviter) || inviter === user.id) throw new HttpError(400, "bad_ref");
+  const known = await env.DB.prepare("SELECT user_id FROM users WHERE user_id = ?").bind(inviter).first();
+  if (!known) throw new HttpError(404, "unknown_inviter");
+  const me = await env.DB.prepare("SELECT first_seen FROM users WHERE user_id = ?").bind(user.id).first();
+  if (me && now - me.first_seen > 2 * 3600) return { ok: false, reason: "not_new" };
+  const dup = await env.DB.prepare("SELECT invitee FROM referrals WHERE invitee = ?").bind(user.id).first();
+  if (dup) return { ok: false, reason: "already" };
+  await touchUser(env, user, false);
+  await env.DB.prepare("INSERT INTO referrals (invitee, inviter, created_at) VALUES (?, ?, ?)").bind(user.id, inviter, now).run();
+  await env.DB.prepare("UPDATE users SET refs = refs + 1 WHERE user_id = ?").bind(inviter).run();
+  await grant(env, `refin:${user.id}`, user.id, "ref_bonus");
+  await grant(env, `refout:${user.id}`, inviter, "ref_bonus");
+  const row = await env.DB.prepare("SELECT refs FROM users WHERE user_id = ?").bind(inviter).first();
+  if (row && row.refs === REF_LIMIT_HERO) await grant(env, `refhero:${inviter}`, inviter, "ref_hero");
+  return { ok: true };
+}
+
+async function raidStatus(env, uid) {
+  const now = nowSec(), w = raidWindow(env, now);
+  const tot = await env.DB.prepare("SELECT COALESCE(SUM(damage), 0) AS dmg, COUNT(*) AS players FROM raid_hits WHERE week = ? AND damage > 0").bind(w.week).first();
+  let mine = 0;
+  if (Number.isSafeInteger(uid)) {
+    const row = await env.DB.prepare("SELECT damage FROM raid_hits WHERE week = ? AND user_id = ?").bind(w.week, uid).first();
+    mine = row ? row.damage : 0;
+  }
+  const dmg = tot ? tot.dmg : 0;
+  return { open: w.open, opensIn: w.opensIn, endsIn: w.endsIn, maxHp: w.maxHp, hp: Math.max(0, w.maxHp - dmg), players: tot ? tot.players : 0, mine, defeated: dmg >= w.maxHp };
+}
+
+async function raidHit(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  const now = nowSec(), w = raidWindow(env, now);
+  if (!w.open) throw new HttpError(409, "raid_closed");
+  const damage = int(body.damage), duration = int(body.duration);
+  if (![damage, duration].every((n) => Number.isInteger(n) && n >= 0) || duration > 600 || damage > 1000 + duration * 4000) throw new HttpError(422, "implausible");
+  const prev = await env.DB.prepare("SELECT updated_at FROM raid_hits WHERE week = ? AND user_id = ?").bind(w.week, user.id).first();
+  if (prev && now - prev.updated_at < 5) throw new HttpError(429, "too_fast");
+  await env.DB.prepare(
+    `INSERT INTO raid_hits (week, user_id, damage, updated_at, claimed) VALUES (?, ?, ?, ?, 0)
+     ON CONFLICT(week, user_id) DO UPDATE SET damage = raid_hits.damage + excluded.damage, updated_at = excluded.updated_at`
+  ).bind(w.week, user.id, damage, now).run();
+  const st = await raidStatus(env, user.id);
+  if (st.defeated) await env.DB.prepare("INSERT OR IGNORE INTO raid_state (week, defeated_at) VALUES (?, ?)").bind(w.week, now).run();
+  return st;
+}
+
+// Reminder texts: [daily, World Boss weekend]
+const REMIND = {
+  en: ["🎡 Your free spin and daily reward are waiting! Come back and play 💎", "👹 The World Boss is here! Join players everywhere and take it down ⚔️"],
+  fa: ["🎡 چرخش رایگان و پاداش روزانه‌ات منتظرت است! برگرد و بازی کن 💎", "👹 غول جهانی آمده! با بازیکنان سراسر دنیا شکستش بده ⚔️"],
+  ar: ["🎡 دورتك المجانية ومكافأتك اليومية بانتظارك! عد والعب 💎", "👹 الزعيم العالمي هنا! انضم للاعبين حول العالم واهزمه ⚔️"],
+  ru: ["🎡 Тебя ждут бесплатное вращение и ежедневная награда! Возвращайся 💎", "👹 Мировой босс уже здесь! Победим его вместе ⚔️"],
+  uk: ["🎡 На тебе чекають безкоштовне обертання й щоденна нагорода! Повертайся 💎", "👹 Світовий бос уже тут! Переможімо його разом ⚔️"],
+  tr: ["🎡 Ücretsiz çevirme ve günlük ödülün seni bekliyor! Geri gel ve oyna 💎", "👹 Dünya Boss'u geldi! Tüm oyuncularla birlikte onu yen ⚔️"],
+  az: ["🎡 Pulsuz fırlatma və gündəlik mükafat səni gözləyir! Qayıt və oyna 💎", "👹 Dünya Bossu gəldi! Hamı ilə birlikdə onu məğlub et ⚔️"],
+  uz: ["🎡 Bepul aylantirish va kunlik sovg'a seni kutmoqda! Qayt va o'yna 💎", "👹 Jahon bossi keldi! Hamma bilan birga uni yeng ⚔️"],
+  kk: ["🎡 Тегін айналдыру мен күнделікті сыйлық сені күтіп тұр! Қайта орал 💎", "👹 Әлем басы келді! Бәрімен бірге оны жең ⚔️"],
+  es: ["🎡 ¡Tu giro gratis y tu recompensa diaria te esperan! Vuelve a jugar 💎", "👹 ¡Llegó el Jefe Mundial! Únete a todos y derrótalo ⚔️"],
+  pt: ["🎡 Seu giro grátis e a recompensa diária estão esperando! Volte a jogar 💎", "👹 O Chefão Mundial chegou! Junte-se a todos e derrote-o ⚔️"],
+  fr: ["🎡 Ton tour gratuit et ta récompense du jour t'attendent ! Reviens jouer 💎", "👹 Le Boss mondial est là ! Rejoins tout le monde pour l'abattre ⚔️"],
+  de: ["🎡 Dein Gratis-Dreh und die Tagesbelohnung warten! Komm zurück 💎", "👹 Der Weltboss ist da! Besiegt ihn gemeinsam ⚔️"],
+  it: ["🎡 Il tuo giro gratis e il premio giornaliero ti aspettano! Torna a giocare 💎", "👹 È arrivato il Boss mondiale! Sconfiggilo insieme a tutti ⚔️"],
+  nl: ["🎡 Je gratis draai en dagelijkse beloning wachten! Kom terug 💎", "👹 De Wereldbaas is er! Versla hem samen met iedereen ⚔️"],
+  pl: ["🎡 Czeka na ciebie darmowy obrót i nagroda dnia! Wracaj do gry 💎", "👹 Boss świata już tu jest! Pokonajmy go razem ⚔️"],
+  id: ["🎡 Putaran gratis dan hadiah harianmu menunggu! Ayo main lagi 💎", "👹 Bos Dunia telah datang! Kalahkan bersama semua pemain ⚔️"],
+  hi: ["🎡 तुम्हारा मुफ़्त स्पिन और रोज़ का इनाम इंतज़ार कर रहा है! वापस आओ 💎", "👹 विश्व बॉस आ गया! सबके साथ मिलकर उसे हराओ ⚔️"],
+  zh: ["🎡 免费转盘和每日奖励在等你！快回来玩 💎", "👹 世界首领来了！和所有玩家一起击败它 ⚔️"],
+  ja: ["🎡 無料スピンとデイリー報酬が待ってるよ！ 戻ってきてね 💎", "👹 ワールドボス出現！ みんなで倒そう ⚔️"],
+  ko: ["🎡 무료 스핀과 일일 보상이 기다려요! 돌아와서 플레이하세요 💎", "👹 월드 보스 등장! 모두 함께 쓰러뜨려요 ⚔️"],
+  vi: ["🎡 Lượt quay miễn phí và quà hằng ngày đang chờ bạn! Quay lại chơi nhé 💎", "👹 Trùm thế giới đã xuất hiện! Cùng mọi người hạ nó ⚔️"]
+};
+async function remind(env) {
+  if (!env.GAME_URL) return 0;
+  const now = nowSec(), raid = raidWindow(env, now).open;
+  const rows = await env.DB.prepare(
+    `SELECT user_id, lang FROM users WHERE can_write = 1 AND last_seen < ? AND last_seen > ?
+     AND (last_remind IS NULL OR last_remind < ?) LIMIT 300`
+  ).bind(now - 20 * 3600, now - 14 * 86400, now - 20 * 3600).all();
+  let sent = 0;
+  for (const r of rows.results || []) {
+    const lang = String(r.lang || "en").slice(0, 2), t = REMIND[lang] || REMIND.en;
+    const res = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: r.user_id, text: raid ? t[1] : t[0], reply_markup: { inline_keyboard: [[{ text: "🎮 Play", web_app: { url: env.GAME_URL } }]] } })
+    }).then((x) => x.json()).catch(() => null);
+    if (res && res.ok) sent++;
+    // blocked the bot or never opened a chat: stop writing to them
+    const gone = res && !res.ok && (res.error_code === 403 || res.error_code === 400);
+    await env.DB.prepare(`UPDATE users SET last_remind = ?${gone ? ", can_write = 0" : ""} WHERE user_id = ?`).bind(now, r.user_id).run();
+  }
+  return sent;
+}
+export { remind };

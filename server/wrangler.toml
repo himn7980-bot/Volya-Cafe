@@ -12,11 +12,17 @@ binding = "DB"
 database_name = "volya-leaderboard"
 database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
 
+# Daily reminder messages (15:05 UTC)
+[triggers]
+crons = ["5 15 * * *"]
+
 [vars]
 # Only needed when the game is hosted somewhere else (e.g. GitHub Pages).
 ALLOWED_ORIGIN = "https://himn7980-bot.github.io"
 # Where the bot's /start "Play" button opens the game.
 GAME_URL = "https://himn7980-bot.github.io/Volya-Cafe/"
+# World Boss health (shared by everyone each weekend)
+RAID_HP = "3000000"
 
 # The bot token is a secret, never put it in this file:
 #   npx wrangler secret put BOT_TOKEN

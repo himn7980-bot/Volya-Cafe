@@ -104,6 +104,14 @@ Tap the portrait or **Characters** on the title screen. 16 heroes, each with a s
 - **Lucky wheel** (wheel button under Settings on the title screen, red dot when free): one free spin a day, more for 100 gold. Prizes: 25/50/100/300 gold, a rocket, moves or shield booster, or 60 XP for the current hero.
 - **Buy heroes with gold**: a locked hero can be unlocked for 300 + 25 × its unlock level gold (Pink Bull 400 … Noctis Veyl 1,800), besides levelling up, community links or Stars.
 - **Shop**: gold packs and a booster pack for Telegram Stars, boosters for gold, and (when ads are configured) +30 gold per rewarded ad, 5 a day. Locked heroes can also be unlocked with Stars from the Characters screen.
+- **Season pass**: 28-day seasons with 30 tiers (100 points each). Points come from wins (30), losses (10), Endless (score ÷ 200, max 60), daily-challenge wins (50), missions (40), chests (15) and World Boss fights (40). The free track gives gold and boosters; the premium track (300 ⭐, product `pass`) gives more and, at tier 30, a golden frame around the hero.
+- **Chests**: four slots on the title screen. Wins give a common chest (rare for 3 stars, epic for bosses), a daily-challenge win a rare one, Endless runs over 3,000 a common one. They open after 3 / 5 / 8 hours, or right away for gold (tap twice).
+- **Achievements** (Missions screen → Achievements tab): 12 goals with bronze/silver/gold tiers worth 100 / 250 / 600 gold.
+- **Monster album**: a card per enemy type, unlocked by defeating it; 10 / 100 / 500 defeats give 1–3 stars and 50 / 150 / 400 gold.
+- **Seasonal events**: Halloween (24 Oct–2 Nov), Yalda (18–23 Dec), New Year (28 Dec–4 Jan) and Nowruz (14 Mar–2 Apr) double the gold from play, show a banner and add festive particles. `?ev=halloween` previews one.
+- **World Boss** (Friday–Sunday, UTC): one boss shared by all players (3,000,000 health by default). Each fight lasts 90 s; all damage dealt to the boss is added to the shared total. When it falls, everyone who fought gets 500 gold.
+- **Invites**: a friend who opens the game for the first time through your link gives you both 200 gold; your fifth invite unlocks a random hero.
+- **Reminders**: after the first daily reward the game asks for permission to message the player; the bot then sends at most one localized reminder a day to players away for 20+ hours (World Boss call on weekends).
 - Gold, boosters, XP, missions and login streak are saved locally and in Telegram CloudStorage.
 
 ## Personal records
@@ -133,7 +141,7 @@ Every run played inside Telegram is sent to a small API when the game ends. Play
 **Rewarded ads**: put an [Adsgram](https://partner.adsgram.ai) block id in `ADSGRAM_BLOCK_ID` at the top of the game script to turn on "Watch ad" for continues and free gold. It stays hidden while empty.
 
 **Files**
-- `server/worker.js`: the API (`/top`, `/score`, `/teams`, `/daily`, `/invoice`, `/claim`, `/tg-webhook`).
+- `server/worker.js`: the API (`/top`, `/score`, `/teams`, `/daily`, `/invoice`, `/claim`, `/tg-webhook`, `/ping`, `/ref`, `/raid`) and the daily reminder cron (`scheduled`, set in `wrangler.toml`).
 - `server/schema.sql`: the D1 table.
 - `server/wrangler.toml`: Worker config for the command-line deploy.
 - `server/test.mjs`: tests against an in-memory SQLite database. Run `node server/test.mjs` (Node 22+).

@@ -46,3 +46,37 @@ CREATE TABLE IF NOT EXISTS purchases (
   created_at INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_purchases_user ON purchases (user_id, claimed);
+
+-- Players seen by the game or the bot; can_write = 1 when they allowed messages (/start or the in-game prompt).
+CREATE TABLE IF NOT EXISTS users (
+  user_id     INTEGER PRIMARY KEY,
+  name        TEXT,
+  lang        TEXT,
+  first_seen  INTEGER NOT NULL,
+  last_seen   INTEGER NOT NULL,
+  can_write   INTEGER NOT NULL DEFAULT 0,
+  last_remind INTEGER,
+  refs        INTEGER NOT NULL DEFAULT 0   -- friends who joined through this player's link
+);
+CREATE INDEX IF NOT EXISTS idx_users_remind ON users (can_write, last_seen);
+
+-- One row per invited player (an invite only counts once).
+CREATE TABLE IF NOT EXISTS referrals (
+  invitee    INTEGER PRIMARY KEY,
+  inviter    INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+-- Weekend World Boss: total damage per player per week, and when the boss fell.
+CREATE TABLE IF NOT EXISTS raid_hits (
+  week       INTEGER NOT NULL,
+  user_id    INTEGER NOT NULL,
+  damage     INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  claimed    INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (week, user_id)
+);
+CREATE TABLE IF NOT EXISTS raid_state (
+  week        INTEGER PRIMARY KEY,
+  defeated_at INTEGER
+);

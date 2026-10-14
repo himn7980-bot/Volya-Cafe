@@ -5,7 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
-import worker, { verifyInitData } from "./worker.js";
+import worker, { verifyInitData, remind } from "./worker.js";
 
 const BOT_TOKEN = "123456:TEST-token";
 const sqlite = new DatabaseSync(":memory:");
@@ -156,6 +156,73 @@ r = await call("POST", "/claim", { initData: sign(ali) });
 assert.deepEqual(r.data, { products: [] }, "a purchase is delivered once");
 await hook({ message: { chat: { id: 5 }, text: "/start ref_111_h_paws" } });
 assert.equal(tgCalls.at(-1).body.reply_markup.inline_keyboard[0][0].web_app.url, "https://game.example/?startapp=ref_111_h_paws");
+
+// players, invites and reminders
+const zoe = { id: 555, first_name: "Zoe", language_code: "fa" };
+r = await call("POST", "/ping", { initData: sign(ali), write: true });
+assert.deepEqual(r.data, { refs: 0 });
+r = await call("POST", "/ref", { initData: sign(zoe), ref: 111 });
+assert.deepEqual(r.data, { ok: true });
+r = await call("POST", "/ref", { initData: sign(zoe), ref: 111 });
+assert.equal(r.data.ok, false, "an invite counts once");
+r = await call("POST", "/ref", { initData: sign(ali), ref: 111 });
+assert.equal(r.status, 400, "no self-invites");
+r = await call("POST", "/ref", { initData: sign({ id: 556, first_name: "X" }), ref: 999999 });
+assert.equal(r.status, 404, "inviter must be a real player");
+sqlite.prepare("UPDATE users SET first_seen = first_seen - 86400 WHERE user_id = 222").run();
+await call("POST", "/ping", { initData: sign(sara) });
+sqlite.prepare("UPDATE users SET first_seen = first_seen - 86400 WHERE user_id = 222").run();
+r = await call("POST", "/ref", { initData: sign(sara), ref: 111 });
+assert.deepEqual(r.data, { ok: false, reason: "not_new" }, "old players can't be claimed as invites");
+for (const id of [601, 602, 603, 604]) await call("POST", "/ref", { initData: sign({ id, first_name: "N" + id }), ref: 111 });
+r = await call("POST", "/ping", { initData: sign(ali) });
+assert.deepEqual(r.data, { refs: 5 });
+r = await call("POST", "/claim", { initData: sign(ali) });
+assert.deepEqual(r.data.products.sort(), ["ref_bonus", "ref_bonus", "ref_bonus", "ref_bonus", "ref_bonus", "ref_hero"]);
+r = await call("POST", "/claim", { initData: sign(zoe) });
+assert.deepEqual(r.data.products, ["ref_bonus"]);
+
+// World Boss
+env.RAID_HP = "5000";
+env.RAID_ALWAYS = "0";
+const raidNow = (await call("GET", "/raid")).data;
+assert.equal(raidNow.maxHp, 5000);
+env.RAID_ALWAYS = "1";
+r = await call("POST", "/raid", { initData: sign(ali), damage: 3000, duration: 60 });
+assert.deepEqual([r.data.hp, r.data.mine, r.data.players, r.data.defeated], [2000, 3000, 1, false]);
+r = await call("POST", "/raid", { initData: sign(kim), damage: 999999, duration: 10 });
+assert.equal(r.status, 422, "impossible damage is refused");
+r = await call("POST", "/raid", { initData: sign(kim), damage: 2500, duration: 60 });
+assert.equal(r.data.defeated, true); assert.equal(r.data.hp, 0);
+r = await call("GET", "/raid?uid=111");
+assert.deepEqual([r.data.mine, r.data.players, r.data.defeated], [3000, 2, true]);
+r = await call("POST", "/claim", { initData: sign(kim) });
+assert.deepEqual(r.data.products, ["raid_reward"]);
+r = await call("POST", "/claim", { initData: sign(kim) });
+assert.deepEqual(r.data.products, [], "raid reward is paid once");
+r = await call("POST", "/claim", { initData: sign(sara) });
+assert.deepEqual(r.data.products, [], "no reward without fighting");
+env.RAID_ALWAYS = "0";
+
+// season pass product
+r = await call("POST", "/invoice", { initData: sign(ali), product: "pass" });
+assert.equal(r.status, 200);
+assert.equal(tgCalls.at(-1).body.prices[0].amount, 300);
+
+// reminders: only to players who allowed messages and have been away for a while
+sqlite.prepare("UPDATE users SET last_seen = last_seen - 30 * 3600").run();
+sqlite.prepare("UPDATE users SET can_write = 1 WHERE user_id = 555").run();
+const before = tgCalls.length;
+let sent = await remind(env);
+const msgs = tgCalls.slice(before);
+assert.equal(sent, 2);
+assert.deepEqual(msgs.map((m) => m.body.chat_id).sort(), [111, 555]);
+assert.ok(msgs.find((m) => m.body.chat_id === 555).body.text.includes("چرخش رایگان"), "reminders use the player's language");
+assert.equal(await remind(env), 0, "at most one reminder a day");
+globalThis.fetch = async () => new Response(JSON.stringify({ ok: false, error_code: 403 }));
+sqlite.prepare("UPDATE users SET last_remind = last_remind - 86400").run();
+await remind(env);
+assert.equal(sqlite.prepare("SELECT can_write FROM users WHERE user_id = 555").get().can_write, 0, "blocked bots stop getting messages");
 
 await wait(0);
 console.log("server tests passed");

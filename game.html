@@ -381,6 +381,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .medal i { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.18); display: inline-block; }
 .medal i.b { background: #d08a4a; } .medal i.s { background: #dfe4ee; } .medal i.g { background: #ffcf3d; }
 .invite-note { margin: -4px 0 0; font-size: 13px; text-align: center; opacity: .85; font-weight: 700; }
+.raid-boss { width: 120px; height: 120px; object-fit: contain; align-self: center; filter: drop-shadow(0 6px 0 rgba(0,0,0,.35)); animation: pulse 1.6s ease-in-out infinite; }
+.raid-bar { position: relative; height: 26px; border-radius: 999px; background: rgba(0,0,0,.45); overflow: hidden; box-shadow: inset 0 0 0 2px rgba(255,255,255,.15); }
+.raid-bar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(#ff9a7a, #c81e2a); border-radius: 999px; }
+[dir="rtl"] .raid-bar i { inset: 0 0 0 auto; }
+.raid-bar span { position: relative; display: block; text-align: center; font-weight: 800; font-size: 14px; line-height: 26px; }
 .share-card { width: 100%; max-width: 300px; align-self: center; border-radius: 18px; box-shadow: 0 8px 0 rgba(0,0,0,.35); }
 .gold-chip { position: absolute; top: 14px; inset-inline-start: 12px; display: flex; align-items: center; gap: 6px; padding: 5px 14px 3px 6px; border-radius: 999px;
   background: rgba(8,12,44,.78); box-shadow: inset 0 0 0 2px rgba(255,207,61,.45); font-weight: 800; font-size: 18px; color: #ffe066; z-index: 2; }
@@ -715,6 +720,23 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h3 class="shop-h" data-i18n="boosters"></h3>
       <div class="shop-grid" id="shopBoosts"></div>
       <button class="btn ghost" id="shopBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="raidScreen" hidden>
+    <div class="card">
+      <h2 data-i18n="worldBoss"></h2>
+      <img class="raid-boss" id="raidImg" alt="">
+      <p class="mis-foot" data-i18n="raidNote"></p>
+      <div class="raid-bar"><i id="raidFill"></i><span id="raidHp" dir="ltr"></span></div>
+      <div class="stats">
+        <div><small data-i18n="raidYour"></small><b id="raidMine">0</b></div>
+        <div><small>👥</small><b id="raidPlayers">0</b></div>
+        <div><small>⏱</small><b id="raidTime">–</b></div>
+      </div>
+      <p class="fail-reason" id="raidState" hidden></p>
+      <button class="btn primary big" id="raidFight" type="button"><span data-i18n="raidFight"></span></button>
+      <button class="btn ghost" id="raidBack" type="button"><span data-i18n="menu"></span></button>
     </div>
   </section>
 
@@ -2659,6 +2681,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function damage(e, amt, fromX, fromY, push = 0, quiet = false) {
     if (e.dead || ghostFaded(e)) return;
+    if (e.raid) {
+      // the World Boss can't fall in one run: damage is banked for everyone
+      raidDmg += amt; e.hp = Math.max(1, e.hp - amt);
+      if (!quiet) { e.flash = 0.14; e.hit = 1; }
+      return;
+    }
     if (e.armor > 0) {
       const a = Math.min(e.armor, amt);
       e.armor -= a; amt -= a;
@@ -3725,7 +3753,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen", "passScreen", "albumScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen", "passScreen", "albumScreen", "raidScreen"]) $(s).hidden = s !== id;
     if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
@@ -3749,7 +3777,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("passScreen").hidden || !$("albumScreen").hidden) showScreen("titleScreen");
+    if (!$("passScreen").hidden || !$("albumScreen").hidden || !$("raidScreen").hidden) showScreen("titleScreen");
     else if (!$("wheelScreen").hidden) { if (!spinning) showScreen("titleScreen"); }
     else if (!$("shopScreen").hidden) showScreen("titleScreen");
     else if (!$("cardScreen").hidden) showScreen(cardReturn);
@@ -3771,12 +3799,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (m) mode = m;
     if (n) levelN = n;
     if (mode === "daily") levelN = dailyLevel();
+    if (mode === "raid" && (!raidInfo || !raidInfo.open)) mode = "endless";
     LV = mode === "levels" ? levelDef(levelN) : mode === "daily" ? dailyDef() : null;
     BOARD_GEMS = LV ? LV.gems : GEMS;
     setTheme(LV ? LV.w : 0);
     reset();
     contUsed = false;
     if (LV) useBoosts(); else boostSel = {};
+    if (mode === "raid") setupRaidRun();
     if (LV) banner = { text: LV.daily ? tr("dailyChallenge") : tr("level", levelN), t: 2 };
     $("hud").classList.toggle("levels", !!LV);
     runBestStart = best; runRecordShown = false;
@@ -3829,24 +3859,27 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const prevBest = best;
     $("ovReason").hidden = !failReason;
     if (failReason) $("ovReason").textContent = tr(failReason);
-    if (!LV && score > best) {
+    const raidRun = mode === "raid";
+    if (raidRun) { score = Math.round(raidDmg); submitRaid(); }
+    if (!LV && !raidRun && score > best) {
       best = score; newBest = true;
       try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
     }
-    if (!LV) recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
+    if (!LV && !raidRun) recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
     {
       if (LV && LV.daily) dailyFinish(false);
-      const g0 = LV ? 0 : Math.floor(score / 250), xp = LV ? 15 : Math.min(200, Math.floor(score / 150));
-      if (!LV) track("endless");
+      const g0 = raidRun ? Math.min(150, Math.floor(raidDmg / 2000)) : LV ? 0 : Math.floor(score / 250), xp = raidRun ? 30 : LV ? 15 : Math.min(200, Math.floor(score / 150));
+      if (raidRun) { stat("raid"); addPass(40); }
+      else if (!LV) track("endless");
       const g = earn(g0); addXp(xp); stat("combo", bestCombo, true);
-      addPass(LV ? 10 : Math.min(60, Math.floor(score / 200)));
-      if (!LV && score >= 3000) addChest("common");
+      if (!raidRun) addPass(LV ? 10 : Math.min(60, Math.floor(score / 200)));
+      if (!LV && !raidRun && score >= 3000) addChest("common");
       saveMeta();
       rewardLine("ovReward", g, xp);
     }
     sfx("over");
     haptic("error");
-    const submitted = LV ? Promise.resolve(null) : submitScore({ score, wave, kills, duration: Math.round(playTime), hero: HERO.id });
+    const submitted = LV || raidRun ? Promise.resolve(null) : submitScore({ score, wave, kills, duration: Math.round(playTime), hero: HERO.id });
     setTimeout(() => {
       if (state !== "over") return;
       showRankLine(null);
@@ -3858,7 +3891,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const b = $("ovBest");
       b.className = "badge" + (newBest ? " new" : "");
       b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span></span>';
-      b.querySelector("span").textContent = LV ? tr("level", levelN) : newBest ? tr("newBest") : tr("best") + " " + fmt(best);
+      b.querySelector("span").textContent = LV ? tr("level", levelN) : raidRun ? tr("worldBoss") : newBest ? tr("newBest") : tr("best") + " " + fmt(best);
       const imp = $("ovImprove");
       imp.hidden = !(newBest && prevBest > 0);
       if (!imp.hidden) imp.textContent = tr("improvedBy", score - prevBest);
@@ -4151,7 +4184,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function showRankLine(res) {
     const el = $("ovRank");
-    if (!canSubmit() || LV) { el.hidden = true; return; }
+    if (!canSubmit() || LV || mode === "raid") { el.hidden = true; return; }
     el.hidden = false;
     el.textContent = "";
     if (!res) { el.textContent = tr("loading"); return; }
@@ -4209,6 +4242,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     $("misDot").hidden = $("misDot").hidden && !achClaimable();
     $("passDot").hidden = !passClaimable();
     $("albumDot").hidden = !albumClaimable();
+    { const d = new Date(), wd = d.getUTCDay(); $("raidDot").hidden = !(wd === 5 || wd === 6 || wd === 0); }
     const ev = activeEvent(), eb = $("eventBanner");
     eb.hidden = !ev;
     if (ev) { eb.textContent = ev.icon + " " + tr(ev.key) + " · " + tr("eventBonus") + " " + ev.icon; eb.style.background = ev.bg; }
@@ -4260,6 +4294,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     showScreen("dailyScreen");
   }
   function claimDaily() {
+    setTimeout(askWrite, 1200);
     const r = DAILY[dailyNext - 1];
     if (r.gold) addGold(r.gold);
     if (r.boost) meta.boost[r.boost]++;
@@ -4366,6 +4401,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     else if (id === "gold_l") addGold(6000);
     else if (id === "boosts") for (const k in meta.boost) meta.boost[k] += 5;
     else if (id === "pass") passState().premium = true;
+    else if (id === "ref_bonus") addGold(200);
+    else if (id === "raid_reward") addGold(500);
+    else if (id === "ref_hero") {
+      const locked = HEROES.filter((h) => !heroOpen(h));
+      if (locked.length) { const h = pick(locked); progress.gift = [...new Set([].concat(progress.gift || [], h.id))]; saveProgress(); setTimeout(() => toast(tr("heroUnlocked").replace("{n}", h.name)), 2500); }
+      else addGold(1500);
+    }
     else if (id.startsWith("hero_")) { const h = id.slice(5); progress.gift = [...new Set([].concat(progress.gift || [], h))]; saveProgress(); }
   }
   async function claimPurchases(retry) {
@@ -4769,7 +4811,70 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       g.appendChild(d);
     }
   }
-  function openRaid() { toast(tr("offline")); }
+  // ---- Server presence, invites, reminders ----
+  const post = (path, body) => api(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ initData: tgInitData() }, body)) });
+  async function ping(write) {
+    if (!canSubmit()) return;
+    try {
+      const r = await post("/ping", { write: !!write });
+      if (r && r.refs) $("inviteNote").textContent = tr("inviteReward") + " · " + tr("friendsJoined", r.refs);
+    } catch (e) {}
+  }
+  async function sendReferral() {
+    const m = /(?:^|_)ref_(\d+)/.exec(startParam());
+    if (!m || meta.refSent || !canSubmit() || String(tgUid()) === m[1]) return;
+    meta.refSent = true; saveMeta();
+    try { const r = await post("/ref", { ref: Number(m[1]) }); if (r && r.ok) claimPurchases(2); } catch (e) {}
+  }
+  // ask once (after the first daily reward) whether the bot may send reminders
+  function askWrite() {
+    if (meta.askedWrite || !tg || !tg.requestWriteAccess || !canSubmit()) return;
+    meta.askedWrite = true; saveMeta();
+    try { tg.requestWriteAccess((ok) => { if (ok) ping(true); }); } catch (e) {}
+  }
+
+  // ---- World Boss (weekend raid shared by every player) ----
+  let raidInfo = null, raidT = 0, raidDmg = 0;
+  const hms = (sec) => { sec = Math.max(0, Math.floor(sec)); const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60); return d ? fmt(d) + "d " + fmt(h) + "h" : h ? fmt(h) + "h " + fmt(m) + "m" : fmt(m) + "m"; };
+  async function openRaid() {
+    $("raidImg").src = enemyIcon("boss");
+    $("raidFight").disabled = true;
+    $("raidState").hidden = false;
+    $("raidState").textContent = API_BASE && canSubmit() ? tr("loading") : tr("offline");
+    showScreen("raidScreen");
+    if (!API_BASE || !canSubmit()) return;
+    try {
+      const uid = tgUid();
+      raidInfo = await api("/raid" + (uid ? "?uid=" + encodeURIComponent(uid) : ""));
+      renderRaid();
+    } catch (e) { $("raidState").textContent = tr("lbError"); }
+  }
+  function renderRaid() {
+    const R = raidInfo;
+    $("raidFill").style.width = (R.hp / R.maxHp) * 100 + "%";
+    $("raidHp").textContent = fmt(R.hp) + " / " + fmt(R.maxHp);
+    $("raidMine").textContent = fmt(R.mine);
+    $("raidPlayers").textContent = fmt(R.players);
+    $("raidTime").textContent = R.open ? hms(R.endsIn) : hms(R.opensIn);
+    $("raidState").hidden = R.open && !R.defeated;
+    $("raidState").textContent = R.defeated ? tr("raidDefeated") : tr("raidOpensIn", Math.ceil(R.opensIn / 3600));
+    $("raidFight").disabled = !R.open || R.defeated;
+    if (R.defeated) claimPurchases(0);
+  }
+  function startRaid() {
+    if (!raidInfo || !raidInfo.open || raidInfo.defeated) return;
+    startGame("raid");
+  }
+  function setupRaidRun() {
+    raidT = 90; raidDmg = 0;
+    const b = spawnAt("boss", cx, hudH + 70, 1);
+    b.raid = true; b.speed = 0; b.maxHp = raidInfo.maxHp; b.hp = Math.max(1, raidInfo.hp);
+    banner = { text: tr("worldBoss"), t: 2 };
+  }
+  async function submitRaid() {
+    if (!canSubmit() || raidDmg <= 0) return;
+    try { raidInfo = Object.assign(raidInfo || {}, await post("/raid", { damage: Math.round(raidDmg), duration: Math.round(90 - raidT) })); } catch (e) {}
+  }
 
   // ---- Shareable score card ----
   let cardBlob = null, cardUrl = "", lastStars = 1;
@@ -5026,6 +5131,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         if (rage.t <= 0) { const c = EL[rage.el].c; rage = null; blade = []; doFlash("#ffffff", 0.25); ring(cx, cy, Math.max(W, H) * 0.6, c, 0.6, 10); }
       }
       guard = Math.max(0, guard - dt);
+      if (mode === "raid") { raidT -= dt; if (raidT <= 0) { raidT = 0; gameOver(); return; } }
       if (perk("volya") && hp < MAX_HP) { regenT = (regenT || 0) + dt; if (regenT >= 3 / pk()) { regenT = 0; hp = Math.min(MAX_HP, hp + 1); } }
       if (dome > 0) {
         dome = Math.max(0, dome - wdt);
@@ -5085,7 +5191,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const w = 1 + Math.floor(elapsed / 25);
       if (w > wave) {
         wave = w;
-        if (!LV) {
+        if (!LV && mode !== "raid") {
           banner = { text: tr("wave", wave), t: 1.8 };
           const ti = Math.floor((wave - 1) / 4) % THEMES.length;
           if (THEMES[ti] !== TH) { setTheme(ti); doFlash("#ffffff", 0.5); }
@@ -5312,7 +5418,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       $("hpPill").classList.toggle("low", hp / MAX_HP <= 0.3);
       hudCache.hp = hp;
     }
-    const wc = LV ? (LV.daily ? tr("dailyChallenge") : tr("level", levelN)) : tr("wave", wave);
+    const wc = LV ? (LV.daily ? tr("dailyChallenge") : tr("level", levelN)) : mode === "raid" ? tr("worldBoss") + " · " + fmt(Math.ceil(raidT)) : tr("wave", wave);
     if (hudCache.wave !== wc) { $("waveChip").textContent = wc; hudCache.wave = wc; }
     const gk = LV ? goals.map((g) => g.have + "/" + g.need).join(",") + state + "|" + movesLeft + "|" + Math.ceil(timeLeft) : "";
     if (hudCache.goals !== gk) { hudCache.goals = gk; renderGoalsHud(); }
@@ -6424,6 +6530,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("albumBtn").addEventListener("click", clickSfx(openAlbum));
   $("albumBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   $("raidBtn").addEventListener("click", clickSfx(() => openRaid()));
+  $("raidFight").addEventListener("click", clickSfx(startRaid));
+  $("raidBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   document.querySelectorAll("#misTabs button").forEach((b) => b.addEventListener("click", () => { sfx("click"); misTab = b.dataset.tab; openMissions(); }));
   $("wheelSpin").addEventListener("click", spinWheel);
   $("wheelBack").addEventListener("click", clickSfx(() => { if (!spinning) showScreen("titleScreen"); }));
@@ -6501,7 +6609,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   loadMeta();
   ensureMissions();
   initAds();
-  setTimeout(() => claimPurchases(0), 1500);
+  setTimeout(() => { ping(false).then(sendReferral); claimPurchases(0); }, 1500);
   {
     // community link: startapp=h_<id> (optionally after ref_<uid>_) unlocks and picks that hero
     const m = /(?:^|_)h_([a-z0-9]+)/.exec(startParam());
