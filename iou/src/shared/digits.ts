@@ -1,0 +1,51 @@
+// Digit systems we can render. Pure TS, no React Native imports, so the public
+// confirmation page can share it.
+
+export type DigitSystem = 'latn' | 'arab' | 'arabext' | 'deva' | 'beng';
+
+const ZERO: Record<DigitSystem, number> = {
+  latn: 0x30, // 0-9
+  arab: 0x660, // ٠-٩ Arabic-Indic (Arabic, Kurdish Sorani)
+  arabext: 0x6f0, // ۰-۹ Extended Arabic-Indic (Persian, Urdu)
+  deva: 0x966, // ०-९ Devanagari
+  beng: 0x9e6, // ০-৯ Bengali
+};
+
+const ARABIC_DECIMAL = '٫'; // ٫
+const ARABIC_GROUP = '٬'; // ٬
+
+/**
+ * Replace Latin digits with the given system. With `numberSeparators`, also
+ * swaps '.' and ',' for the Arabic decimal/group marks (only pass it for a
+ * formatted number, never for free text).
+ */
+export function toDigitSystem(input: string, system: DigitSystem, numberSeparators = false): string {
+  if (system === 'latn') return input;
+  const zero = ZERO[system];
+  let out = input.replace(/[0-9]/g, (d) => String.fromCharCode(zero + (d.charCodeAt(0) - 0x30)));
+  if (numberSeparators && (system === 'arab' || system === 'arabext')) {
+    out = out.replace(/[.,]/g, (c) => (c === '.' ? ARABIC_DECIMAL : ARABIC_GROUP));
+  }
+  return out;
+}
+
+/** Turn any supported native digits into Latin ones (for parsing user input). */
+export function toLatinDigits(input: string): string {
+  let out = '';
+  for (const ch of input) {
+    const code = ch.charCodeAt(0);
+    let mapped: string | null = null;
+    for (const system of Object.keys(ZERO) as DigitSystem[]) {
+      const zero = ZERO[system];
+      if (system !== 'latn' && code >= zero && code <= zero + 9) {
+        mapped = String(code - zero);
+        break;
+      }
+    }
+    if (mapped !== null) out += mapped;
+    else if (ch === ARABIC_DECIMAL) out += '.';
+    else if (ch === ARABIC_GROUP) out += ',';
+    else out += ch;
+  }
+  return out;
+}

@@ -1,0 +1,8 @@
+<!-- Supabase sends one email per sign-in; it has to work for every language,
+     so it is short and shows the code prominently. -->
+<div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Vazirmatn', sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; font-size: 18px; line-height: 1.5;">
+  <p style="font-size: 40px; letter-spacing: 8px; font-weight: bold; text-align: center; margin: 24px 0;">{{ .Token }}</p>
+  <p style="text-align: center;">
+    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 14px 28px; background: #1F6F5C; color: #fff; border-radius: 12px; text-decoration: none;">Sign in / ورود / تسجيل الدخول</a>
+  </p>
+</div>

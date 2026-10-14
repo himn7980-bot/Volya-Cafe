@@ -1,0 +1,68 @@
+# Local development settings for `npx supabase start`.
+# Production settings are made in the Supabase dashboard (see README).
+project_id = "iou"
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+port = 54323
+
+[inbucket]
+# Local email inbox: http://127.0.0.1:54324 (magic links and codes land here)
+port = 54324
+
+[storage]
+file_size_limit = "10MiB"
+
+[auth]
+site_url = "iou://"
+additional_redirect_urls = ["iou://auth-callback", "exp://**", "http://localhost:8081/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.rate_limit]
+email_sent = 30
+sms_sent = 30
+token_verifications = 30
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+otp_length = 6
+otp_expiry = 3600
+max_frequency = "60s"
+
+[auth.email.template.magic_link]
+subject = "Your sign-in link"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "60s"
+template = "Your code is {{ .Code }}"
+
+# Fixed codes for local testing: no SMS provider needed.
+[auth.sms.test_otp]
+15555550100 = "123456"
+989121234567 = "123456"
+
+[auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+
+[auth.external.google]
+enabled = false
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+skip_nonce_check = false

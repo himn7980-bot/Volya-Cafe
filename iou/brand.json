@@ -1,0 +1,8 @@
+{
+  "name": "IOU",
+  "slug": "iou",
+  "scheme": "iou",
+  "iosBundleIdentifier": "app.iou.mobile",
+  "androidPackage": "app.iou.mobile",
+  "webBaseUrl": "https://iou.example.com"
+}
