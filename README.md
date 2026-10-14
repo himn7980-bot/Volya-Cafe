@@ -101,6 +101,8 @@ Tap the portrait or **Characters** on the title screen. 16 heroes, each with a s
 - **Daily challenge**: one date-seeded level, the same for everyone that day, with tougher monsters; scores go to a daily board.
 - **Dart combos**: dart + rocket/bomb flies the rocket or bomb to the best target; rainbow + dart turns a whole colour into darts.
 - **Score card**: after a run, *Share card* draws a picture with the hero, score, stars and the bot link to share or save.
+- **Lucky wheel** (wheel button under Settings on the title screen, red dot when free): one free spin a day, more for 100 gold. Prizes: 25/50/100/300 gold, a rocket, moves or shield booster, or 60 XP for the current hero.
+- **Buy heroes with gold**: a locked hero can be unlocked for 300 + 25 × its unlock level gold (Pink Bull 400 … Noctis Veyl 1,800), besides levelling up, community links or Stars.
 - **Shop**: gold packs and a booster pack for Telegram Stars, boosters for gold, and (when ads are configured) +30 gold per rewarded ad, 5 a day. Locked heroes can also be unlocked with Stars from the Characters screen.
 - Gold, boosters, XP, missions and login streak are saved locally and in Telegram CloudStorage.
 

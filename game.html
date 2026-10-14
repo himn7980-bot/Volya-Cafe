@@ -337,6 +337,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .shop-item .btn { width: 100%; min-height: 42px; font-size: 17px; gap: 4px; }
 .shop-item .btn svg { width: 20px; height: 20px; }
 .shop-item.best { box-shadow: inset 0 0 0 3px #ffcf3d; }
+.corner.wheel-btn { top: 72px; }
+.iconbtn .dot { position: absolute; top: -2px; inset-inline-end: -2px; width: 14px; height: 14px; border-radius: 50%; background: #ff3b5c; box-shadow: 0 0 0 2px #fff; }
+.wheel-wrap { position: relative; width: min(300px, 78vw); aspect-ratio: 1; margin: 6px auto 0; }
+.wheel-wrap svg.wheel { width: 100%; height: 100%; transition: transform 4.2s cubic-bezier(.12,.8,.12,1); filter: drop-shadow(0 8px 0 rgba(0,0,0,.35)); }
+.wheel-ptr { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 34px; height: 40px; z-index: 2; filter: drop-shadow(0 3px 0 rgba(0,0,0,.4)); }
+.hero-focus .btn-row { display: flex; flex-wrap: wrap; }
+.hero-focus .btn-row .btn { flex: 1 1 auto; }
 .share-card { width: 100%; max-width: 300px; align-self: center; border-radius: 18px; box-shadow: 0 8px 0 rgba(0,0,0,.35); }
 .gold-chip { position: absolute; top: 14px; inset-inline-start: 12px; display: flex; align-items: center; gap: 6px; padding: 5px 14px 3px 6px; border-radius: 999px;
   background: rgba(8,12,44,.78); box-shadow: inset 0 0 0 2px rgba(255,207,61,.45); font-weight: 800; font-size: 18px; color: #ffe066; z-index: 2; }
@@ -523,6 +530,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   </div>
 
   <section class="screen" id="titleScreen">
+    <button class="iconbtn corner wheel-btn" id="wheelBtn" type="button" aria-label="Lucky wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 2.5v19M2.5 12h19M5.3 5.3l13.4 13.4M18.7 5.3L5.3 18.7" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.8" fill="currentColor"/></svg><i class="dot" id="wheelDot" hidden></i></button>
     <button class="iconbtn corner" id="titleSettings" type="button" aria-label="Settings">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7zm8.6 5.1l-1.7-.9a7 7 0 000-1.4l1.7-.9a1 1 0 00.4-1.3l-1.3-2.3a1 1 0 00-1.3-.4l-1.7.9a7 7 0 00-1.2-.7V4.8a1 1 0 00-1-1h-2.6a1 1 0 00-1 1v1.9c-.4.2-.8.4-1.2.7l-1.7-.9a1 1 0 00-1.3.4L3 9.2a1 1 0 00.4 1.3l1.7.9a7 7 0 000 1.4l-1.7.9a1 1 0 00-.4 1.3l1.3 2.3a1 1 0 001.3.4l1.7-.9c.4.3.8.5 1.2.7v1.9a1 1 0 001 1h2.6a1 1 0 001-1v-1.9c.4-.2.8-.4 1.2-.7l1.7.9a1 1 0 001.3-.4l1.3-2.3a1 1 0 00-.4-1.3z" fill="currentColor"/></svg>
     </button>
@@ -665,6 +673,19 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     </div>
   </section>
 
+  <section class="screen center" id="wheelScreen" hidden>
+    <div class="card">
+      <h2 data-i18n="luckyWheel"></h2>
+      <div class="reward-line" id="wheelGold"></div>
+      <div class="wheel-wrap">
+        <svg class="wheel-ptr" viewBox="0 0 34 40" aria-hidden="true"><path d="M17 38L3 6a14 14 0 0128 0z" fill="#ff3b5c" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg>
+        <svg class="wheel" id="wheel" viewBox="-110 -110 220 220" aria-hidden="true"></svg>
+      </div>
+      <button class="btn primary big" id="wheelSpin" type="button"></button>
+      <button class="btn ghost" id="wheelBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
   <section class="screen center" id="cardScreen" hidden>
     <div class="card">
       <img class="share-card" id="cardImg" alt="">
@@ -715,6 +736,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
           <span class="hf-lock" id="hfLock"></span>
           <div class="btn-row">
             <button class="btn primary" id="hfSelect" type="button"><span id="hfSelectTxt"></span></button>
+            <button class="btn primary" id="hfGoldBuy" type="button" hidden><span data-i18n="unlockNow"></span><b class="price"><span></span></b></button>
             <button class="btn primary" id="hfBuy" type="button" hidden><span data-i18n="unlockNow"></span><b class="price"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.4 7 .7-5.3 4.7 1.6 6.9L12 17.6l-6.2 3.6 1.6-6.9L2.1 9.6l7-.7z" fill="#ffd23f" stroke="#b07000" stroke-width="1.4" stroke-linejoin="round"/></svg><span>75</span></b></button>
             <button class="btn share" id="hfShare" type="button" aria-label="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
           </div>
@@ -1443,6 +1465,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: ["Vàng", "Quà hằng ngày", "Ngày {n}", "Nhận", "Mai quay lại nhận quà tiếp nhé!", "Thử thách ngày", "Hôm nay đã xong ✓", "Vật phẩm hỗ trợ", "Bắt đầu với 2 tên lửa", "+5 lượt hoặc +20 giây", "Bắt đầu với khiên", "Chơi tiếp?", "Tiếp tục", "Xem quảng cáo", "Bỏ cuộc", "Nhiệm vụ tuần", "Hạ {n} quái vật", "Thắng {n} màn", "Tạo {n} phi tiêu", "Tạo {n} bom", "Phá {n} viên ngọc", "Hạ {n} trùm", "Dùng Cuồng nộ {n} lần", "Chơi Vô tận {n} lần", "Nhiệm vụ mới sau {n} ngày", "Cửa hàng", "Mở khóa ngay", "Cấp {n}", "Cấp tối đa", "Thẻ điểm", "Lưu ảnh", "Chiến tranh đội", "Mọi điểm Vô tận tuần này được cộng cho đội nhân vật của bạn", "Không đủ vàng", "Cảm ơn! Đã cộng vào tài khoản", "Tốt nhất hôm nay", "Tính năng trực tuyến chưa sẵn sàng"]
   };
   for (const k in STR_META) STR_META[k].forEach((v, i) => { STR[k][META_KEYS[i]] = v; });
+  const WHEEL_KEYS = ["luckyWheel", "freeSpin", "spin"];
+  const STR_WHEEL = {"en": ["Lucky wheel", "Free spin!", "Spin"], "fa": ["چرخ شانس", "چرخش رایگان!", "بچرخان"], "ar": ["عجلة الحظ", "دورة مجانية!", "أدر"], "ru": ["Колесо удачи", "Бесплатное вращение!", "Крутить"], "uk": ["Колесо удачі", "Безкоштовне обертання!", "Крутити"], "tr": ["Şans çarkı", "Ücretsiz çevirme!", "Çevir"], "az": ["Şans çarxı", "Pulsuz fırlatma!", "Fırlat"], "uz": ["Omad g'ildiragi", "Bepul aylantirish!", "Aylantirish"], "kk": ["Сәттілік дөңгелегі", "Тегін айналдыру!", "Айналдыру"], "es": ["Ruleta de la suerte", "¡Giro gratis!", "Girar"], "pt": ["Roda da sorte", "Giro grátis!", "Girar"], "fr": ["Roue de la chance", "Tour gratuit !", "Tourner"], "de": ["Glücksrad", "Gratis-Dreh!", "Drehen"], "it": ["Ruota della fortuna", "Giro gratis!", "Gira"], "nl": ["Geluksrad", "Gratis draai!", "Draaien"], "pl": ["Koło fortuny", "Darmowy obrót!", "Zakręć"], "id": ["Roda keberuntungan", "Putaran gratis!", "Putar"], "hi": ["किस्मत का पहिया", "मुफ़्त स्पिन!", "घुमाओ"], "zh": ["幸运转盘", "免费转一次！", "转动"], "ja": ["ラッキールーレット", "無料スピン！", "回す"], "ko": ["행운의 룰렛", "무료 스핀!", "돌리기"], "vi": ["Vòng quay may mắn", "Quay miễn phí!", "Quay"]};
+  for (const k in STR_WHEEL) STR_WHEEL[k].forEach((v, i) => { STR[k][WHEEL_KEYS[i]] = v; });
 
   // ---- Characters ------------------------------------------------------
   // Each hero swaps Volya's portrait and brings one small perk. They unlock with level progress,
@@ -3606,7 +3631,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen"]) $(s).hidden = s !== id;
     if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
@@ -3630,7 +3655,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("shopScreen").hidden) showScreen("titleScreen");
+    if (!$("wheelScreen").hidden) { if (!spinning) showScreen("titleScreen"); }
+    else if (!$("shopScreen").hidden) showScreen("titleScreen");
     else if (!$("cardScreen").hidden) showScreen(cardReturn);
     else if (!$("contScreen").hidden) giveUp();
     else if (!$("dailyScreen").hidden) claimDaily();
@@ -4079,6 +4105,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function updateGold() {
     $("goldAmt").textContent = fmt(meta.gold);
     $("misDot").hidden = !meta.mis.some((m) => m.done && !m.claimed);
+    $("wheelDot").hidden = !freeSpin();
     $("dailyDot").hidden = dailyToday() && meta.daily.done;
   }
   function addGold(n) { meta.gold = Math.max(0, meta.gold + n); }
@@ -4288,6 +4315,78 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function openShop() { renderShop(); showScreen("shopScreen"); }
 
+  // ---- Heroes can also be bought with gold ----
+  const heroGold = (h) => Math.round((300 + h.at * 25) / 50) * 50;
+  function buyHeroGold(h) {
+    if (heroOpen(h)) return;
+    if (meta.gold < heroGold(h)) { toast(tr("notEnough")); sfx("nope"); return; }
+    addGold(-heroGold(h));
+    progress.gift = [...new Set([].concat(progress.gift || [], h.id))];
+    saveProgress(); saveMeta();
+    toast(tr("heroUnlocked").replace("{n}", h.name)); sfx("charge"); haptic("success");
+    renderHeroes();
+  }
+
+  // ---- Lucky wheel: one free spin a day, more for gold ----
+  const SPIN_PRICE = 100;
+  const WHEEL = [
+    { gold: 25, w: 22, c: "#3d7bff" }, { boost: "rockets", w: 14, c: "#ff5aa8" }, { gold: 50, w: 18, c: "#2fae7a" }, { xp: 60, w: 12, c: "#7a4fe0" },
+    { boost: "moves", w: 12, c: "#ff9a2f" }, { gold: 100, w: 10, c: "#3fd0ff" }, { boost: "shield", w: 10, c: "#c04fb8" }, { gold: 300, w: 2, c: "#ffcf3d" }
+  ];
+  let wheelRot = 0, spinning = false;
+  const freeSpin = () => !meta.spin || meta.spin.day !== dayKey();
+  function drawWheel() {
+    const n = WHEEL.length, seg = 360 / n, R = 100;
+    const pt = (deg, r) => { const a = ((deg - 90) * Math.PI) / 180; return [Math.cos(a) * r, Math.sin(a) * r]; };
+    let out = `<circle r="${R + 8}" fill="#2a1f78" stroke="#ffcf3d" stroke-width="5"/>`;
+    WHEEL.forEach((w, i) => {
+      const [x1, y1] = pt(i * seg, R), [x2, y2] = pt((i + 1) * seg, R);
+      out += `<path d="M0 0L${x1.toFixed(2)} ${y1.toFixed(2)}A${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}Z" fill="${w.c}" stroke="#1a1035" stroke-width="1.5"/>`;
+      const mid = i * seg + seg / 2, [ix, iy] = pt(mid, 64), [tx, ty] = pt(mid, 86);
+      const icon = w.boost ? boostIcon(w.boost) : null;
+      out += `<g transform="rotate(${mid} 0 0)">`;
+      if (icon) out += `<image href="${icon}" x="-14" y="-78" width="28" height="28"/>`;
+      else if (w.xp) out += `<text x="0" y="-60" text-anchor="middle" font-family='${FONT}' font-weight="800" font-size="15" fill="#bff4ff" stroke="#1a1035" stroke-width="3" paint-order="stroke">XP</text>`;
+      else out += `<g transform="translate(-11 -79) scale(0.92)">${COIN_SVG.replace("<svg ", '<svg width="24" height="24" ')}</g>`;
+      out += `<text x="0" y="-${w.boost ? 34 : 38}" text-anchor="middle" font-family='${FONT}' font-weight="800" font-size="16" fill="#fff" stroke="#1a1035" stroke-width="3.5" paint-order="stroke">${w.gold ? fmt(w.gold) : w.xp ? "+" + fmt(w.xp) : "×1"}</text></g>`;
+    });
+    out += `<circle r="16" fill="#ffcf3d" stroke="#7a3d00" stroke-width="3"/><circle r="6" fill="#fff6c2"/>`;
+    $("wheel").innerHTML = out;
+  }
+  function renderWheel() {
+    $("wheelGold").innerHTML = `<span>${COIN_SVG}${fmt(meta.gold)}</span>`;
+    const b = $("wheelSpin");
+    b.innerHTML = freeSpin() ? `<span>${tr("freeSpin")}</span>` : `<span>${tr("spin")}</span><b class="price">${COIN_SVG}<span>${fmt(SPIN_PRICE)}</span></b>`;
+    b.disabled = spinning;
+  }
+  function openWheel() { drawWheel(); renderWheel(); showScreen("wheelScreen"); }
+  function spinWheel() {
+    if (spinning) return;
+    const free = freeSpin();
+    if (!free && meta.gold < SPIN_PRICE) { toast(tr("notEnough")); sfx("nope"); return; }
+    if (free) meta.spin = { day: dayKey() }; else addGold(-SPIN_PRICE);
+    saveMeta();
+    let x = Math.random() * WHEEL.reduce((a, w) => a + w.w, 0), i = 0;
+    for (; i < WHEEL.length - 1; i++) { x -= WHEEL[i].w; if (x <= 0) break; }
+    const seg = 360 / WHEEL.length, centre = i * seg + seg / 2 + (Math.random() - 0.5) * seg * 0.6;
+    wheelRot += 360 * 5 + ((360 - centre - (wheelRot % 360)) % 360 + 360) % 360;
+    spinning = true; renderWheel();
+    $("wheel").style.transform = `rotate(${wheelRot}deg)`;
+    sfx("swap"); haptic("medium");
+    let ticks = 0;
+    const tick = setInterval(() => { if (++ticks > 18) clearInterval(tick); tone(900 + ticks * 20, null, 0.03, "square", 0.03); }, 200);
+    setTimeout(() => {
+      const w = WHEEL[i];
+      if (w.gold) addGold(w.gold);
+      if (w.boost) meta.boost[w.boost]++;
+      if (w.xp) addXp(w.xp);
+      saveMeta();
+      spinning = false; renderWheel();
+      toast(w.gold ? "+" + fmt(w.gold) + " " + tr("gold") : w.xp ? HERO.name + " +" + fmt(w.xp) + " XP" : tr("b_" + w.boost));
+      sfx(w.gold >= 300 ? "rainbow" : "charge"); haptic("success");
+    }, 4300);
+  }
+
   // weekly missions
   const MIS_DEF = { kills: [150, 150], wins: [5, 150], darts: [15, 120], bombs: [10, 120], gems: [800, 150], bosses: [3, 200], rage: [6, 120], endless: [3, 120] };
   const weekNo = () => Math.floor((Date.now() / 86400000 + 3) / 7);
@@ -4455,8 +4554,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     $("hfPerk").textContent = tr("perk_" + f.id);
     $("hfLock").textContent = open ? "" : tr("unlockLevel", f.at);
     $("hfSelect").disabled = !open || f === HERO;
-    $("hfSelect").hidden = !open && starsReady();
+
     $("hfBuy").hidden = open || !starsReady();
+    $("hfGoldBuy").hidden = open;
+    $("hfGoldBuy").querySelector(".price").innerHTML = COIN_SVG + "<span>" + fmt(heroGold(f)) + "</span>";
+    $("hfSelect").hidden = !open;
     $("hfBuy").querySelector(".price span").textContent = fmt(75);
     $("hfSelectTxt").textContent = f === HERO ? tr("selectedHero") : tr("selectHero");
   }
@@ -5993,6 +6095,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("contGiveUp").addEventListener("click", clickSfx(giveUp));
   $("contAd").addEventListener("click", () => showAd().then((ok) => { if (ok) doContinue(); }));
   $("shopBtn").addEventListener("click", clickSfx(openShop));
+  $("wheelBtn").addEventListener("click", clickSfx(openWheel));
+  $("wheelSpin").addEventListener("click", spinWheel);
+  $("wheelBack").addEventListener("click", clickSfx(() => { if (!spinning) showScreen("titleScreen"); }));
+  $("hfGoldBuy").addEventListener("click", () => buyHeroGold(heroById(heroFocus)));
   $("shopBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   $("hfBuy").addEventListener("click", clickSfx(() => buyStars("hero_" + heroFocus)));
   document.querySelectorAll("#lbTabs button").forEach((b) => b.addEventListener("click", () => { sfx("click"); lbTab = b.dataset.tab; loadLeaderboard(); }));
