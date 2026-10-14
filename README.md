@@ -90,6 +90,20 @@ Tap the portrait or **Characters** on the title screen. 16 heroes, each with a s
 
 **Community links:** `https://t.me/VolyaGemDefenseBot?startapp=h_<id>` (ids: `pinkbull, babyshark, notcoin, gramcat, pengu, teddy, virus, utya, egor, tgdog, yoda, memegram, paws, yaya, noctis`) unlocks and selects that hero for whoever opens it. Invite links shared from the game carry the sharer's hero too (`ref_<uid>_h_<id>`). The chosen hero is sent with leaderboard scores (`hero` field) so per-community boards can be added on the server later. Portrait crops and card images live in `assets/chars/` and are embedded in the page.
 
+## Progression & rewards
+
+- **Gold** (coin on the title screen): from level wins (10 + 5 per star, +15 for bosses), Endless runs (score ÷ 250), the daily challenge (+100 on the first win of the day), weekly missions and the daily login calendar.
+- **Daily login**: a 7-day streak calendar pops up once a day (50 → rocket booster → 100 → moves booster → 150 → shield booster → 300 gold + one of each booster). Missing a day restarts the streak.
+- **Boosters** (picked on the level intro card, used from inventory or paid with gold): 2 rockets on the board (60), +5 moves / +20 s (80, only on limited levels), start with a Shield (70).
+- **Continue**: once per attempt after a loss, 150 gold (or a rewarded ad) gives +5 moves, +20 s or 60 health and clears the monsters around Volya.
+- **Hero levels**: every run gives the current hero XP (win 40, loss 15, Endless score ÷ 150). Level 2 at 300 XP and level 3 at 1,000 XP make the hero's perk 1.5× / 2× as strong.
+- **Weekly missions**: three missions per week, seeded by the week number (defeat monsters, win levels, make darts or bombs, clear gems, beat bosses, use Rage, play Endless), each worth 120–200 gold.
+- **Daily challenge**: one date-seeded level, the same for everyone that day, with tougher monsters; scores go to a daily board.
+- **Dart combos**: dart + rocket/bomb flies the rocket or bomb to the best target; rainbow + dart turns a whole colour into darts.
+- **Score card**: after a run, *Share card* draws a picture with the hero, score, stars and the bot link to share or save.
+- **Shop**: gold packs and a booster pack for Telegram Stars, boosters for gold, and (when ads are configured) +30 gold per rewarded ad, 5 a day. Locked heroes can also be unlocked with Stars from the Characters screen.
+- Gold, boosters, XP, missions and login streak are saved locally and in Telegram CloudStorage.
+
 ## Personal records
 
 Each player has a **My records** screen (title and game-over screens) comparing them with themselves: personal best, games played, average score, best wave and best combo, a chart of how their record has climbed with the date and gain of each new record, and the last 15 games as bars (record runs in gold, dashed line at the current best). Passing the old best mid-game shows "New record!", and the game-over screen says how far the old record was beaten. History is stored on the device and, inside Telegram, in the player's Telegram Cloud Storage so it follows them to other phones.
@@ -104,8 +118,20 @@ Every run played inside Telegram is sent to a small API when the game ends. Play
 - Only the best score per player is kept. Telegram user ids are never returned by the API.
 - The game runs on the player's phone, so a determined cheater could still fake a believable score. The checks above stop forged names, made-up accounts and impossible numbers.
 
+**More boards** (tabs on the leaderboard screen)
+- **Team war**: every Endless score also counts for the hero it was played with. Each player's best run per hero per week (Monday 00:00 UTC) is summed per hero: `GET /teams`.
+- **Daily challenge**: best score per player per day, `POST /daily` / `GET /daily?day=<n>&uid=<id>`. Only today's day number (±1 for time zones) is accepted.
+
+**Telegram Stars shop**
+- `POST /invoice { initData, product }` creates a Stars invoice with the Bot API (`currency: XTR`). Products: `gold_s` 600 gold / 50 ⭐, `gold_m` 2,000 / 150 ⭐, `gold_l` 6,000 / 400 ⭐, `boosts` 5 of each booster / 100 ⭐, `hero_<id>` unlock / 75 ⭐.
+- Telegram sends the payment to `POST /tg-webhook` (checked with the `WEBHOOK_SECRET` header). The Worker approves the pre-checkout only if the product, buyer and price match, then stores the paid purchase.
+- The game calls `POST /claim` after paying and at every start; each purchase is delivered once.
+- The same webhook answers `/start` with a **Play** button that carries the link's `ref_…`/`h_…` parameters into the game.
+
+**Rewarded ads**: put an [Adsgram](https://partner.adsgram.ai) block id in `ADSGRAM_BLOCK_ID` at the top of the game script to turn on "Watch ad" for continues and free gold. It stays hidden while empty.
+
 **Files**
-- `server/worker.js`: the API. `GET /top?limit=50&uid=<id>` and `POST /score`.
+- `server/worker.js`: the API (`/top`, `/score`, `/teams`, `/daily`, `/invoice`, `/claim`, `/tg-webhook`).
 - `server/schema.sql`: the D1 table.
 - `server/wrangler.toml`: Worker config for the command-line deploy.
 - `server/test.mjs`: tests against an in-memory SQLite database. Run `node server/test.mjs` (Node 22+).
@@ -115,7 +141,7 @@ Every run played inside Telegram is sent to a small API when the game ends. Play
 2. **Storage & Databases → D1 → Create** a database named `volya-leaderboard`. Open its **Console**, paste the contents of `server/schema.sql` and run it.
 3. **Workers & Pages → Create → Create Worker**, name it `volya-leaderboard`, **Deploy**, then **Edit code**: replace everything with `server/worker.js` and **Deploy** again.
 4. In the Worker: **Settings → Bindings → Add → D1 database**, variable name `DB`, database `volya-leaderboard`.
-5. **Settings → Variables and Secrets**: add a **Secret** `BOT_TOKEN` with the token from @BotFather, and a **Text** variable `ALLOWED_ORIGIN` = `https://himn7980-bot.github.io`.
+5. **Settings → Variables and Secrets**: add **Secrets** `BOT_TOKEN` (the token from @BotFather) and `WEBHOOK_SECRET` (any long random text), and **Text** variables `ALLOWED_ORIGIN` = `https://himn7980-bot.github.io` and `GAME_URL` = the game's address.
 6. Copy the Worker URL (`https://volya-leaderboard.<your-subdomain>.workers.dev`) into `LEADERBOARD_API` at the top of the game script, in both `game.html` and `index.html`.
 
 Command-line alternative: `cd server && npx wrangler d1 create volya-leaderboard` (put the id in `wrangler.toml`), `npx wrangler d1 execute volya-leaderboard --remote --file schema.sql`, `npx wrangler secret put BOT_TOKEN`, `npx wrangler deploy`.
@@ -127,8 +153,8 @@ Until `LEADERBOARD_API` is set, the leaderboard screen explains that it works in
 The Worker in `server/` can host the game itself, so GitHub Pages is optional. With `CLOUDFLARE_API_TOKEN` (permissions: Workers Scripts Edit, D1 Edit, Account Settings Read), `CLOUDFLARE_ACCOUNT_ID` and `TELEGRAM_BOT_TOKEN` in the environment:
 
 ```sh
-./server/deploy.sh                                          # D1 + schema + Worker + BOT_TOKEN secret
-./server/setup-bot.sh https://volya-leaderboard.<subdomain>.workers.dev   # bot menu button + descriptions
+./server/deploy.sh                                          # D1 + schema + Worker + BOT_TOKEN and WEBHOOK_SECRET secrets
+WEBHOOK_SECRET=<printed by deploy.sh> ./server/setup-bot.sh https://volya-leaderboard.<subdomain>.workers.dev   # menu button, payments webhook, descriptions
 ```
 
 The game detects that it runs on `*.workers.dev` and uses the same origin for the leaderboard, so nothing else needs editing. The Cloudflare account needs its `workers.dev` subdomain chosen once (open **Workers & Pages** in the dashboard).

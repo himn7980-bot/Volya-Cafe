@@ -324,6 +324,19 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .intro-shape svg { width: 92px; height: auto; }
 .fail-reason { text-align: center; color: #ff8a9a; font-weight: 800; font-size: 20px; margin-top: -6px; }
 .portrait { cursor: pointer; }
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; }
+.tabs button { appearance: none; border: 0; cursor: pointer; padding: 9px 4px 7px; border-radius: 14px; background: rgba(0,0,0,.25); color: #fff; font: 800 13px/1.1 inherit; font-family: inherit; }
+.tabs button.on { background: linear-gradient(#ffe98a, #ffbf1f 60%, #e08a00); color: #4a2300; box-shadow: 0 3px 0 #9a5a00; }
+.avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+.shop-h { margin: 6px 0 0; font-size: 18px; font-weight: 800; }
+.shop-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.shop-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px 10px; border-radius: 20px; background: rgba(0,0,0,.25); box-shadow: inset 0 0 0 2px rgba(255,255,255,.12); text-align: center; }
+.shop-item img, .shop-item > svg { width: 52px; height: 52px; object-fit: contain; }
+.shop-item b { font-size: 18px; font-weight: 800; color: #ffe066; }
+.shop-item small { font-size: 13px; opacity: .85; min-height: 16px; }
+.shop-item .btn { width: 100%; min-height: 42px; font-size: 17px; gap: 4px; }
+.shop-item .btn svg { width: 20px; height: 20px; }
+.shop-item.best { box-shadow: inset 0 0 0 3px #ffcf3d; }
 .share-card { width: 100%; max-width: 300px; align-self: center; border-radius: 18px; box-shadow: 0 8px 0 rgba(0,0,0,.35); }
 .gold-chip { position: absolute; top: 14px; inset-inline-start: 12px; display: flex; align-items: center; gap: 6px; padding: 5px 14px 3px 6px; border-radius: 999px;
   background: rgba(8,12,44,.78); box-shadow: inset 0 0 0 2px rgba(255,207,61,.45); font-weight: 800; font-size: 18px; color: #ffe066; z-index: 2; }
@@ -376,6 +389,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .hero-focus .btn-row { margin-top: 8px; }
 .hero-focus .btn { min-height: 46px; }
 #hfSelect:disabled { opacity: .6; cursor: default; }
+#hfBuy { font-size: 14px; gap: 4px; padding-inline: 8px; }
+#hfBuy .price { font-size: 16px; padding-inline: 6px; }
 .hero-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .hero-tile { appearance: none; border: 0; padding: 0; position: relative; cursor: pointer; border-radius: 14px; overflow: hidden; aspect-ratio: 2 / 3; background: #13206b; box-shadow: 0 4px 0 rgba(0,0,0,.35); font-family: inherit; }
 .hero-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -532,9 +547,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         <button class="btn secondary" id="misBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3" fill="currentColor" opacity=".35"/><path d="M8 8.5l1.5 1.5L12 7.5M8 14.5l1.5 1.5 2.5-2.5M14 9h3M14 15h3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="missions"></span><i class="dot" id="misDot" hidden></i></button>
       </div>
       <button class="btn share" id="titleInviteBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="inviteFriends"></span></button>
-      <div class="btn-row">
+      <div class="btn-row three">
         <button class="btn secondary" id="titleRecBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></button>
         <button class="btn secondary" id="titleLbBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></button>
+        <button class="btn secondary" id="shopBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12a2 2 0 01-2 1.8H8.2a2 2 0 01-2-1.8z" fill="currentColor" opacity=".35"/><path d="M5 8h14l-1.2 12a2 2 0 01-2 1.8H8.2a2 2 0 01-2-1.8zM9 10V7a3 3 0 016 0v3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg><span data-i18n="shop"></span></button>
       </div>
       <div class="card">
         <h2 data-i18n="howTo"></h2>
@@ -594,6 +610,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   <section class="screen center" id="lbScreen" hidden>
     <div class="card">
       <h2 class="lb-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></h2>
+      <div class="tabs" id="lbTabs">
+        <button type="button" data-tab="players" class="on"><span data-i18n="leaderboard"></span></button>
+        <button type="button" data-tab="teams"><span data-i18n="teamWar"></span></button>
+        <button type="button" data-tab="daily"><span data-i18n="dailyChallenge"></span></button>
+      </div>
       <p class="lb-sub" id="lbSub"></p>
       <div class="lb-list" id="lbList"></div>
       <div id="lbMe"></div>
@@ -628,6 +649,19 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h2 class="map-title" data-i18n="levels"></h2>
       <div class="map-list" id="mapList"></div>
       <button class="btn ghost" id="mapBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
+  <section class="screen" id="shopScreen" hidden>
+    <div class="map-wrap">
+      <h2 class="map-title" data-i18n="shop"></h2>
+      <div class="reward-line" id="shopGold"></div>
+      <h3 class="shop-h" data-i18n="gold"></h3>
+      <div class="shop-grid" id="shopStars"></div>
+      <p class="mis-foot" id="shopNote" hidden></p>
+      <h3 class="shop-h" data-i18n="boosters"></h3>
+      <div class="shop-grid" id="shopBoosts"></div>
+      <button class="btn ghost" id="shopBack" type="button"><span data-i18n="menu"></span></button>
     </div>
   </section>
 
@@ -681,6 +715,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
           <span class="hf-lock" id="hfLock"></span>
           <div class="btn-row">
             <button class="btn primary" id="hfSelect" type="button"><span id="hfSelectTxt"></span></button>
+            <button class="btn primary" id="hfBuy" type="button" hidden><span data-i18n="unlockNow"></span><b class="price"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.4 7 .7-5.3 4.7 1.6 6.9L12 17.6l-6.2 3.6 1.6-6.9L2.1 9.6l7-.7z" fill="#ffd23f" stroke="#b07000" stroke-width="1.4" stroke-linejoin="round"/></svg><span>75</span></b></button>
             <button class="btn share" id="hfShare" type="button" aria-label="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
           </div>
         </div>
@@ -742,6 +777,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // The bot's username without @ (e.g. "VolyaGameBot"). Invite links then open the game straight inside Telegram.
   const BOT_USERNAME = "VolyaGemDefenseBot";
   const GAME_URL = "https://himn7980-bot.github.io/Volya-Cafe/";
+  // Rewarded ads (https://partner.adsgram.ai): put your block id here to turn on "watch ad" rewards.
+  const ADSGRAM_BLOCK_ID = "";
   // When the game is served by the leaderboard Worker itself, the API is on the same origin.
   const API_BASE = LEADERBOARD_API || (/\.workers\.dev$/.test(location.hostname) ? location.origin : "");
   const SETTINGS_KEY = "dice-chain-settings-v1";
@@ -3569,7 +3606,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen"]) $(s).hidden = s !== id;
     if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
@@ -3593,7 +3630,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("cardScreen").hidden) showScreen(cardReturn);
+    if (!$("shopScreen").hidden) showScreen("titleScreen");
+    else if (!$("cardScreen").hidden) showScreen(cardReturn);
     else if (!$("contScreen").hidden) giveUp();
     else if (!$("dailyScreen").hidden) claimDaily();
     else if (!$("misScreen").hidden) showScreen("titleScreen");
@@ -4166,7 +4204,89 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     showScreen(null);
   }
   function giveUp() { contUsed = true; state = "play"; gameOver(); }
-  const adsReady = () => false;
+  // ---- Rewarded ads (Adsgram) ----
+  let adCtl = null;
+  function initAds() {
+    if (!ADSGRAM_BLOCK_ID || !tg) return;
+    const sc = document.createElement("script");
+    sc.src = "https://sad.adsgram.ai/js/sad.min.js";
+    sc.onload = () => { try { adCtl = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }); } catch (e) { adCtl = null; } };
+    document.head.appendChild(sc);
+  }
+  const adsReady = () => !!adCtl;
+  // resolves true only when the ad was watched to the end
+  function showAd() {
+    if (!adCtl) return Promise.resolve(false);
+    return adCtl.show().then((r) => !r || r.done !== false).catch(() => false);
+  }
+
+  // ---- Shop: gold for Telegram Stars, boosters for gold ----
+  const STAR_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2.5l2.9 6.4 7 .7-5.3 4.7 1.6 6.9L12 17.6l-6.2 3.6 1.6-6.9L2.1 9.6l7-.7z\" fill=\"#ffd23f\" stroke=\"#b07000\" stroke-width=\"1.4\" stroke-linejoin=\"round\"/></svg>";
+  const STAR_PACKS = [{ id: "gold_s", gold: 600, stars: 50 }, { id: "gold_m", gold: 2000, stars: 150, best: true }, { id: "gold_l", gold: 6000, stars: 400 }, { id: "boosts", stars: 100 }];
+  const AD_GOLD = 30, AD_PER_DAY = 5;
+  const starsReady = () => !!(canSubmit() && tg && tg.openInvoice);
+  function grantProduct(id) {
+    if (id === "gold_s") addGold(600);
+    else if (id === "gold_m") addGold(2000);
+    else if (id === "gold_l") addGold(6000);
+    else if (id === "boosts") for (const k in meta.boost) meta.boost[k] += 5;
+    else if (id.startsWith("hero_")) { const h = id.slice(5); progress.gift = [...new Set([].concat(progress.gift || [], h))]; saveProgress(); }
+  }
+  async function claimPurchases(retry) {
+    if (!canSubmit()) return;
+    try {
+      const r = await api("/claim", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData: tgInitData() }) });
+      const got = (r && r.products) || [];
+      if (!got.length) { if (retry) setTimeout(() => claimPurchases(retry - 1), 2500); return; }
+      got.forEach(grantProduct);
+      saveMeta();
+      toast(tr("thanks")); sfx("charge"); haptic("success");
+      if (!$("shopScreen").hidden) renderShop();
+      if (!$("heroScreen").hidden) renderHeroes();
+    } catch (e) {}
+  }
+  async function buyStars(product) {
+    if (!starsReady()) { toast(tr("offline")); return; }
+    try {
+      const r = await api("/invoice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData: tgInitData(), product }) });
+      tg.openInvoice(r.link, (status) => { if (status === "paid") setTimeout(() => claimPurchases(3), 700); });
+    } catch (e) { toast(tr("lbError")); }
+  }
+  function shopItem(icon, title, sub, price, onBuy, best) {
+    const d = document.createElement("div"); d.className = "shop-item" + (best ? " best" : "");
+    if (icon.startsWith("<svg")) d.insertAdjacentHTML("beforeend", icon); else { const im = document.createElement("img"); im.src = icon; im.alt = ""; d.appendChild(im); }
+    const t = document.createElement("b"); t.textContent = title;
+    const sm = document.createElement("small"); sm.textContent = sub || "";
+    const b = document.createElement("button"); b.type = "button"; b.className = "btn primary"; b.innerHTML = price;
+    b.addEventListener("click", onBuy);
+    d.append(t, sm, b);
+    return d;
+  }
+  function renderShop() {
+    $("shopGold").innerHTML = `<span>${COIN_SVG}${fmt(meta.gold)}</span>`;
+    const sg = $("shopStars"); sg.textContent = "";
+    for (const pk2 of STAR_PACKS) {
+      const isGold = !!pk2.gold;
+      sg.appendChild(shopItem(isGold ? COIN_SVG : boostIcon("rockets"), isGold ? fmt(pk2.gold) : "×5 ×3", isGold ? tr("gold") : tr("boosters"),
+        STAR_SVG + "<span>" + fmt(pk2.stars) + "</span>", () => { sfx("click"); buyStars(pk2.id); }, pk2.best));
+    }
+    if (adsReady()) {
+      const today = dayKey(), used = meta.ads && meta.ads.day === today ? meta.ads.n : 0;
+      if (used < AD_PER_DAY) sg.appendChild(shopItem(COIN_SVG, "+" + fmt(AD_GOLD), tr("watchAd") + " " + fmt(AD_PER_DAY - used) + "/" + fmt(AD_PER_DAY), "▶", () => {
+        showAd().then((ok) => { if (!ok) return; meta.ads = { day: today, n: used + 1 }; addGold(AD_GOLD); saveMeta(); toast("+" + fmt(AD_GOLD) + " " + tr("gold")); renderShop(); });
+      }));
+    }
+    $("shopNote").hidden = starsReady();
+    $("shopNote").textContent = tr("offline");
+    const bg = $("shopBoosts"); bg.textContent = "";
+    for (const k of ["rockets", "moves", "shield"]) {
+      bg.appendChild(shopItem(boostIcon(k), "×" + fmt(meta.boost[k]), tr("b_" + k), COIN_SVG + "<span>" + fmt(BOOST_PRICE[k]) + "</span>", () => {
+        if (meta.gold < BOOST_PRICE[k]) { toast(tr("notEnough")); sfx("nope"); return; }
+        addGold(-BOOST_PRICE[k]); meta.boost[k]++; saveMeta(); sfx("charge"); renderShop();
+      }));
+    }
+  }
+  function openShop() { renderShop(); showScreen("shopScreen"); }
 
   // weekly missions
   const MIS_DEF = { kills: [150, 150], wins: [5, 150], darts: [15, 120], bombs: [10, 120], gems: [800, 150], bosses: [3, 200], rage: [6, 120], endless: [3, 120] };
@@ -4335,6 +4455,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     $("hfPerk").textContent = tr("perk_" + f.id);
     $("hfLock").textContent = open ? "" : tr("unlockLevel", f.at);
     $("hfSelect").disabled = !open || f === HERO;
+    $("hfSelect").hidden = !open && starsReady();
+    $("hfBuy").hidden = open || !starsReady();
+    $("hfBuy").querySelector(".price span").textContent = fmt(75);
     $("hfSelectTxt").textContent = f === HERO ? tr("selectedHero") : tr("selectHero");
   }
   let toastTimer = 0;
@@ -4402,9 +4525,43 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       list.appendChild(b);
     }
   }
+  let lbTab = "players";
+  function lbTeamRow(t, rank) {
+    const h = heroById(t.hero);
+    const row = lbRow({ rank, name: h.name, best: t.total }, h === HERO);
+    const av = row.querySelector(".avatar"); av.textContent = ""; av.style.background = "#13206b";
+    const im = document.createElement("img"); im.src = heroFace(h); im.alt = ""; av.appendChild(im);
+    const sm = document.createElement("small"); sm.textContent = tr("players", t.players); row.querySelector(".lb-name").appendChild(sm);
+    return row;
+  }
+  async function loadTeams() {
+    const data = await api("/teams");
+    if ($("lbScreen").hidden || lbTab !== "teams") return;
+    const list = $("lbList"); list.textContent = ""; $("lbMe").textContent = "";
+    $("lbSub").textContent = tr("teamWarNote");
+    if (!data.teams || !data.teams.length) { lbNote(tr("noScores")); return; }
+    data.teams.forEach((t, i) => list.appendChild(lbTeamRow(t, i + 1)));
+  }
+  async function loadDailyBoard() {
+    const uid = tgUid();
+    const data = await api("/daily?day=" + dayNo() + (uid ? "&uid=" + encodeURIComponent(uid) : ""));
+    if ($("lbScreen").hidden || lbTab !== "daily") return;
+    const list = $("lbList"); list.textContent = ""; $("lbMe").textContent = "";
+    $("lbSub").textContent = tr("todayBest") + " · " + tr("players", data.total || 0);
+    if (!data.top || !data.top.length) { lbNote(tr("noScores")); return; }
+    for (const e of data.top) list.appendChild(lbRow(e, !!e.you));
+    if (data.me && !data.top.some((e) => e.you)) $("lbMe").append(lbRow({ rank: data.me.rank, name: tr("you"), best: data.me.best }, true));
+  }
   async function loadLeaderboard() {
     $("lbSub").textContent = "";
+    document.querySelectorAll("#lbTabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === lbTab));
     if (!API_BASE) { lbNote(tr("lbOffline")); return; }
+    if (lbTab !== "players") {
+      lbNote(tr("loading"));
+      try { await (lbTab === "teams" ? loadTeams() : loadDailyBoard()); }
+      catch (e) { if (!$("lbScreen").hidden) lbNote(tr("lbError"), true); }
+      return;
+    }
     lbNote(tr("loading"));
     try {
       const uid = tgUid();
@@ -5834,6 +5991,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("dailyClaim").addEventListener("click", claimDaily);
   $("contGold").addEventListener("click", () => { if (meta.gold < CONT_PRICE) { toast(tr("notEnough")); return; } addGold(-CONT_PRICE); saveMeta(); sfx("charge"); doContinue(); });
   $("contGiveUp").addEventListener("click", clickSfx(giveUp));
+  $("contAd").addEventListener("click", () => showAd().then((ok) => { if (ok) doContinue(); }));
+  $("shopBtn").addEventListener("click", clickSfx(openShop));
+  $("shopBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
+  $("hfBuy").addEventListener("click", clickSfx(() => buyStars("hero_" + heroFocus)));
+  document.querySelectorAll("#lbTabs button").forEach((b) => b.addEventListener("click", () => { sfx("click"); lbTab = b.dataset.tab; loadLeaderboard(); }));
   document.querySelector("#titleScreen .portrait").addEventListener("click", clickSfx(openHeroes));
   $("heroBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   $("hfSelect").addEventListener("click", () => {
@@ -5903,6 +6065,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   loadProgress();
   loadMeta();
   ensureMissions();
+  initAds();
+  setTimeout(() => claimPurchases(0), 1500);
   {
     // community link: startapp=h_<id> (optionally after ref_<uid>_) unlocks and picks that hero
     const m = /(?:^|_)h_([a-z0-9]+)/.exec(startParam());

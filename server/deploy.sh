@@ -23,3 +23,10 @@ cp ../index.html public/index.html
 # 3. Worker + bot token secret
 $W deploy
 printf '%s' "$TELEGRAM_BOT_TOKEN" | $W secret put BOT_TOKEN
+
+# 4. Webhook secret for payments and /start (kept if you already exported one)
+WEBHOOK_SECRET="${WEBHOOK_SECRET:-$(openssl rand -hex 24)}"
+printf '%s' "$WEBHOOK_SECRET" | $W secret put WEBHOOK_SECRET
+echo
+echo "Done. Connect the bot (menu button, payments webhook) with:"
+echo "  TELEGRAM_BOT_TOKEN=\$TELEGRAM_BOT_TOKEN WEBHOOK_SECRET=$WEBHOOK_SECRET ./setup-bot.sh https://volya-leaderboard.<your-subdomain>.workers.dev"

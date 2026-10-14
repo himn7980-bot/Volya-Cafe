@@ -4,12 +4,30 @@
 // never from the client.
 //
 //   GET  /top?limit=50&uid=<telegram id>  -> { top: [...], total, me }
+//   POST /score { initData, score, wave, kills, duration, hero } -> { best, rank, total, improved }
+//   GET  /teams                            -> this week's team war: { week, endsIn, teams: [{ hero, total, players }] }
+//   POST /daily { initData, day, score, hero } / GET /daily?day=&uid= -> daily challenge board
+//   POST /invoice { initData, product }    -> { link } (Telegram Stars invoice)
+//   POST /claim { initData }               -> { products: [...] } paid purchases not yet delivered
+//   POST /tg-webhook                       -> Telegram bot updates (payments, /start)
 //   GET  /  (anything else)                -> the game (static assets in ./public)
-//   POST /score { initData, score, wave, kills, duration } -> { best, rank, total, improved }
 
 const MAX_AUTH_AGE = 24 * 60 * 60; // seconds an initData signature stays valid
 const MIN_SUBMIT_GAP = 3;          // seconds between two submissions from one player
 const MAX_SCORE = 50_000_000;
+const MAX_DAILY = 2_000_000;
+const HEROES = ["volya", "pinkbull", "babyshark", "notcoin", "gramcat", "pengu", "teddy", "virus", "utya", "egor", "tgdog", "yoda", "memegram", "paws", "yaya", "noctis"];
+// Telegram Stars products. Gold and boosters are delivered by the game after /claim.
+export const PRODUCTS = {
+  gold_s: { stars: 50, title: "600 Gold", description: "A pouch of 600 gold for boosters and continues." },
+  gold_m: { stars: 150, title: "2,000 Gold", description: "A chest of 2,000 gold for boosters and continues." },
+  gold_l: { stars: 400, title: "6,000 Gold", description: "A treasure of 6,000 gold for boosters and continues." },
+  boosts: { stars: 100, title: "Booster pack", description: "5 rocket, 5 extra-moves and 5 shield boosters." },
+  ...Object.fromEntries(HEROES.slice(1).map((h) => [`hero_${h}`, { stars: 75, title: "Unlock hero", description: `Unlock the ${h} hero right away.` }]))
+};
+const nowSec = () => Math.floor(Date.now() / 1000);
+const weekOf = (sec) => Math.floor((sec / 86400 + 3) / 7);   // weeks start on Monday 00:00 UTC
+const dayOf = (sec) => Math.floor(sec / 86400);
 
 export default {
   async fetch(req, env) {
@@ -24,6 +42,12 @@ export default {
     try {
       if (url.pathname === "/top" && req.method === "GET") return json(await top(env, url), cors);
       if (url.pathname === "/score" && req.method === "POST") return json(await submit(env, await readJson(req)), cors);
+      if (url.pathname === "/teams" && req.method === "GET") return json(await teams(env), cors);
+      if (url.pathname === "/daily" && req.method === "POST") return json(await submitDaily(env, await readJson(req)), cors);
+      if (url.pathname === "/daily" && req.method === "GET") return json(await topDaily(env, url), cors);
+      if (url.pathname === "/invoice" && req.method === "POST") return json(await invoice(env, await readJson(req)), cors);
+      if (url.pathname === "/claim" && req.method === "POST") return json(await claim(env, await readJson(req)), cors);
+      if (url.pathname === "/tg-webhook" && req.method === "POST") return await webhook(env, req);
       // Everything else is the game itself (static files deployed with the Worker).
       if (env.ASSETS && (req.method === "GET" || req.method === "HEAD")) return env.ASSETS.fetch(req);
       return json({ error: "not_found" }, cors, 404);
@@ -132,8 +156,127 @@ async function submit(env, body) {
        best  = MAX(scores.best, excluded.best)`
   ).bind(user.id, displayName(user), user.username || null, user.language_code || null, score, wave, kills, now, now).run();
 
+  // team war: each player's best run of the week counts for the hero they played
+  const hero = HEROES.includes(body.hero) ? body.hero : "volya";
+  await env.DB.prepare(
+    `INSERT INTO team_scores (week, user_id, hero, best) VALUES (?, ?, ?, ?)
+     ON CONFLICT(week, user_id, hero) DO UPDATE SET best = MAX(team_scores.best, excluded.best)`
+  ).bind(weekOf(now), user.id, hero, score).run();
+
   const best = Math.max(score, prev ? prev.best : 0);
   return { best, rank: await rankOf(env, best), total: await total(env), improved: !prev || score > prev.best };
+}
+
+async function teams(env) {
+  const now = nowSec(), week = weekOf(now);
+  const rows = await env.DB.prepare(
+    "SELECT hero, SUM(best) AS total, COUNT(DISTINCT user_id) AS players FROM team_scores WHERE week = ? GROUP BY hero ORDER BY total DESC"
+  ).bind(week).all();
+  return { week, endsIn: (week + 1) * 7 * 86400 - 3 * 86400 - now, teams: rows.results || [] };
+}
+
+async function submitDaily(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  const day = int(body.day), score = int(body.score), now = nowSec();
+  if (!Number.isInteger(day) || Math.abs(day - dayOf(now)) > 1) throw new HttpError(400, "bad_day");
+  if (!Number.isInteger(score) || score < 0 || score > MAX_DAILY) throw new HttpError(422, "implausible");
+  const prev = await env.DB.prepare("SELECT best, updated_at FROM daily_scores WHERE day = ? AND user_id = ?").bind(day, user.id).first();
+  if (prev && now - prev.updated_at < MIN_SUBMIT_GAP) throw new HttpError(429, "too_fast");
+  const hero = HEROES.includes(body.hero) ? body.hero : "volya";
+  await env.DB.prepare(
+    `INSERT INTO daily_scores (day, user_id, name, hero, best, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(day, user_id) DO UPDATE SET name = excluded.name, updated_at = excluded.updated_at,
+       hero = CASE WHEN excluded.best > daily_scores.best THEN excluded.hero ELSE daily_scores.hero END,
+       best = MAX(daily_scores.best, excluded.best)`
+  ).bind(day, user.id, displayName(user), hero, score, now).run();
+  const best = Math.max(score, prev ? prev.best : 0);
+  const higher = await env.DB.prepare("SELECT COUNT(*) AS c FROM daily_scores WHERE day = ? AND best > ?").bind(day, best).first();
+  return { best, rank: (higher ? higher.c : 0) + 1 };
+}
+
+async function topDaily(env, url) {
+  const day = int(url.searchParams.get("day"));
+  if (!Number.isInteger(day)) throw new HttpError(400, "bad_day");
+  const uid = int(url.searchParams.get("uid"));
+  const rows = await env.DB.prepare("SELECT user_id, name, hero, best FROM daily_scores WHERE day = ? ORDER BY best DESC, updated_at ASC LIMIT 50").bind(day).all();
+  const list = (rows.results || []).map((r, i) => ({ rank: i + 1, name: r.name, hero: r.hero, best: r.best, you: r.user_id === uid || undefined }));
+  const cnt = await env.DB.prepare("SELECT COUNT(*) AS c FROM daily_scores WHERE day = ?").bind(day).first();
+  let me = null;
+  if (Number.isSafeInteger(uid)) {
+    const row = await env.DB.prepare("SELECT best FROM daily_scores WHERE day = ? AND user_id = ?").bind(day, uid).first();
+    if (row) {
+      const higher = await env.DB.prepare("SELECT COUNT(*) AS c FROM daily_scores WHERE day = ? AND best > ?").bind(day, row.best).first();
+      me = { best: row.best, rank: (higher ? higher.c : 0) + 1 };
+    }
+  }
+  return { day, top: list, total: cnt ? cnt.c : 0, me };
+}
+
+// ---- Telegram Stars ----------------------------------------------------
+async function tgApi(env, method, payload) {
+  const res = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/${method}`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => null);
+  if (!data || !data.ok) throw new HttpError(502, "telegram_error");
+  return data.result;
+}
+
+async function invoice(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  const product = String((body && body.product) || "");
+  const p = PRODUCTS[product];
+  if (!p) throw new HttpError(400, "bad_product");
+  const nonce = crypto.randomUUID().slice(0, 8);
+  const link = await tgApi(env, "createInvoiceLink", {
+    title: p.title, description: p.description, payload: `${user.id}|${product}|${nonce}`,
+    currency: "XTR", prices: [{ label: p.title, amount: p.stars }]
+  });
+  return { link };
+}
+
+// Paid purchases are stored by the webhook; the game collects them here exactly once.
+async function claim(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  const rows = await env.DB.prepare("SELECT charge_id, product FROM purchases WHERE user_id = ? AND claimed = 0").bind(user.id).all();
+  const list = rows.results || [];
+  for (const r of list) await env.DB.prepare("UPDATE purchases SET claimed = 1 WHERE charge_id = ?").bind(r.charge_id).run();
+  return { products: list.map((r) => r.product) };
+}
+
+async function webhook(env, req) {
+  const ok = () => new Response("ok");
+  if (!env.WEBHOOK_SECRET || req.headers.get("X-Telegram-Bot-Api-Secret-Token") !== env.WEBHOOK_SECRET) return new Response("forbidden", { status: 403 });
+  const upd = await req.json().catch(() => null);
+  if (!upd) return ok();
+  if (upd.pre_checkout_query) {
+    const q = upd.pre_checkout_query, [uid, product] = String(q.invoice_payload || "").split("|");
+    const p = PRODUCTS[product];
+    const valid = p && Number(uid) === q.from.id && q.currency === "XTR" && q.total_amount === p.stars;
+    await tgApi(env, "answerPreCheckoutQuery", valid ? { pre_checkout_query_id: q.id, ok: true } : { pre_checkout_query_id: q.id, ok: false, error_message: "This item is not available." });
+    return ok();
+  }
+  const msg = upd.message;
+  if (msg && msg.successful_payment) {
+    const sp = msg.successful_payment, [, product] = String(sp.invoice_payload || "").split("|");
+    if (PRODUCTS[product]) {
+      await env.DB.prepare("INSERT OR IGNORE INTO purchases (charge_id, user_id, product, stars, claimed, created_at) VALUES (?, ?, ?, ?, 0, ?)")
+        .bind(sp.telegram_payment_charge_id, msg.from.id, product, sp.total_amount, nowSec()).run();
+    }
+    return ok();
+  }
+  if (msg && typeof msg.text === "string" && msg.text.startsWith("/start") && env.GAME_URL) {
+    // pass the deep-link payload (ref_…, h_…) on to the game
+    const param = msg.text.split(" ")[1] || "";
+    const safe = /^[A-Za-z0-9_-]{1,64}$/.test(param) ? param : "";
+    const url = env.GAME_URL + (safe ? (env.GAME_URL.includes("?") ? "&" : "?") + "startapp=" + safe : "");
+    await tgApi(env, "sendMessage", {
+      chat_id: msg.chat.id,
+      text: "💎 Volya Gem Defense\nMatch gems, blast monsters and lead your team to the top!",
+      reply_markup: { inline_keyboard: [[{ text: "🎮 Play", web_app: { url } }]] }
+    }).catch(() => {});
+  }
+  return ok();
 }
 
 async function top(env, url) {
