@@ -324,6 +324,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .intro-shape svg { width: 92px; height: auto; }
 .fail-reason { text-align: center; color: #ff8a9a; font-weight: 800; font-size: 20px; margin-top: -6px; }
 .portrait { cursor: pointer; }
+.share-card { width: 100%; max-width: 300px; align-self: center; border-radius: 18px; box-shadow: 0 8px 0 rgba(0,0,0,.35); }
 .gold-chip { position: absolute; top: 14px; inset-inline-start: 12px; display: flex; align-items: center; gap: 6px; padding: 5px 14px 3px 6px; border-radius: 999px;
   background: rgba(8,12,44,.78); box-shadow: inset 0 0 0 2px rgba(255,207,61,.45); font-weight: 800; font-size: 18px; color: #ffe066; z-index: 2; }
 .gold-chip svg { width: 26px; height: 26px; }
@@ -521,9 +522,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         <span data-i18n="play"></span>
         <small class="lvl-tag" id="playLevel"></small>
       </button>
-      <div class="btn-row">
+      <div class="btn-row three">
         <button class="btn secondary" id="mapBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5l5.5-2.5 7 2.5L21 4v13.5L15.5 20l-7-2.5L3 20z" fill="currentColor" opacity=".35"/><path d="M8.5 4v13.5M15.5 6.5V20" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.4" fill="currentColor"/></svg><span data-i18n="levels"></span></button>
         <button class="btn secondary" id="endlessBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5a3.5 3.5 0 100 7c2.6 0 4-3.5 5-3.5s2.4 3.5 5 3.5a3.5 3.5 0 100-7c-2.6 0-4 3.5-5 3.5S9.6 8.5 7 8.5z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></svg><span data-i18n="endless"></span></button>
+        <button class="btn secondary" id="dailyBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="currentColor" opacity=".35"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 12.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor"/></svg><span data-i18n="dailyChallenge"></span><i class="dot" id="dailyDot" hidden></i></button>
       </div>
       <div class="btn-row">
         <button class="btn secondary hero-btn" id="heroBtn" type="button"><img id="heroBtnImg" alt=""><span data-i18n="heroes"></span></button>
@@ -570,6 +572,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <div class="fail-reason" id="ovReason" hidden></div>
       <div class="big-score"><small data-i18n="score"></small><b id="ovScore">0</b></div>
       <div class="reward-line" id="ovReward"></div>
+      <button class="btn secondary" id="ovCard" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="3" fill="currentColor" opacity=".35"/><circle cx="12" cy="9" r="3.4" fill="currentColor"/><path d="M7.5 17.5c.6-2.4 2.3-3.7 4.5-3.7s3.9 1.3 4.5 3.7" fill="currentColor"/></svg><span data-i18n="shareCard"></span></button>
       <div class="badge" id="ovBest"></div>
       <div class="improve" id="ovImprove" hidden></div>
       <div class="stats">
@@ -625,6 +628,17 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h2 class="map-title" data-i18n="levels"></h2>
       <div class="map-list" id="mapList"></div>
       <button class="btn ghost" id="mapBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="cardScreen" hidden>
+    <div class="card">
+      <img class="share-card" id="cardImg" alt="">
+      <div class="btn-row">
+        <button class="btn share" id="cardShare" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><span data-i18n="shareCard"></span></button>
+        <button class="btn secondary" id="cardSave" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 19h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><span data-i18n="saveImage"></span></button>
+      </div>
+      <button class="btn ghost" id="cardBack" type="button"><span>✕</span></button>
     </div>
   </section>
 
@@ -696,6 +710,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <div class="win-stars" id="winStars"></div>
       <div class="big-score"><small data-i18n="score"></small><b id="winScore">0</b></div>
       <div class="reward-line" id="winReward"></div>
+      <button class="btn secondary" id="winCard" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="3" fill="currentColor" opacity=".35"/><circle cx="12" cy="9" r="3.4" fill="currentColor"/><path d="M7.5 17.5c.6-2.4 2.3-3.7 4.5-3.7s3.9 1.3 4.5 3.7" fill="currentColor"/></svg><span data-i18n="shareCard"></span></button>
       <div class="unlock" id="winUnlock" hidden><img id="winUnlockImg" alt=""><div><b id="winUnlockTitle"></b><span id="winUnlockName"></span><small id="winUnlockNote"></small></div></div>
       <button class="btn primary big" id="winNext" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.9l10-6.5a1 1 0 000-1.7l-10-6.5A1 1 0 008 5.5z" fill="currentColor"/></svg><span data-i18n="nextLevel"></span></button>
       <button class="btn share" id="winShare" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="challenge"></span></button>
@@ -3179,13 +3194,40 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         sfx("rainbow");
         blast(entries, true);
       } else {
-        const convert = other.sp === "bomb" ? "bomb" : other.sp ? "rocket" : null;
+        const convert = other.sp === "bomb" ? "bomb" : other.sp === "dart" ? "dart" : other.sp ? "rocket" : null;
         if (other.sp) moveSpecials += 2;
         const add = (r, c, d) => entries.push([r, c, d]);
         rainbowBeams(rp[0], rp[1], GEMS.includes(other.el) ? other.el : commonColour(), 0, add, convert);
         entries.push([op[0], op[1], 0.1]);
         blast(entries, true);
       }
+      return;
+    }
+    // a dart swapped with a rocket or bomb carries it to the best target
+    if (ga.sp && gb.sp && (ga.sp === "dart") !== (gb.sp === "dart")) {
+      startMove();
+      ga.used = gb.used = true;
+      moveSpecials += 2;
+      const carried = ga.sp === "dart" ? gb.sp : ga.sp;
+      const [r0, c0] = b, p = cellCenter(r0, c0);
+      let t = dartTarget(r0, c0, [a]);
+      if (t && !GEMS.includes(grid[t[0]][t[1]].el)) {
+        let bestD = Infinity, alt = null;
+        for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+          const g = grid[r][c]; if (!g || !GEMS.includes(g.el) || g.sp || (r === a[0] && c === a[1]) || (r === r0 && c === c0)) continue;
+          const dd = Math.abs(r - t[0]) + Math.abs(c - t[1]); if (dd < bestD) { bestD = dd; alt = [r, c]; }
+        }
+        t = alt;
+      }
+      const entries = [[a[0], a[1], 0], [b[0], b[1], 0]];
+      if (t) {
+        const tg2 = grid[t[0]][t[1]], q = cellCenter(t[0], t[1]);
+        tg2.sp = carried === "rocketH" || carried === "rocketV" ? pick(["rocketH", "rocketV"]) : carried; tg2.used = false;
+        boardFx.push({ kind: "dart", x1: p.x, y1: p.y, x2: q.x, y2: q.y, life: 0.42, max: 0.42, wait: 0 });
+        entries.push([t[0], t[1], 0.42]);
+      }
+      tone(900, 1500, 0.18, "triangle", 0.08); haptic("heavy");
+      blast(entries, true);
       return;
     }
     if (ga.sp && gb.sp) {
@@ -3527,7 +3569,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen"]) $(s).hidden = s !== id;
     if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
@@ -3551,7 +3593,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("contScreen").hidden) giveUp();
+    if (!$("cardScreen").hidden) showScreen(cardReturn);
+    else if (!$("contScreen").hidden) giveUp();
     else if (!$("dailyScreen").hidden) claimDaily();
     else if (!$("misScreen").hidden) showScreen("titleScreen");
     else if (!$("heroScreen").hidden) showScreen("titleScreen");
@@ -3568,13 +3611,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function startGame(m, n) {
     if (m) mode = m;
     if (n) levelN = n;
-    LV = mode === "levels" ? levelDef(levelN) : null;
+    if (mode === "daily") levelN = dailyLevel();
+    LV = mode === "levels" ? levelDef(levelN) : mode === "daily" ? dailyDef() : null;
     BOARD_GEMS = LV ? LV.gems : GEMS;
     setTheme(LV ? LV.w : 0);
     reset();
     contUsed = false;
     if (LV) useBoosts(); else boostSel = {};
-    if (LV) banner = { text: tr("level", levelN), t: 2 };
+    if (LV) banner = { text: LV.daily ? tr("dailyChallenge") : tr("level", levelN), t: 2 };
     $("hud").classList.toggle("levels", !!LV);
     runBestStart = best; runRecordShown = false;
     state = "play"; stateT = 0;
@@ -3632,6 +3676,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     if (!LV) recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
     {
+      if (LV && LV.daily) dailyFinish(false);
       const g = LV ? 0 : Math.floor(score / 250), xp = LV ? 15 : Math.min(200, Math.floor(score / 150));
       if (!LV) track("endless");
       addGold(g); addXp(xp); saveMeta();
@@ -3761,6 +3806,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   let introReturn = "title";
   function openIntro(n, from) {
     introReturn = from || "title";
+    introDaily = false;
     levelN = n;
     const L = levelDef(n);
     setTheme(L.w);
@@ -3838,10 +3884,14 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       stars = Math.min(stars, f >= 0.2 ? 3 : f >= 0.08 ? 2 : 1);
       if (LV.moves && movesLeft > 0) { score += movesLeft * 60; addText("+" + fmt(movesLeft * 60), cx, cy - coreR - 40, "#ffe066", 30, 1.3); }
     }
-    progress.stars[levelN] = Math.max(progress.stars[levelN] || 0, stars);
-    progress.unlocked = Math.min(MAX_LEVEL, Math.max(progress.unlocked, levelN + 1));
-    saveProgress();
-    const winGold = 10 + stars * 5 + (LV.boss ? 15 : 0);
+    lastStars = stars;
+    let winGold = 10 + stars * 5 + (LV.boss ? 15 : 0);
+    if (LV.daily) winGold += dailyFinish(true);
+    else {
+      progress.stars[levelN] = Math.max(progress.stars[levelN] || 0, stars);
+      progress.unlocked = Math.min(MAX_LEVEL, Math.max(progress.unlocked, levelN + 1));
+      saveProgress();
+    }
     track("wins"); addGold(winGold); addXp(40); saveMeta();
     rewardLine("winReward", winGold, 40);
     sfx("rainbow"); haptic("success");
@@ -3849,8 +3899,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if (state !== "won") return;
       $("winStars").innerHTML = [1, 2, 3].map((x) => starSvg(x <= stars, 62)).join("");
       $("winScore").textContent = fmt(score);
-      fillUnlock("win", levelN + 1);
-      $("winNext").hidden = levelN >= MAX_LEVEL;
+      if (LV.daily) $("winUnlock").hidden = true; else fillUnlock("win", levelN + 1);
+      $("winNext").hidden = levelN >= MAX_LEVEL || LV.daily;
       showScreen("winScreen");
     }, 1400);
   }
@@ -3991,6 +4041,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function updateGold() {
     $("goldAmt").textContent = fmt(meta.gold);
     $("misDot").hidden = !meta.mis.some((m) => m.done && !m.claimed);
+    $("dailyDot").hidden = dailyToday() && meta.daily.done;
   }
   function addGold(n) { meta.gold = Math.max(0, meta.gold + n); }
   const dayKey = (d = new Date()) => d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
@@ -4157,6 +4208,93 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function rewardLine(id, gold, xp) {
     $(id).innerHTML = (gold ? `<span>${COIN_SVG}+${fmt(gold)}</span>` : "") + (xp ? `<span class="xp">+${fmt(xp)} XP</span>` : "");
+  }
+  // ---- Daily challenge: one shared level per calendar day ----
+  const dayNo = () => { const d = new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); };
+  const dailyLevel = () => 20 + ((dayNo() * 37) % 180);
+  function dailyDef() {
+    const L = levelDef(dailyLevel());
+    L.daily = true;
+    L.hpScale *= 1.15;
+    return L;
+  }
+  const dailyToday = () => meta.daily.day === dayKey();
+  let introDaily = false;
+  function openDailyIntro() {
+    openIntro(dailyLevel(), "title");
+    introDaily = true;
+    $("inLevel").textContent = tr("dailyChallenge");
+    $("inWorld").textContent = new Date().toLocaleDateString(lang, { day: "numeric", month: "long" }) + (dailyToday() && meta.daily.done ? "  ·  " + tr("dailyDone") : "");
+    $("inUnlock").hidden = true;
+  }
+  function dailyFinish(won) {
+    if (!dailyToday()) meta.daily = { day: dayKey(), done: false, best: 0 };
+    const first = won && !meta.daily.done;
+    if (won) meta.daily.done = true;
+    meta.daily.best = Math.max(meta.daily.best, score);
+    submitDaily(score);
+    return first ? 100 : 0;
+  }
+  function submitDaily(sc) {
+    if (!canSubmit() || sc <= 0) return;
+    api("/daily", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData: tgInitData(), day: dayNo(), score: sc, hero: HERO.id }) }).catch(() => {});
+  }
+
+  // ---- Shareable score card ----
+  let cardBlob = null, cardUrl = "", lastStars = 1;
+  function makeCard() {
+    const Wc = 720, Hc = 960, c = mk(Wc, Hc), g = c.getContext("2d");
+    const bgG = g.createLinearGradient(0, 0, 0, Hc);
+    bgG.addColorStop(0, TH.bg[0]); bgG.addColorStop(0.5, TH.bg[1]); bgG.addColorStop(1, TH.bg[3]);
+    g.fillStyle = bgG; g.fillRect(0, 0, Wc, Hc);
+    for (let i = 0; i < 60; i++) { g.globalAlpha = Math.random() * 0.6 + 0.2; g.fillStyle = TH.star; g.beginPath(); g.arc(Math.random() * Wc, Math.random() * Hc, Math.random() * 3 + 1, 0, TAU); g.fill(); }
+    g.globalAlpha = 1;
+    const rg = g.createRadialGradient(Wc / 2, 330, 40, Wc / 2, 330, 330);
+    rg.addColorStop(0, rgba(TH.aura, 0.55)); rg.addColorStop(1, rgba(TH.aura, 0));
+    g.fillStyle = rg; g.fillRect(0, 0, Wc, Hc);
+    // portrait medallion
+    const R = 150, px = Wc / 2, py = 320;
+    g.beginPath(); g.arc(px, py + 10, R + 24, 0, TAU); g.fillStyle = "rgba(0,0,30,0.45)"; g.fill();
+    const rim = g.createLinearGradient(0, py - R, 0, py + R); rim.addColorStop(0, TH.rim[0]); rim.addColorStop(0.5, TH.rim[1]); rim.addColorStop(1, TH.rim[2]);
+    g.beginPath(); g.arc(px, py, R + 18, 0, TAU); g.fillStyle = rim; g.fill();
+    g.save(); g.beginPath(); g.arc(px, py, R, 0, TAU); g.fillStyle = "#13206b"; g.fill(); g.clip();
+    if (coreImg && coreImg.complete && coreImg.naturalWidth) g.drawImage(coreImg, px - R, py - R, R * 2, R * 2);
+    g.restore();
+    const txt = (t, x, y, size, fill, stroke) => {
+      g.font = `800 ${size}px ${FONT}`; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
+      if (stroke) { g.lineWidth = size * 0.18; g.strokeStyle = stroke; g.strokeText(t, x, y); }
+      g.fillStyle = fill; g.fillText(t, x, y);
+    };
+    txt("VOLYA", Wc / 2, 90, 84, "#ffcf3d", "#5a1a00");
+    txt(HERO.name, Wc / 2, 525, 46, "#ffffff", "#1a1035");
+    const label = LV && LV.daily ? tr("dailyChallenge") : LV ? tr("level", levelN) : tr("wave", wave);
+    txt(label, Wc / 2, 600, 40, TH.star, "#1a1035");
+    txt(fmt(score), Wc / 2, 700, 120, "#ffe066", "#5a1a00");
+    if (state === "won") {
+      const st = lastStars;
+      for (let i = 0; i < 3; i++) { starPath(g, Wc / 2 + (i - 1) * 90, 800, 34, -Math.PI / 2); g.fillStyle = i < st ? "#ffd23f" : "rgba(0,0,0,0.35)"; g.fill(); g.lineWidth = 5; g.strokeStyle = "#7a3d00"; g.stroke(); }
+    }
+    txt("t.me/" + (BOT_USERNAME || "VolyaGemDefenseBot"), Wc / 2, Hc - 60, 30, "rgba(255,255,255,0.85)");
+    cardUrl = c.toDataURL("image/png");
+    cardBlob = null;
+    try { c.toBlob((bl) => { cardBlob = bl; }, "image/png"); } catch (e) {}
+    $("cardImg").src = cardUrl;
+  }
+  let cardReturn = "overScreen";
+  function openCard(from) { cardReturn = from; makeCard(); showScreen("cardScreen"); }
+  async function shareCard() {
+    const text = tr("challengeText", score) + " " + inviteLink();
+    try {
+      if (cardBlob && navigator.canShare) {
+        const file = new File([cardBlob], "volya.png", { type: "image/png" });
+        if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
+      }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    share(tr("challengeText", score));
+  }
+  function saveCard() {
+    const a = document.createElement("a"); a.href = cardUrl; a.download = "volya-score.png";
+    document.body.appendChild(a); a.click(); a.remove();
   }
   const heroOpen = (h) => progress.unlocked >= h.at || (progress.gift || []).includes(h.id);
   function setHero(id) {
@@ -4600,7 +4738,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       $("hpPill").classList.toggle("low", hp / MAX_HP <= 0.3);
       hudCache.hp = hp;
     }
-    const wc = LV ? tr("level", levelN) : tr("wave", wave);
+    const wc = LV ? (LV.daily ? tr("dailyChallenge") : tr("level", levelN)) : tr("wave", wave);
     if (hudCache.wave !== wc) { $("waveChip").textContent = wc; hudCache.wave = wc; }
     const gk = LV ? goals.map((g) => g.have + "/" + g.need).join(",") + state + "|" + movesLeft + "|" + Math.ceil(timeLeft) : "";
     if (hudCache.goals !== gk) { hudCache.goals = gk; renderGoalsHud(); }
@@ -5707,7 +5845,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("hfShare").addEventListener("click", clickSfx(() => { const h = heroById(heroFocus); share(tr("heroShare").replace("{n}", h.name), h); }));
   $("endlessBtn").addEventListener("click", () => startGame("endless"));
   $("mapBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
-  $("inStart").addEventListener("click", () => startGame("levels", levelN));
+  $("inStart").addEventListener("click", () => startGame(introDaily ? "daily" : "levels", levelN));
+  $("dailyBtn").addEventListener("click", clickSfx(openDailyIntro));
+  $("winCard").addEventListener("click", clickSfx(() => openCard("winScreen")));
+  $("ovCard").addEventListener("click", clickSfx(() => openCard("overScreen")));
+  $("cardShare").addEventListener("click", clickSfx(shareCard));
+  $("cardSave").addEventListener("click", clickSfx(saveCard));
+  $("cardBack").addEventListener("click", clickSfx(() => showScreen(cardReturn)));
   $("inBack").addEventListener("click", clickSfx(openMap));
   $("winNext").addEventListener("click", clickSfx(() => openIntro(levelN + 1, "map")));
   $("winMap").addEventListener("click", clickSfx(openMap));
