@@ -35,7 +35,8 @@ export type OutboxOp =
   | { seq: number; loanId: string; kind: 'update'; payload: LoanPatch; baseVersion: number; attempts: number }
   | { seq: number; loanId: string; kind: 'photo'; payload: { localUri: string }; baseVersion: null; attempts: number };
 
-const SCHEMA_VERSION = 1;
+// Bump when SCHEMA gains tables; every statement must be idempotent (IF NOT EXISTS).
+const SCHEMA_VERSION = 2;
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS loans (
@@ -79,7 +80,21 @@ CREATE TABLE IF NOT EXISTS loan_versions (
   PRIMARY KEY (loan_id, version)
 );
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY NOT NULL, value TEXT);
+CREATE TABLE IF NOT EXISTS people (
+  id TEXT PRIMARY KEY NOT NULL,
+  display_name TEXT NOT NULL,
+  language TEXT NOT NULL,
+  avatar_path TEXT
+);
 `;
+
+/** Someone I share a record with (from my_counterparts()). */
+export interface Person {
+  id: string;
+  displayName: string;
+  language: string;
+  avatarPath: string | null;
+}
 
 interface LoanRow {
   id: string;
@@ -258,6 +273,29 @@ export class LocalStore {
     }));
   }
 
+  async listPeople(): Promise<Person[]> {
+    const rows = await this.db.getAllAsync<{ id: string; display_name: string; language: string; avatar_path: string | null }>(
+      'SELECT * FROM people',
+    );
+    return rows.map((r) => ({ id: r.id, displayName: r.display_name, language: r.language, avatarPath: r.avatar_path }));
+  }
+
+  /** Replace the list of people (the server list is always complete). */
+  savePeople(people: Person[]): Promise<void> {
+    return this.write(async () => {
+      await this.db.runAsync('DELETE FROM people');
+      for (const p of people) {
+        await this.db.runAsync(
+          'INSERT INTO people (id, display_name, language, avatar_path) VALUES (?, ?, ?, ?)',
+          p.id,
+          p.displayName,
+          p.language,
+          p.avatarPath,
+        );
+      }
+    });
+  }
+
   async getMeta(key: string): Promise<string | null> {
     const row = await this.db.getFirstAsync<{ value: string | null }>('SELECT value FROM meta WHERE key = ?', key);
     return row?.value ?? null;
@@ -427,7 +465,7 @@ export class LocalStore {
   /** Forget everything (sign-out, or a different account on this phone). */
   clearAll(): Promise<void> {
     return this.write(async () => {
-      await this.db.execAsync('DELETE FROM loans; DELETE FROM outbox; DELETE FROM loan_versions; DELETE FROM meta;');
+      await this.db.execAsync('DELETE FROM loans; DELETE FROM outbox; DELETE FROM loan_versions; DELETE FROM meta; DELETE FROM people;');
     });
   }
 }

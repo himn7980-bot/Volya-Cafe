@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText, Banner, Button, Icon } from '@/components/ui';
 import { useSession } from '@/features/auth/auth';
 import { LoanCard } from '@/features/loans/components';
-import { syncNow, useLoans, useSyncStatus } from '@/features/loans/service';
+import { otherPartyName, syncNow, useLoans, usePeople, useSyncStatus } from '@/features/loans/service';
 import { useProfile } from '@/features/profile/api';
 import { brand } from '@/lib/brand';
 import { isClosed } from '@/shared/loans';
@@ -20,6 +20,7 @@ export default function Dashboard() {
   const uid = useSession((s) => s.session?.user.id)!;
   const { data: profile } = useProfile();
   const { data: loans = [] } = useLoans();
+  const { data: people } = usePeople();
   const { online, pending, rejected, dismissRejected } = useSyncStatus();
   const [tab, setTab] = useState<'open' | 'closed'>('open');
   const [refreshing, setRefreshing] = useState(false);
@@ -105,7 +106,7 @@ export default function Dashboard() {
           ListHeaderComponent={header}
           ListEmptyComponent={empty}
           renderItem={({ item }) => (
-            <LoanCard loan={item} userId={uid} onPress={() => router.push({ pathname: '/loans/[id]', params: { id: item.id } })} />
+            <LoanCard loan={item} userId={uid} name={otherPartyName(item, uid, people)} onPress={() => router.push({ pathname: '/loans/[id]', params: { id: item.id } })} />
           )}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={c.primary} />}
         />

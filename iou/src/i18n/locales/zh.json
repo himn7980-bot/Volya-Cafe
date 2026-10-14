@@ -248,7 +248,9 @@
     "photoRemoved": "移除了照片",
     "name": "姓名改为 {{to}}",
     "phone": "修改了手机号",
-    "status": "状态：{{status}}"
+    "status": "状态：{{status}}",
+    "joined": "已关联到对方的账号",
+    "comment": "“{{comment}}”"
   },
   "errors": {
     "nameRequired": "请输入对方姓名。",
@@ -261,5 +263,53 @@
     "pending": "有更改正在等待发送。",
     "rejected": "由于记录已被修改，有一项更改未能保存。你看到的是最新版本。",
     "signOutPending": "有些更改尚未发送。现在退出登录，这些更改将会丢失。"
+  },
+  "web": {
+    "title": "请核对这条记录",
+    "lentYou": "{{name}} 记录了借给你 {{amount}}。",
+    "borrowedFromYou": "{{name}} 记录了向你借了 {{amount}}。",
+    "onDate": "日期：{{date}}",
+    "dueDate": "还款日期：{{date}}",
+    "note": "备注：{{note}}",
+    "photoAttached": "应用中附有收据照片。",
+    "question": "这条记录对吗？",
+    "confirm": "对，没错",
+    "dispute": "有地方不对",
+    "disputeLabel": "哪里不对？",
+    "disputePlaceholder": "例如：是 400，不是 500",
+    "sendDispute": "发送",
+    "noAccount": "无需账号或应用即可回复。",
+    "confirmedTitle": "谢谢！",
+    "confirmedBody": "{{name}} 会看到你已确认。现在谁都不用再记着了。",
+    "disputedTitle": "谢谢告知",
+    "disputedBody": "{{name}} 会看到你的说明，并可以修改记录。",
+    "alreadyDisputed": "你说过：“{{comment}}”。如果已经改好，现在可以确认。",
+    "closedConfirmed": "这条记录已经确认过了。谢谢！",
+    "closedOther": "此链接已失效。",
+    "notFound": "此链接无效，请对方重新发送。",
+    "rateLimited": "尝试次数过多，请稍后再试。",
+    "changed": "{{name}} 刚刚修改了这条记录，请再看一遍。",
+    "installTitle": "也来记录你自己的借款吧",
+    "installBody": "{{appName}} 免费使用。记下谁借了多少，从此不再争执。",
+    "openInApp": "我已安装应用：在应用中打开",
+    "getIos": "在 App Store 下载",
+    "getAndroid": "在 Google Play 获取",
+    "privacy": "{{appName}} 从不转移资金。此页面只记录你的回复。"
+  },
+  "share": {
+    "messageLent": "{{name}}你好！我在 {{appName}} 记录了 {{date}} 借给你 {{amount}}。能帮忙核对并确认一下吗？{{url}}",
+    "messageBorrowed": "{{name}}你好！我在 {{appName}} 记录了 {{date}} 向你借了 {{amount}}。能帮忙核对并确认一下吗？{{url}}",
+    "button": "发送给 {{name}}",
+    "again": "再次发送链接",
+    "hint": "对方无需安装应用，轻点一下即可确认。",
+    "notReady": "这条记录同步到服务器后，链接即可使用。"
+  },
+  "answer": {
+    "title": "{{name}} 请你确认这条记录",
+    "sent": "谢谢！{{name}} 会看到你的回复。"
+  },
+  "claim": {
+    "adding": "正在将这条记录添加到你的账号…",
+    "failed": "无法添加这条记录，它可能属于其他人。"
   }
 }

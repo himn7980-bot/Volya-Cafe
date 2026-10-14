@@ -58,6 +58,13 @@ export function applyLoanEdit(loan: Loan, patch: LoanPatch): Loan {
   return next;
 }
 
+/** The other party of a loan from `userId`'s point of view (null while they have no account). */
+export function otherPartyId(loan: Pick<Loan, 'creatorId' | 'lenderId' | 'borrowerId'>, userId: string): string | null {
+  if (loan.lenderId === userId) return loan.borrowerId;
+  if (loan.borrowerId === userId) return loan.lenderId;
+  return loan.creatorId;
+}
+
 /** Only the fields that actually differ. */
 export function diffPatch(loan: Loan, patch: LoanPatch): LoanPatch {
   const out: LoanPatch = {};
@@ -116,7 +123,8 @@ export type LoanChange =
   | { kind: 'photo'; added: boolean }
   | { kind: 'name'; to: string }
   | { kind: 'phone' }
-  | { kind: 'status'; to: LoanStatus };
+  | { kind: 'status'; to: LoanStatus; comment: string | null }
+  | { kind: 'joined' };
 
 const s = (v: unknown) => (v === null || v === undefined ? null : String(v));
 
@@ -126,7 +134,11 @@ export function describeVersion(prev: LoanVersion | null, cur: LoanVersion): Loa
   if (!prev) return [{ kind: 'created' }];
   const a = prev.snapshot;
   const changes: LoanChange[] = [];
-  if (s(a.status) !== s(b.status)) changes.push({ kind: 'status', to: b.status as LoanStatus });
+  if (s(a.status) !== s(b.status)) {
+    changes.push({ kind: 'status', to: b.status as LoanStatus, comment: typeof b.comment === 'string' ? b.comment : null });
+  }
+  const joined = (k: string) => a[k] == null && b[k] != null;
+  if (joined('lender_id') || joined('borrower_id')) changes.push({ kind: 'joined' });
   if (Number(a.amount_minor) !== Number(b.amount_minor) || a.currency !== b.currency) {
     changes.push({
       kind: 'amount',

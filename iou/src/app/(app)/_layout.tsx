@@ -1,13 +1,15 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Alert, View } from 'react-native';
 
 import { useStackOptions } from '@/components/navigation';
 import { AppText, Button, Screen } from '@/components/ui';
 import { signOut } from '@/features/auth/auth';
-import { useSyncLoop } from '@/features/loans/service';
+import { claimLoan, useSyncLoop } from '@/features/loans/service';
 import { useProfile } from '@/features/profile/api';
 import { useReconcilePrefs } from '@/features/profile/prefs';
+import { useSettings } from '@/stores/settings';
 import { space, useColors } from '@/theme';
 
 export default function AppLayout() {
@@ -18,6 +20,17 @@ export default function AppLayout() {
   useReconcilePrefs(profile.data);
   // Loans are local-first: keep syncing even before the profile has loaded.
   useSyncLoop(true);
+
+  // A share link opened in the app (maybe before signing in): link it now.
+  const pendingClaim = useSettings((s) => s.pendingClaim);
+  const ready = !!profile.data?.display_name.trim();
+  useEffect(() => {
+    if (!pendingClaim || !ready) return;
+    useSettings.getState().setPendingClaim(null);
+    claimLoan(pendingClaim)
+      .then((id) => router.push({ pathname: '/loans/[id]', params: { id } }))
+      .catch(() => Alert.alert(t('loans.detailTitle'), t('claim.failed')));
+  }, [pendingClaim, ready, t]);
 
   if (!profile.data) {
     return (

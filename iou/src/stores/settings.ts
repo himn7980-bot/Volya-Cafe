@@ -24,7 +24,10 @@ export interface SettingsState {
   defaultCurrency: string | null;
   irrAsToman: boolean | null;
   theme: ThemePreference;
+  /** Share-link token opened in the app, waiting to be linked after sign-in. */
+  pendingClaim: string | null;
 
+  setPendingClaim: (token: string | null) => void;
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
   setDigits: (v: DigitPreference | null) => void;
@@ -47,6 +50,7 @@ const initial = {
   defaultCurrency: null,
   irrAsToman: null,
   theme: 'system' as ThemePreference,
+  pendingClaim: null as string | null,
 };
 
 export const useSettings = create<SettingsState>()(
@@ -54,6 +58,7 @@ export const useSettings = create<SettingsState>()(
     (set) => ({
       hydrated: false,
       ...initial,
+      setPendingClaim: (pendingClaim) => set({ pendingClaim }),
       setOnboarded: (onboarded) => set({ onboarded }),
       setLanguage: (language) => set({ language }),
       setDigits: (digits) => set({ digits }),

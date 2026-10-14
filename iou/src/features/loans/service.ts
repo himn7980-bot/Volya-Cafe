@@ -4,15 +4,18 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as Network from 'expo-network';
 import { openDatabaseSync } from 'expo-sqlite';
 import { useEffect } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Share } from 'react-native';
 import { create } from 'zustand';
 
 import { useSession } from '@/features/auth/auth';
+import { formatContextForLanguage, i18n } from '@/i18n';
+import { brand } from '@/lib/brand';
 import { supabase } from '@/lib/supabase';
-import type { Loan, LoanDraft, LoanPatch } from '@/shared/loans';
+import { formatDate, formatMoney } from '@/shared/format';
+import { directionFor, otherPartyId, type Loan, type LoanDraft, type LoanPatch } from '@/shared/loans';
 
-import { LocalStore, type LocalLoan } from './localStore';
-import { supabaseRemote } from './remote';
+import { LocalStore, type LocalLoan, type Person } from './localStore';
+import { claimLoansByPhone, claimSharedLoan, respondToLoan, supabaseRemote } from './remote';
 import { runSync } from './syncEngine';
 
 // ---------- Local database ----------
@@ -70,6 +73,7 @@ export const useSyncStatus = create<SyncStatus>()((set) => ({
 }));
 
 let timer: ReturnType<typeof setTimeout> | null = null;
+let claimedByPhoneFor: string | null = null;
 let running: Promise<void> | null = null;
 let again = false;
 
@@ -95,6 +99,14 @@ export async function syncNow(): Promise<void> {
     const store = await getStore();
     try {
       await ensureOwner(store, uid);
+      if (claimedByPhoneFor !== uid) {
+        // Once per session: records others wrote with my phone number become mine too.
+        await claimLoansByPhone()
+          .then(() => {
+            claimedByPhoneFor = uid;
+          })
+          .catch(() => undefined);
+      }
       const result = await runSync(store, supabaseRemote);
       useSyncStatus.setState((s) => ({
         online: !result.offline,
@@ -197,6 +209,60 @@ export function useLoanVersions(loan: LocalLoan | null | undefined) {
     enabled: !!id,
     networkMode: 'always',
   });
+}
+
+export function usePeople() {
+  return useQuery({
+    queryKey: ['local', 'people'],
+    queryFn: async () => (await getStore()).listPeople(),
+    networkMode: 'always',
+  });
+}
+
+/**
+ * The name to show for the other person. For records I wrote, it's the name I
+ * typed; for records someone else wrote about me, it's their profile name.
+ */
+export function otherPartyName(loan: Loan, userId: string, people: Person[] | undefined): string {
+  if (loan.creatorId === userId) return loan.counterpartyName;
+  return people?.find((p) => p.id === loan.creatorId)?.displayName ?? '…';
+}
+
+export const shareUrl = (token: string) => `${brand.webBaseUrl.replace(/\/$/, '')}/c/#${token}`;
+
+/**
+ * Open the share sheet with a friendly message and the confirmation link,
+ * written in the other person's language when we know it (they have an
+ * account), otherwise in mine.
+ */
+export async function shareLoan(loan: LocalLoan, userId: string, people: Person[] | undefined) {
+  if (!loan.shareToken) return;
+  const other = otherPartyId(loan, userId);
+  const language = people?.find((p) => p.id === other)?.language ?? i18n.language;
+  const t = i18n.getFixedT(language);
+  const fmt = formatContextForLanguage(language);
+  const message = t(directionFor(loan, userId) === 'lent' ? 'share.messageLent' : 'share.messageBorrowed', {
+    name: loan.counterpartyName,
+    amount: formatMoney(loan.amountMinor, loan.currency, fmt),
+    date: formatDate(loan.loanDate, fmt),
+    url: shareUrl(loan.shareToken),
+  });
+  await Share.share({ message });
+}
+
+/** Confirm or dispute as the other party (needs the network). */
+export async function answerLoan(loanId: string, action: 'confirm' | 'dispute', comment: string | null) {
+  await respondToLoan(loanId, action, comment);
+  await syncNow();
+}
+
+/** Link a shared record to my account, then fetch it. Returns its id. */
+export async function claimLoan(token: string): Promise<string> {
+  const id = await claimSharedLoan(token);
+  await syncNow();
+  // A sync that was already running may have missed it; one more pass fetches it.
+  if (!(await (await getStore()).getLoan(id))) await syncNow();
+  return id;
 }
 
 // ---------- Writes ----------

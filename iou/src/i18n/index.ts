@@ -116,3 +116,25 @@ export function currencyName(code: string, locale: string): string {
     return code;
   }
 }
+
+/**
+ * Formatting for someone else's language (e.g. a message to the other
+ * person): that language's default digits and calendar.
+ */
+export function formatContextForLanguage(code: string): FormatContext {
+  const language = getLanguage(code);
+  const t = i18n.getFixedT(language.code);
+  const months = (cal: CalendarSystem) => t(`months.${cal}`, { returnObjects: true }) as unknown as string[];
+  return {
+    locale: language.code,
+    digits: language.meta.defaultDigits === 'native' ? language.meta.nativeDigits : 'latn',
+    calendar: language.meta.defaultCalendar,
+    irrAsToman: language.code === 'fa',
+    labels: {
+      toman: t('currency.toman'),
+      months: { gregory: months('gregory'), persian: months('persian'), islamic: months('islamic') },
+      dateLong: t('date.long'),
+      dateShort: t('date.short'),
+    },
+  };
+}

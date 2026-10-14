@@ -13,7 +13,7 @@ const physicalProps = [
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', 'supabase/functions/*', 'src/i18n/localeFiles.jest.js', 'metro.config.js'],
+    ignores: ['**/dist/**', 'supabase/functions/*', 'src/i18n/localeFiles.jest.js', 'metro.config.js'],
   },
   {
     files: ['scripts/**/*.js'],

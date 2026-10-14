@@ -84,7 +84,15 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      my_counterparts: {
+        Args: Record<string, never>;
+        Returns: { id: string; display_name: string; language: string; avatar_path: string | null }[];
+      };
+      claim_shared_loan: { Args: { p_token: string }; Returns: string };
+      claim_loans_by_phone: { Args: Record<string, never>; Returns: number };
+      respond_to_loan: { Args: { p_loan_id: string; p_action: 'confirm' | 'dispute'; p_comment: string | null }; Returns: string };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

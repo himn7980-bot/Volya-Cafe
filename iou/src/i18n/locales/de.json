@@ -248,7 +248,9 @@
     "photoRemoved": "Foto entfernt",
     "name": "Name geändert in {{to}}",
     "phone": "Telefonnummer geändert",
-    "status": "Status: {{status}}"
+    "status": "Status: {{status}}",
+    "joined": "Mit dem Konto der anderen Person verknüpft",
+    "comment": "„{{comment}}“"
   },
   "errors": {
     "nameRequired": "Bitte gib einen Namen ein.",
@@ -261,5 +263,53 @@
     "pending": "Einige Änderungen warten auf das Senden.",
     "rejected": "Eine Änderung konnte nicht gespeichert werden, weil sich der Eintrag inzwischen geändert hat. Du siehst die neueste Version.",
     "signOutPending": "Einige Änderungen wurden noch nicht gesendet. Wenn du dich jetzt abmeldest, gehen sie verloren."
+  },
+  "web": {
+    "title": "Bitte prüfe diesen Eintrag",
+    "lentYou": "{{name}} hat notiert, dir {{amount}} geliehen zu haben.",
+    "borrowedFromYou": "{{name}} hat notiert, sich {{amount}} von dir geliehen zu haben.",
+    "onDate": "Datum: {{date}}",
+    "dueDate": "Zurückzahlen bis: {{date}}",
+    "note": "Notiz: {{note}}",
+    "photoAttached": "In der App ist ein Foto vom Beleg angehängt.",
+    "question": "Stimmt das?",
+    "confirm": "Ja, das stimmt",
+    "dispute": "Etwas stimmt nicht",
+    "disputeLabel": "Was stimmt nicht?",
+    "disputePlaceholder": "z. B. Es waren 400, nicht 500",
+    "sendDispute": "Senden",
+    "noAccount": "Zum Antworten brauchst du weder Konto noch App.",
+    "confirmedTitle": "Danke!",
+    "confirmedBody": "{{name}} sieht, dass du bestätigt hast. Jetzt muss sich niemand mehr daran erinnern.",
+    "disputedTitle": "Danke für den Hinweis",
+    "disputedBody": "{{name}} sieht deinen Kommentar und kann den Eintrag korrigieren.",
+    "alreadyDisputed": "Du hast geschrieben: „{{comment}}“. Wenn es korrigiert ist, kannst du jetzt bestätigen.",
+    "closedConfirmed": "Dieser Eintrag wurde schon bestätigt. Danke!",
+    "closedOther": "Dieser Link ist nicht mehr aktiv.",
+    "notFound": "Dieser Link ist ungültig. Bitte frag nach einem neuen.",
+    "rateLimited": "Zu viele Versuche. Bitte warte kurz und versuche es erneut.",
+    "changed": "{{name}} hat den Eintrag gerade geändert. Bitte schau ihn dir noch einmal an.",
+    "installTitle": "Behalte deine eigenen Schulden im Blick",
+    "installBody": "{{appName}} ist kostenlos. Halte fest, wer wem was geliehen hat, und streitet nie wieder darüber.",
+    "openInApp": "Ich habe die App: dort öffnen",
+    "getIos": "Laden im App Store",
+    "getAndroid": "Jetzt bei Google Play",
+    "privacy": "{{appName}} überweist niemals Geld. Diese Seite speichert nur deine Antwort."
+  },
+  "share": {
+    "messageLent": "Hallo {{name}}! Ich habe in {{appName}} notiert, dass ich dir am {{date}} {{amount}} geliehen habe. Kannst du es prüfen und bestätigen? {{url}}",
+    "messageBorrowed": "Hallo {{name}}! Ich habe in {{appName}} notiert, dass ich mir am {{date}} {{amount}} von dir geliehen habe. Kannst du es prüfen und bestätigen? {{url}}",
+    "button": "An {{name}} senden",
+    "again": "Link erneut senden",
+    "hint": "Bestätigen geht mit einem Tippen, ganz ohne App.",
+    "notReady": "Der Link ist bereit, sobald der Eintrag beim Server angekommen ist."
+  },
+  "answer": {
+    "title": "{{name}} bittet dich, diesen Eintrag zu bestätigen",
+    "sent": "Danke! {{name}} sieht deine Antwort."
+  },
+  "claim": {
+    "adding": "Eintrag wird deinem Konto hinzugefügt…",
+    "failed": "Der Eintrag konnte nicht hinzugefügt werden. Vielleicht gehört er schon jemand anderem."
   }
 }

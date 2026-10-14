@@ -1,4 +1,4 @@
-import { applyLoanEdit, describeVersion, diffPatch, directionFor, validateDraft, type Loan, type LoanDraft, type LoanVersion } from '../loans';
+import { applyLoanEdit, describeVersion, diffPatch, directionFor, otherPartyId, validateDraft, type Loan, type LoanDraft, type LoanVersion } from '../loans';
 
 const loan: Loan = {
   id: 'l1', creatorId: 'me', lenderId: 'me', borrowerId: null, counterpartyName: 'Sara', counterpartyPhone: null,
@@ -33,6 +33,14 @@ describe('diffPatch / directionFor', () => {
   });
 });
 
+describe('otherPartyId', () => {
+  it('finds the other person from either side', () => {
+    expect(otherPartyId({ creatorId: 'me', lenderId: 'me', borrowerId: null }, 'me')).toBeNull();
+    expect(otherPartyId({ creatorId: 'me', lenderId: 'me', borrowerId: 'sara' }, 'me')).toBe('sara');
+    expect(otherPartyId({ creatorId: 'ali', lenderId: 'ali', borrowerId: 'me' }, 'me')).toBe('ali');
+  });
+});
+
 describe('validateDraft', () => {
   const draft: LoanDraft = {
     direction: 'lent', counterpartyName: 'Ali', counterpartyPhone: null, amountMinor: 500,
@@ -57,6 +65,10 @@ describe('describeVersion', () => {
   it('lists what changed', () => {
     const next = { ...base, status: 'confirmed', amount_minor: 2000, due_date: '2026-11-01', photo_path: 'l1/a.jpg', counterparty_phone: '+15555550100' };
     expect(describeVersion(v(1, base), v(2, next)).map((c) => c.kind)).toEqual(['status', 'amount', 'dueDate', 'photo', 'phone']);
+    expect(describeVersion(v(2, next), v(3, { ...next, status: 'disputed', comment: 'It was 400' }))).toEqual([
+      { kind: 'status', to: 'disputed', comment: 'It was 400' },
+    ]);
+    expect(describeVersion(v(1, base), v(2, { ...base, borrower_id: 'sara' }))).toEqual([{ kind: 'joined' }]);
     expect(describeVersion(v(2, next), v(3, { ...next, due_date: null, photo_path: null }))).toEqual([
       { kind: 'dueDate', from: '2026-11-01', to: null },
       { kind: 'photo', added: false },

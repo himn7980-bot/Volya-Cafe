@@ -182,4 +182,18 @@ describe('sync', () => {
     expect((await store.getLoan(loan.id))!.status).toBe('confirmed');
     expect(remote.calls.filter((c) => c.startsWith('pull'))[1]).toBe('pull 2026-10-14T23:58:05.000Z');
   });
+
+  it('keeps the names of the people I share records with', async () => {
+    const store = await newStore();
+    const remote = new FakeRemote();
+    remote.people = [{ id: 'sara', displayName: 'Sara', language: 'tr', avatarPath: null }];
+    await runSync(store, remote);
+    expect(await store.listPeople()).toEqual(remote.people);
+    remote.people = [];
+    const loan = makeLoan();
+    remote.loans.set(loan.id, loan);
+    remote.serverEdit(loan.id, { note: 'x' });
+    await runSync(store, remote);
+    expect(await store.listPeople()).toEqual([]);
+  });
 });

@@ -128,6 +128,12 @@ export const supabaseRemote: Remote = {
     }
   },
 
+  async fetchPeople() {
+    const { data, error, status } = await supabase.rpc('my_counterparts');
+    if (error) throw classify({ ...error, status });
+    return data.map((p) => ({ id: p.id, displayName: p.display_name, language: p.language, avatarPath: p.avatar_path }));
+  },
+
   async fetchVersions(loanId) {
     const { data, error, status } = await supabase
       .from('loan_versions')
@@ -146,3 +152,25 @@ export const supabaseRemote: Remote = {
     );
   },
 };
+
+// ---------- Calls that need the network (not queued) ----------
+
+/** Link records whose creator entered my verified phone number. */
+export async function claimLoansByPhone(): Promise<number> {
+  const { data, error } = await supabase.rpc('claim_loans_by_phone');
+  if (error) throw error;
+  return data;
+}
+
+/** Link the record behind a share link to my account; returns its id. */
+export async function claimSharedLoan(token: string): Promise<string> {
+  const { data, error } = await supabase.rpc('claim_shared_loan', { p_token: token });
+  if (error) throw error;
+  return data;
+}
+
+/** Confirm or dispute, as the other party, in the app. */
+export async function respondToLoan(loanId: string, action: 'confirm' | 'dispute', comment: string | null) {
+  const { error } = await supabase.rpc('respond_to_loan', { p_loan_id: loanId, p_action: action, p_comment: comment });
+  if (error) throw error;
+}

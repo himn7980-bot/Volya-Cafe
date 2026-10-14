@@ -248,7 +248,9 @@
     "photoRemoved": "Photo supprimée",
     "name": "Nom changé en {{to}}",
     "phone": "Numéro de téléphone modifié",
-    "status": "Statut : {{status}}"
+    "status": "Statut : {{status}}",
+    "joined": "Liée au compte de l'autre personne",
+    "comment": "« {{comment}} »"
   },
   "errors": {
     "nameRequired": "Veuillez saisir son nom.",
@@ -261,5 +263,53 @@
     "pending": "Des modifications attendent d'être envoyées.",
     "rejected": "Une modification n'a pas pu être enregistrée car la trace avait changé. Vous voyez la dernière version.",
     "signOutPending": "Des modifications n'ont pas encore été envoyées. Si vous vous déconnectez maintenant, elles seront perdues."
+  },
+  "web": {
+    "title": "Merci de vérifier cette trace",
+    "lentYou": "{{name}} a noté vous avoir prêté {{amount}}.",
+    "borrowedFromYou": "{{name}} a noté vous avoir emprunté {{amount}}.",
+    "onDate": "Date : {{date}}",
+    "dueDate": "À rembourser avant le : {{date}}",
+    "note": "Note : {{note}}",
+    "photoAttached": "Une photo du reçu est jointe dans l'appli.",
+    "question": "Est-ce exact ?",
+    "confirm": "Oui, c'est exact",
+    "dispute": "Quelque chose ne va pas",
+    "disputeLabel": "Qu'est-ce qui ne va pas ?",
+    "disputePlaceholder": "ex. c'était 400, pas 500",
+    "sendDispute": "Envoyer",
+    "noAccount": "Pas besoin de compte ni d'appli pour répondre.",
+    "confirmedTitle": "Merci !",
+    "confirmedBody": "{{name}} verra que vous avez confirmé. Plus personne n'a besoin de s'en souvenir.",
+    "disputedTitle": "Merci de nous l'avoir dit",
+    "disputedBody": "{{name}} verra votre commentaire et pourra corriger la trace.",
+    "alreadyDisputed": "Vous avez dit : « {{comment}} ». Si c'est corrigé, vous pouvez confirmer maintenant.",
+    "closedConfirmed": "Cette trace a déjà été confirmée. Merci !",
+    "closedOther": "Ce lien n'est plus actif.",
+    "notFound": "Ce lien n'est pas valide. Demandez-en un nouveau.",
+    "rateLimited": "Trop de tentatives. Patientez un peu et réessayez.",
+    "changed": "{{name}} vient de modifier cette trace. Jetez-y un nouveau coup d'œil.",
+    "installTitle": "Suivez vos propres prêts",
+    "installBody": "{{appName}} est gratuit. Notez qui a prêté quoi, et n'en discutez plus jamais.",
+    "openInApp": "J'ai l'appli : l'ouvrir dedans",
+    "getIos": "Télécharger dans l'App Store",
+    "getAndroid": "Disponible sur Google Play",
+    "privacy": "{{appName}} ne déplace jamais d'argent. Cette page enregistre seulement votre réponse."
+  },
+  "share": {
+    "messageLent": "Coucou {{name}} ! J'ai noté dans {{appName}} que je t'ai prêté {{amount}} le {{date}}. Tu peux vérifier et confirmer ? {{url}}",
+    "messageBorrowed": "Coucou {{name}} ! J'ai noté dans {{appName}} que je t'ai emprunté {{amount}} le {{date}}. Tu peux vérifier et confirmer ? {{url}}",
+    "button": "Envoyer à {{name}}",
+    "again": "Renvoyer le lien",
+    "hint": "Confirmation en un geste, sans installer l'appli.",
+    "notReady": "Le lien sera prêt dès que cette trace aura atteint le serveur."
+  },
+  "answer": {
+    "title": "{{name}} vous demande de confirmer cette trace",
+    "sent": "Merci ! {{name}} verra votre réponse."
+  },
+  "claim": {
+    "adding": "Ajout de cette trace à votre compte…",
+    "failed": "Impossible d'ajouter cette trace. Elle appartient peut-être à quelqu'un d'autre."
   }
 }

@@ -15,8 +15,8 @@ The work is delivered in phases, with a review after each one.
 | --- | --- | --- |
 | 1 | Project setup, i18n + RTL foundation, auth, profile | **done** |
 | 2 | Loans CRUD, local cache and sync | **done** |
-| 3 | Share link + public confirmation web page | next |
-| 4 | Repayments, reminders, push notifications | |
+| 3 | Share link + public confirmation web page | **done** |
+| 4 | Repayments, reminders, push notifications | next |
 | 5 | Dashboard, export, settings, polish | |
 | 6 | Tests, EAS build config, store publishing guide | |
 
@@ -60,6 +60,10 @@ supabase/
   migrations/              SQL schema + RLS policies
   tests/                   RLS tests (plain SQL), runnable without Docker
   config.toml              local Supabase settings
+web/                       public confirmation page (static site, see below)
+  src/main.ts, view.ts     page code (reuses src/shared and the app's locale files)
+  public/                  HTML, CSS, security headers
+  build.mjs                builds web/dist
 scripts/
   check-i18n.js            validates every locale against en.json
   test-db.sh               runs migrations + RLS tests
@@ -85,6 +89,7 @@ npm test              # unit tests (money, calendars, formatting, languages, loa
                       #   local store + sync engine on a real SQLite database)
 npm run i18n:check    # every locale has every key and matching {{variables}}
 npm run test:db       # database migrations + RLS tests (see below)
+npm run web:build     # build the public confirmation page into web/dist
 ```
 
 **Expo Go vs. development build.** Everything in Phase 1 runs in Expo Go. Switching
@@ -227,6 +232,78 @@ back to English at runtime.
 - Signing out deletes this account's local data from the phone (with a warning if some
   changes haven't been sent yet).
 
+## Share links and the confirmation page
+
+Every record has a long random token (~244 random bits). The creator taps **Send to …**
+on the record. The share sheet opens (WhatsApp, Telegram, SMS…) with a friendly message
+and a link:
+
+```
+https://<your site>/c/#<token>
+```
+
+The token sits after `#`, so browsers never send it to any server: not to the static
+host, not in logs, not to other sites via the Referer header.
+
+The message is written in the **other person's language** when they have an account
+(their profile language), otherwise in the sender's language. Amounts and dates in it
+use that language's digits, calendar and toman setting.
+
+The **page** opens without an app or account. It shows the record in the visitor's
+language: `?lang=`, then their earlier choice, then the browser's languages, then the
+writer's language. A language picker is always visible. The visitor can:
+
+- **Confirm** → status *confirmed*.
+- **Dispute with a comment** → status *disputed*. The comment shows up in the record's
+  history for both people. The creator can fix the record, which asks again; a
+  disputed record can still be confirmed later.
+
+They're then invited to install the app. **"I have the app"** opens
+`iou://claim?token=…`, which links the record to their account (even if they still have
+to sign in first).
+
+Rules enforced in the database (`supabase/migrations/*_sharing.sql`, tested in
+`supabase/tests/003_sharing.test.sql`):
+
+- The page only works while the record waits for an answer (pending or disputed) and for
+  30 days after the last change. Once confirmed, the link shows only "already
+  confirmed".
+- An answer must name the version the visitor saw, so nobody confirms an amount the
+  creator changed a moment ago.
+- The public functions never return phone numbers or the token.
+- Rate limits per IP address (hashed): 120 page views per 10 minutes, 20 failed lookups
+  per hour (guessing tokens is pointless), 20 answers per hour; 5 answers per link per
+  hour.
+- Answers given through the link appear in the history without an account; answers in
+  the app show who gave them.
+
+**Linking accounts.** When someone signs up with the phone number the creator entered,
+the records with that number become theirs too (both see them, and they can answer in the
+app). Opening a share link in the app does the same.
+
+### Deploy the confirmation page
+
+The page is a static site (about 13 KB of JavaScript plus one small JSON file per
+language). Host it anywhere static: Cloudflare Pages, Netlify, Vercel, GitHub Pages, S3…
+(It isn't served from Supabase Edge Functions because they serve HTML as plain text on
+`*.supabase.co`.)
+
+```bash
+# Uses EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY from .env.local
+npm run web:build
+# then upload web/dist, e.g.
+npx wrangler pages deploy web/dist --project-name iou-confirm   # Cloudflare Pages
+npx netlify deploy --prod --dir web/dist                        # Netlify
+```
+
+Then put your site's address in `brand.json` → `webBaseUrl` (the app uses it to build
+links), and the real store URLs in `appStoreUrl` / `playStoreUrl`.
+
+`web/public/_headers` sets security headers (no framing, no referrer, no caching of
+`/c/`) on hosts that read it (Cloudflare Pages, Netlify); set the same headers elsewhere.
+The page itself has a strict Content-Security-Policy and only talks to your Supabase
+project.
+
 ## Privacy and security
 
 - Row Level Security on every table: a person can read and change only their own
@@ -235,6 +312,9 @@ back to English at runtime.
 - The app can't confirm its own records, mark them settled, change who the parties are,
   or touch the share token. Column privileges and triggers enforce this in the database,
   and `supabase/tests/002_loans.test.sql` checks each rule.
+- About the other person, the app only ever receives their name, language and photo
+  (`my_counterparts()`), and only for people you share a record with. Never their
+  phone number or email.
 - Receipt photos live in a private bucket under `<record id>/`. Both parties can view
   them; only the creator can add them.
 - `phone` and `email` on a profile are copied from the verified sign-in by a database

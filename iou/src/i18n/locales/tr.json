@@ -248,7 +248,9 @@
     "photoRemoved": "Fotoğraf kaldırıldı",
     "name": "Ad {{to}} olarak değişti",
     "phone": "Telefon numarası değişti",
-    "status": "Durum: {{status}}"
+    "status": "Durum: {{status}}",
+    "joined": "Karşı tarafın hesabına bağlandı",
+    "comment": "“{{comment}}”"
   },
   "errors": {
     "nameRequired": "Lütfen adını yazın.",
@@ -261,5 +263,53 @@
     "pending": "Bazı değişiklikler gönderilmeyi bekliyor.",
     "rejected": "Kayıt bu arada değiştiği için bir değişiklik kaydedilemedi. En son sürümü görüyorsunuz.",
     "signOutPending": "Bazı değişiklikler henüz gönderilmedi. Şimdi çıkış yaparsanız kaybolurlar."
+  },
+  "web": {
+    "title": "Lütfen bu kaydı kontrol edin",
+    "lentYou": "{{name}}, size {{amount}} borç verdiğini kaydetti.",
+    "borrowedFromYou": "{{name}}, sizden {{amount}} borç aldığını kaydetti.",
+    "onDate": "Tarih: {{date}}",
+    "dueDate": "Geri ödeme tarihi: {{date}}",
+    "note": "Not: {{note}}",
+    "photoAttached": "Uygulamada bir makbuz fotoğrafı ekli.",
+    "question": "Bu doğru mu?",
+    "confirm": "Evet, doğru",
+    "dispute": "Bir şey yanlış",
+    "disputeLabel": "Ne yanlış?",
+    "disputePlaceholder": "ör. 500 değil 400 idi",
+    "sendDispute": "Gönder",
+    "noAccount": "Yanıt vermek için hesaba veya uygulamaya gerek yok.",
+    "confirmedTitle": "Teşekkürler!",
+    "confirmedBody": "{{name}} onayladığınızı görecek. Artık kimsenin aklında tutmasına gerek yok.",
+    "disputedTitle": "Bildirdiğiniz için teşekkürler",
+    "disputedBody": "{{name}} yorumunuzu görecek ve kaydı düzeltebilecek.",
+    "alreadyDisputed": "Şunu söylediniz: “{{comment}}”. Düzeltildiyse şimdi onaylayabilirsiniz.",
+    "closedConfirmed": "Bu kayıt zaten onaylandı. Teşekkürler!",
+    "closedOther": "Bu bağlantı artık geçerli değil.",
+    "notFound": "Bu bağlantı geçersiz. Lütfen yeni bir bağlantı isteyin.",
+    "rateLimited": "Çok fazla deneme. Lütfen biraz bekleyip tekrar deneyin.",
+    "changed": "{{name}} bu kaydı az önce değiştirdi. Lütfen tekrar bakın.",
+    "installTitle": "Kendi borçlarınızı da takip edin",
+    "installBody": "{{appName}} ücretsiz. Kimin ne kadar borç verdiğini yazın ve bir daha bu konuda tartışmayın.",
+    "openInApp": "Uygulama bende var: orada aç",
+    "getIos": "App Store'dan indir",
+    "getAndroid": "Google Play'den edinin",
+    "privacy": "{{appName}} asla para transferi yapmaz. Bu sayfa yalnızca yanıtınızı kaydeder."
+  },
+  "share": {
+    "messageLent": "Merhaba {{name}}! {{appName}} uygulamasına {{date}} tarihinde sana {{amount}} borç verdiğimi kaydettim. Kontrol edip onaylar mısın? {{url}}",
+    "messageBorrowed": "Merhaba {{name}}! {{appName}} uygulamasına {{date}} tarihinde senden {{amount}} borç aldığımı kaydettim. Kontrol edip onaylar mısın? {{url}}",
+    "button": "{{name}} kişisine gönder",
+    "again": "Bağlantıyı tekrar gönder",
+    "hint": "Uygulama olmadan tek dokunuşla onaylayabilir.",
+    "notReady": "Bu kayıt sunucuya ulaşır ulaşmaz bağlantı hazır olacak."
+  },
+  "answer": {
+    "title": "{{name}} bu kaydı onaylamanızı istiyor",
+    "sent": "Teşekkürler! {{name}} yanıtınızı görecek."
+  },
+  "claim": {
+    "adding": "Bu kayıt hesabınıza ekleniyor…",
+    "failed": "Bu kayıt eklenemedi. Başka birine ait olabilir."
   }
 }

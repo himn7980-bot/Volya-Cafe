@@ -248,7 +248,9 @@
     "photoRemoved": "Foto dihapus",
     "name": "Nama diubah menjadi {{to}}",
     "phone": "Nomor telepon diubah",
-    "status": "Status: {{status}}"
+    "status": "Status: {{status}}",
+    "joined": "Ditautkan ke akun pihak lain",
+    "comment": "“{{comment}}”"
   },
   "errors": {
     "nameRequired": "Silakan isi namanya.",
@@ -261,5 +263,53 @@
     "pending": "Beberapa perubahan menunggu untuk dikirim.",
     "rejected": "Satu perubahan tidak tersimpan karena catatan sudah berubah. Kamu melihat versi terbaru.",
     "signOutPending": "Beberapa perubahan belum terkirim. Jika kamu keluar sekarang, perubahan itu akan hilang."
+  },
+  "web": {
+    "title": "Mohon periksa catatan ini",
+    "lentYou": "{{name}} mencatat bahwa dia meminjamkan {{amount}} kepadamu.",
+    "borrowedFromYou": "{{name}} mencatat bahwa dia meminjam {{amount}} darimu.",
+    "onDate": "Tanggal: {{date}}",
+    "dueDate": "Dikembalikan paling lambat: {{date}}",
+    "note": "Catatan: {{note}}",
+    "photoAttached": "Foto struk terlampir di aplikasi.",
+    "question": "Apakah ini benar?",
+    "confirm": "Ya, benar",
+    "dispute": "Ada yang tidak benar",
+    "disputeLabel": "Apa yang tidak benar?",
+    "disputePlaceholder": "mis. jumlahnya 400, bukan 500",
+    "sendDispute": "Kirim",
+    "noAccount": "Kamu tidak perlu akun atau aplikasi untuk menjawab.",
+    "confirmedTitle": "Terima kasih!",
+    "confirmedBody": "{{name}} akan melihat bahwa kamu sudah mengonfirmasi. Sekarang tidak ada yang perlu mengingatnya.",
+    "disputedTitle": "Terima kasih sudah memberi tahu",
+    "disputedBody": "{{name}} akan melihat komentarmu dan bisa memperbaiki catatannya.",
+    "alreadyDisputed": "Kamu bilang: “{{comment}}”. Jika sudah diperbaiki, kamu bisa mengonfirmasinya sekarang.",
+    "closedConfirmed": "Catatan ini sudah dikonfirmasi. Terima kasih!",
+    "closedOther": "Tautan ini sudah tidak aktif.",
+    "notFound": "Tautan ini tidak valid. Mintalah tautan baru.",
+    "rateLimited": "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.",
+    "changed": "{{name}} baru saja mengubah catatan ini. Silakan lihat lagi.",
+    "installTitle": "Catat juga pinjamanmu sendiri",
+    "installBody": "{{appName}} gratis. Catat siapa meminjamkan apa, dan jangan pernah ribut soal itu lagi.",
+    "openInApp": "Saya punya aplikasinya: buka di sana",
+    "getIos": "Unduh di App Store",
+    "getAndroid": "Dapatkan di Google Play",
+    "privacy": "{{appName}} tidak pernah memindahkan uang. Halaman ini hanya mencatat jawabanmu."
+  },
+  "share": {
+    "messageLent": "Halo {{name}}! Aku mencatat di {{appName}} bahwa aku meminjamkan {{amount}} kepadamu pada {{date}}. Bisa dicek dan dikonfirmasi? {{url}}",
+    "messageBorrowed": "Halo {{name}}! Aku mencatat di {{appName}} bahwa aku meminjam {{amount}} darimu pada {{date}}. Bisa dicek dan dikonfirmasi? {{url}}",
+    "button": "Kirim ke {{name}}",
+    "again": "Kirim tautan lagi",
+    "hint": "Dia bisa mengonfirmasi dengan sekali ketuk, tanpa aplikasi.",
+    "notReady": "Tautan akan siap begitu catatan ini sampai di server."
+  },
+  "answer": {
+    "title": "{{name}} memintamu mengonfirmasi catatan ini",
+    "sent": "Terima kasih! {{name}} akan melihat jawabanmu."
+  },
+  "claim": {
+    "adding": "Menambahkan catatan ini ke akunmu…",
+    "failed": "Catatan ini tidak bisa ditambahkan. Mungkin sudah milik orang lain."
   }
 }

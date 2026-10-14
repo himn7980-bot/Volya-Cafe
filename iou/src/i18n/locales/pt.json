@@ -248,7 +248,9 @@
     "photoRemoved": "Foto removida",
     "name": "Nome alterado para {{to}}",
     "phone": "Telefone alterado",
-    "status": "Situação: {{status}}"
+    "status": "Situação: {{status}}",
+    "joined": "Vinculado à conta da outra pessoa",
+    "comment": "“{{comment}}”"
   },
   "errors": {
     "nameRequired": "Digite o nome da pessoa.",
@@ -261,5 +263,53 @@
     "pending": "Algumas alterações estão aguardando envio.",
     "rejected": "Uma alteração não pôde ser salva porque o registro tinha mudado. Você está vendo a versão mais recente.",
     "signOutPending": "Algumas alterações ainda não foram enviadas. Se você sair agora, elas serão perdidas."
+  },
+  "web": {
+    "title": "Por favor, confira este registro",
+    "lentYou": "{{name}} anotou que emprestou {{amount}} para você.",
+    "borrowedFromYou": "{{name}} anotou que pegou {{amount}} emprestado com você.",
+    "onDate": "Data: {{date}}",
+    "dueDate": "Devolver até: {{date}}",
+    "note": "Observação: {{note}}",
+    "photoAttached": "Há uma foto do recibo no app.",
+    "question": "Está certo?",
+    "confirm": "Sim, está certo",
+    "dispute": "Algo não está certo",
+    "disputeLabel": "O que não está certo?",
+    "disputePlaceholder": "ex.: eram 400, não 500",
+    "sendDispute": "Enviar",
+    "noAccount": "Você não precisa de conta nem do app para responder.",
+    "confirmedTitle": "Obrigado!",
+    "confirmedBody": "{{name}} vai ver que você confirmou. Agora ninguém precisa lembrar.",
+    "disputedTitle": "Obrigado por avisar",
+    "disputedBody": "{{name}} vai ver seu comentário e poderá corrigir o registro.",
+    "alreadyDisputed": "Você disse: “{{comment}}”. Se já foi corrigido, pode confirmar agora.",
+    "closedConfirmed": "Este registro já foi confirmado. Obrigado!",
+    "closedOther": "Este link não está mais ativo.",
+    "notFound": "Este link não é válido. Peça um novo.",
+    "rateLimited": "Muitas tentativas. Espere um pouco e tente de novo.",
+    "changed": "{{name}} acabou de mudar este registro. Dê outra olhada.",
+    "installTitle": "Controle também seus empréstimos",
+    "installBody": "O {{appName}} é grátis. Anote quem emprestou o quê e nunca mais discuta por isso.",
+    "openInApp": "Tenho o app: abrir nele",
+    "getIos": "Baixar na App Store",
+    "getAndroid": "Disponível no Google Play",
+    "privacy": "O {{appName}} nunca movimenta dinheiro. Esta página só registra sua resposta."
+  },
+  "share": {
+    "messageLent": "Oi, {{name}}! Anotei no {{appName}} que te emprestei {{amount}} em {{date}}. Pode conferir e confirmar? {{url}}",
+    "messageBorrowed": "Oi, {{name}}! Anotei no {{appName}} que peguei {{amount}} emprestado com você em {{date}}. Pode conferir e confirmar? {{url}}",
+    "button": "Enviar para {{name}}",
+    "again": "Enviar o link de novo",
+    "hint": "A pessoa confirma com um toque, sem instalar o app.",
+    "notReady": "O link fica pronto assim que este registro chegar ao servidor."
+  },
+  "answer": {
+    "title": "{{name}} pede que você confirme este registro",
+    "sent": "Obrigado! {{name}} vai ver sua resposta."
+  },
+  "claim": {
+    "adding": "Adicionando este registro à sua conta…",
+    "failed": "Não foi possível adicionar este registro. Talvez ele pertença a outra pessoa."
   }
 }

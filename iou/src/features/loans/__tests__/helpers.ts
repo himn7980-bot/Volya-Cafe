@@ -2,7 +2,7 @@
 // in-memory server that applies the same rules as the database triggers.
 import { applyLoanEdit, diffPatch, isClosed, type Loan, type LoanPatch, type LoanVersion } from '@/shared/loans';
 
-import { LocalStore, type SqlDb, type SqlValue } from '../localStore';
+import { LocalStore, type Person, type SqlDb, type SqlValue } from '../localStore';
 import { RemoteError, type Remote } from '../syncEngine';
 
 type NodeSqlite = {
@@ -131,6 +131,13 @@ export class FakeRemote implements Remote {
   async fetchLoansSince(since: string | null) {
     this.guard(`pull ${since ?? 'all'}`);
     return [...this.loans.values()].filter((l) => !since || l.updatedAt >= since).sort((a, b) => a.updatedAt.localeCompare(b.updatedAt));
+  }
+
+  people: Person[] = [];
+
+  async fetchPeople() {
+    this.guard('people');
+    return this.people;
   }
 
   async fetchVersions(loanId: string) {

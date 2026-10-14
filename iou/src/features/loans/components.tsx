@@ -54,12 +54,12 @@ export function amountColor(loan: LocalLoan, userId: string, c: Palette) {
   return directionFor(loan, userId) === 'lent' ? c.positive : c.negative;
 }
 
-export function LoanCard({ loan, userId, onPress }: { loan: LocalLoan; userId: string; onPress: () => void }) {
+export function LoanCard({ loan, userId, name, onPress }: { loan: LocalLoan; userId: string; name: string; onPress: () => void }) {
   const { t } = useTranslation();
   const c = useColors();
   const fmt = useFormat();
   const lent = directionFor(loan, userId) === 'lent';
-  const sentence = t(lent ? 'loans.theyOweYou' : 'loans.youOwe', { name: loan.counterpartyName });
+  const sentence = t(lent ? 'loans.theyOweYou' : 'loans.youOwe', { name });
   const amount = formatMoney(loan.amountMinor, loan.currency, fmt);
   const overdue = !!loan.dueDate && loan.dueDate < todayIso() && !isClosed(loan.status);
 
@@ -70,10 +70,10 @@ export function LoanCard({ loan, userId, onPress }: { loan: LocalLoan; userId: s
       accessibilityLabel={`${sentence}, ${amount}, ${t(`status.${loan.status}`)}`}
       style={({ pressed }) => [styles.card, { backgroundColor: c.surface, borderColor: c.border, opacity: pressed ? 0.85 : 1 }]}
     >
-      <Avatar name={loan.counterpartyName} size={48} />
+      <Avatar name={name} size={48} />
       <View style={{ flex: 1, gap: 2 }}>
         <AppText variant="label" bold numberOfLines={1}>
-          {loan.counterpartyName}
+          {name}
         </AppText>
         <AppText variant="caption" muted numberOfLines={1}>
           {sentence}
@@ -118,8 +118,12 @@ function changeText(change: LoanChange, t: TFunction, fmt: FormatContext): strin
       return t('history.name', { to: change.to });
     case 'phone':
       return t('history.phone');
-    case 'status':
-      return t('history.status', { status: t(`status.${change.to}`) });
+    case 'status': {
+      const line = t('history.status', { status: t(`status.${change.to}`) });
+      return change.comment ? `${line}\n${t('history.comment', { comment: change.comment })}` : line;
+    }
+    case 'joined':
+      return t('history.joined');
   }
 }
 

@@ -78,6 +78,7 @@ function RootStack() {
           <Stack.Screen name="(app)" options={{ headerShown: false }} />
         </Stack.Protected>
         <Stack.Screen name="auth-callback" options={{ headerShown: false }} />
+        <Stack.Screen name="claim" options={{ headerShown: false }} />
       </Stack>
     </>
   );

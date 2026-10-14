@@ -248,7 +248,9 @@
     "photoRemoved": "Photo removed",
     "name": "Name changed to {{to}}",
     "phone": "Phone number changed",
-    "status": "Status: {{status}}"
+    "status": "Status: {{status}}",
+    "joined": "Linked to the other person's account",
+    "comment": "“{{comment}}”"
   },
   "errors": {
     "nameRequired": "Please enter their name.",
@@ -261,5 +263,53 @@
     "pending": "Some changes are waiting to be sent.",
     "rejected": "A change couldn't be saved because the record had changed. You're seeing the latest version.",
     "signOutPending": "Some changes haven't been sent yet. If you sign out now, they'll be lost."
+  },
+  "web": {
+    "title": "Please check this record",
+    "lentYou": "{{name}} wrote down that they lent you {{amount}}.",
+    "borrowedFromYou": "{{name}} wrote down that they borrowed {{amount}} from you.",
+    "onDate": "Date: {{date}}",
+    "dueDate": "Pay back by: {{date}}",
+    "note": "Note: {{note}}",
+    "photoAttached": "A receipt photo is attached in the app.",
+    "question": "Is this right?",
+    "confirm": "Yes, that's right",
+    "dispute": "Something's not right",
+    "disputeLabel": "What's not right?",
+    "disputePlaceholder": "e.g. It was 400,000, not 500,000",
+    "sendDispute": "Send",
+    "noAccount": "You don't need an account or the app to answer.",
+    "confirmedTitle": "Thank you!",
+    "confirmedBody": "{{name}} will see that you confirmed. Nobody has to remember it now.",
+    "disputedTitle": "Thanks for letting us know",
+    "disputedBody": "{{name}} will see your comment and can correct the record.",
+    "alreadyDisputed": "You said: “{{comment}}”. If it's been fixed, you can confirm it now.",
+    "closedConfirmed": "This record has already been confirmed. Thank you!",
+    "closedOther": "This link is no longer active.",
+    "notFound": "This link isn't valid. Please ask for a new one.",
+    "rateLimited": "Too many tries. Please wait a little and try again.",
+    "changed": "{{name}} just changed this record. Please have another look.",
+    "installTitle": "Keep track of your own loans",
+    "installBody": "{{appName}} is free. Write down who lent what, and never argue about it again.",
+    "openInApp": "I have the app: open it there",
+    "getIos": "Download on the App Store",
+    "getAndroid": "Get it on Google Play",
+    "privacy": "{{appName}} never moves money. This page only records your answer."
+  },
+  "share": {
+    "messageLent": "Hi {{name}}! I noted in {{appName}} that I lent you {{amount}} on {{date}}. Could you check and confirm it? {{url}}",
+    "messageBorrowed": "Hi {{name}}! I noted in {{appName}} that I borrowed {{amount}} from you on {{date}}. Could you check and confirm it? {{url}}",
+    "button": "Send to {{name}}",
+    "again": "Send the link again",
+    "hint": "They can confirm with one tap, no app needed.",
+    "notReady": "The link will be ready as soon as this record reaches the server."
+  },
+  "answer": {
+    "title": "{{name}} asks you to confirm this record",
+    "sent": "Thanks! {{name}} will see your answer."
+  },
+  "claim": {
+    "adding": "Adding this record to your account…",
+    "failed": "This record couldn't be added. It may already belong to someone else."
   }
 }

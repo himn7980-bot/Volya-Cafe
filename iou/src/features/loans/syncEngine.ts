@@ -16,7 +16,7 @@
 
 import type { Loan, LoanPatch, LoanVersion } from '@/shared/loans';
 
-import type { LocalStore } from './localStore';
+import type { LocalStore, Person } from './localStore';
 
 export type RemoteErrorKind = 'network' | 'rejected' | 'server';
 
@@ -39,6 +39,8 @@ export interface Remote {
   fetchLoan(id: string): Promise<Loan | null>;
   fetchLoansSince(since: string | null): Promise<Loan[]>;
   fetchVersions(loanId: string): Promise<LoanVersion[]>;
+  /** Names and languages of everyone I share a record with. */
+  fetchPeople(): Promise<Person[]>;
 }
 
 export interface SyncResult {
@@ -105,6 +107,8 @@ export async function runSync(store: LocalStore, remote: Remote): Promise<SyncRe
     result.pulled = await store.applyServerLoans(rows);
     const newest = rows.reduce<string | null>((max, r) => (max === null || r.updatedAt > max ? r.updatedAt : max), cursor);
     if (newest && newest !== cursor) await store.setMeta(PULL_CURSOR, newest);
+    // People change rarely; refresh when loans changed or on the first sync.
+    if (rows.length > 0 || cursor === null) await store.savePeople(await remote.fetchPeople());
   } catch (e) {
     if (e instanceof RemoteError && e.kind === 'network') result.offline = true;
     else throw e;
