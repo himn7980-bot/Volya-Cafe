@@ -67,7 +67,7 @@ Press **Play** to continue the campaign, **Levels** to open the map, or **Endles
 
 ## Characters
 
-Tap the portrait or **Characters** on the title screen. 16 heroes, each with a small perk, unlock as you progress through the levels:
+Tap the portrait or **Characters** on the title screen. Volya is the base hero; the chosen hero's name becomes the big title on the start screen and sits on a name plate under the medallion while playing. 16 heroes, each with a small perk, unlock as you progress through the levels:
 
 | Hero | Unlocks | Perk |
 |---|---|---|

@@ -579,7 +579,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     <div class="title-wrap">
       <div class="gold-chip" id="goldChip"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffcf3d" stroke="#9a5a00" stroke-width="2"/><circle cx="12" cy="12" r="6.3" fill="none" stroke="#e0a020" stroke-width="1.6"/><path d="M12 8.4l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="#fff6c2"/></svg><b id="goldAmt">0</b></div>
       <div class="portrait"><img id="titlePortrait" alt="Volya"></div>
-      <h1 class="logo">VOLYA</h1>
+      <h1 class="logo" id="titleLogo" dir="ltr">VOLYA</h1>
       <p class="subtitle" data-i18n="subtitle"></p>
       <p class="tagline" data-i18n="tagline"></p>
       <div class="event-banner" id="eventBanner" hidden></div>
@@ -4940,6 +4940,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     $("titlePortrait").src = heroFace(HERO);
     $("titlePortrait").alt = HERO.name;
     $("heroBtnImg").src = heroFace(HERO);
+    // the big title shows the chosen hero's name (Volya is the base hero)
+    const logo = $("titleLogo"), nm = HERO.name.toUpperCase();
+    logo.textContent = nm;
+    logo.style.fontSize = nm.length > 9 ? "clamp(34px, 10.5vw, 50px)" : nm.length > 6 ? "clamp(44px, 14vw, 66px)" : "";
   }
   let heroFocus = "volya";
   function openHeroes() { heroFocus = HERO.id; renderHeroes(); showScreen("heroScreen"); }
@@ -5874,6 +5878,21 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     drawCrown(TH.crown, R);
     ctx.restore();
+
+    // name plate on the pedestal
+    if (state !== "title") {
+      const fs = clamp(R * 0.42, 11, 16), ny = cy + R * 1.05 + R * 0.62;
+      font(800, fs);
+      const tw = ctx.measureText(HERO.name).width + fs * 1.4;
+      ctx.save();
+      ctx.globalAlpha = rage ? 0.55 : 0.95;
+      rrPath(ctx, cx - tw / 2, ny - fs * 0.78, tw, fs * 1.56, fs * 0.78);
+      ctx.fillStyle = "rgba(10,8,40,0.78)"; ctx.fill();
+      ctx.strokeStyle = meta.frame ? "#ffcf3d" : TH.star; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.direction = "ltr"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillStyle = "#ffffff"; ctx.fillText(HERO.name, cx, ny + 1);
+      ctx.restore();
+    }
 
     if (guard > 0) {
       const gr2 = R * (1.85 + Math.sin(now * 5) * 0.04), a = Math.min(1, guard * 2);
