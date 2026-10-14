@@ -344,6 +344,43 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .wheel-ptr { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 34px; height: 40px; z-index: 2; filter: drop-shadow(0 3px 0 rgba(0,0,0,.4)); }
 .hero-focus .btn-row { display: flex; flex-wrap: wrap; }
 .hero-focus .btn-row .btn { flex: 1 1 auto; }
+.chests { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.chest { appearance: none; border: 0; cursor: pointer; position: relative; aspect-ratio: 1.25; border-radius: 16px; background: rgba(0,0,0,.28);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.12); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: #fff; font: 800 12px/1 inherit; font-family: inherit; padding: 4px 2px; }
+.chest.empty { box-shadow: inset 0 0 0 2px rgba(255,255,255,.1); opacity: .45; }
+.chest svg { width: 40px; height: 32px; }
+.chest.ready { background: linear-gradient(#ffe98a, #ffbf1f 60%, #e08a00); color: #4a2300; box-shadow: 0 4px 0 #9a5a00; animation: pulse 1s ease-in-out infinite; }
+.event-banner { width: 100%; padding: 8px 12px 6px; border-radius: 16px; text-align: center; font-weight: 800; font-size: 16px; color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+.portrait.golden { box-shadow: 0 0 0 5px #ffcf3d, 0 0 26px 6px rgba(255,207,61,.75); }
+.pass-head { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 18px; background: rgba(0,0,0,.25); }
+.pass-head .bar { height: 14px; border-radius: 999px; background: rgba(0,0,0,.4); overflow: hidden; }
+.pass-head .bar i { display: block; height: 100%; background: linear-gradient(#fff3a8, #ffbf1f); }
+.pass-head small { font-weight: 800; opacity: .85; display: flex; justify-content: space-between; }
+.pass-list { display: flex; flex-direction: column; gap: 8px; }
+.pass-row { display: grid; grid-template-columns: 52px 1fr 1fr; gap: 8px; align-items: stretch; }
+.pass-row > b { display: grid; place-items: center; border-radius: 14px; background: rgba(0,0,0,.3); font-size: 18px; }
+.pass-row.reached > b { background: linear-gradient(#ffe98a, #e08a00); color: #4a2300; }
+.pass-cell { appearance: none; border: 0; font-family: inherit; color: #fff; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 6px; border-radius: 14px;
+  background: rgba(0,0,0,.25); font-weight: 800; font-size: 15px; min-height: 52px; position: relative; }
+.pass-cell img, .pass-cell svg { width: 28px; height: 28px; object-fit: contain; }
+.pass-cell.prem { background: rgba(120,60,200,.35); }
+.pass-cell.can { background: linear-gradient(#5fe08a, #23a052); box-shadow: 0 3px 0 #126a32; cursor: pointer; }
+.pass-cell.done { opacity: .45; }
+.pass-cell.done::after { content: "✓"; position: absolute; top: 2px; inset-inline-end: 6px; color: #7dff8a; }
+.pass-cell.lock::after { content: "🔒"; position: absolute; top: 2px; inset-inline-end: 4px; font-size: 12px; }
+.album-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mcard { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px 8px; border-radius: 18px; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 2px rgba(255,255,255,.12); font-weight: 800; }
+.mcard img { width: 64px; height: 64px; object-fit: contain; }
+.mcard.unknown img { filter: brightness(0); opacity: .5; }
+.mcard .stars { display: flex; gap: 2px; }
+.mcard .stars svg { width: 16px; height: 16px; }
+.mcard small { font-size: 12px; opacity: .85; }
+.mcard .btn { min-height: 34px; font-size: 14px; padding: 0 8px; gap: 3px; width: 100%; }
+.mcard .btn svg { width: 16px; height: 16px; }
+.medal { display: inline-flex; gap: 2px; margin-inline-start: 6px; }
+.medal i { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.18); display: inline-block; }
+.medal i.b { background: #d08a4a; } .medal i.s { background: #dfe4ee; } .medal i.g { background: #ffcf3d; }
+.invite-note { margin: -4px 0 0; font-size: 13px; text-align: center; opacity: .85; font-weight: 700; }
 .share-card { width: 100%; max-width: 300px; align-self: center; border-radius: 18px; box-shadow: 0 8px 0 rgba(0,0,0,.35); }
 .gold-chip { position: absolute; top: 14px; inset-inline-start: 12px; display: flex; align-items: center; gap: 6px; padding: 5px 14px 3px 6px; border-radius: 999px;
   background: rgba(8,12,44,.78); box-shadow: inset 0 0 0 2px rgba(255,207,61,.45); font-weight: 800; font-size: 18px; color: #ffe066; z-index: 2; }
@@ -540,6 +577,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h1 class="logo">VOLYA</h1>
       <p class="subtitle" data-i18n="subtitle"></p>
       <p class="tagline" data-i18n="tagline"></p>
+      <div class="event-banner" id="eventBanner" hidden></div>
+      <div class="chests" id="chests"></div>
       <button class="btn primary big" id="playBtn" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.9l10-6.5a1 1 0 000-1.7l-10-6.5A1 1 0 008 5.5z" fill="currentColor"/></svg>
         <span data-i18n="play"></span>
@@ -554,7 +593,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         <button class="btn secondary hero-btn" id="heroBtn" type="button"><img id="heroBtnImg" alt=""><span data-i18n="heroes"></span></button>
         <button class="btn secondary" id="misBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3" fill="currentColor" opacity=".35"/><path d="M8 8.5l1.5 1.5L12 7.5M8 14.5l1.5 1.5 2.5-2.5M14 9h3M14 15h3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="missions"></span><i class="dot" id="misDot" hidden></i></button>
       </div>
+      <div class="btn-row three">
+        <button class="btn secondary" id="passBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v4a2 2 0 000 4v4H4v-4a2 2 0 000-4z" fill="currentColor" opacity=".35"/><path d="M4 5h16v4a2 2 0 000 4v4H4v-4a2 2 0 000-4zM14 5v12" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2"/><path d="M8.5 8.5l.8 1.6 1.7.2-1.3 1.2.4 1.7-1.6-.9-1.6.9.4-1.7-1.3-1.2 1.7-.2z" fill="currentColor"/></svg><span data-i18n="seasonPass"></span><i class="dot" id="passDot" hidden></i></button>
+        <button class="btn secondary" id="raidBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l-2-5 5 3M19 9l2-5-5 3" fill="currentColor"/><circle cx="12" cy="13" r="8" fill="currentColor" opacity=".35"/><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12l2.5 1.2M16 12l-2.5 1.2M9 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="worldBoss"></span><i class="dot" id="raidDot" hidden></i></button>
+        <button class="btn secondary" id="albumBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5" fill="currentColor" opacity=".35"/><rect x="4" y="3" width="16" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" fill="currentColor"/><path d="M8 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="album"></span><i class="dot" id="albumDot" hidden></i></button>
+      </div>
       <button class="btn share" id="titleInviteBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="inviteFriends"></span></button>
+      <p class="invite-note" id="inviteNote" data-i18n="inviteReward"></p>
       <div class="btn-row three">
         <button class="btn secondary" id="titleRecBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></button>
         <button class="btn secondary" id="titleLbBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3h3a1 1 0 011 1c0 3-2 5-4.5 5.4A5 5 0 0113 15.9V18h3v3H8v-3h3v-2.1a5 5 0 01-3.5-3.5C5 12 3 10 3 7a1 1 0 011-1h3z" fill="currentColor"/></svg><span data-i18n="leaderboard"></span></button>
@@ -673,6 +718,25 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     </div>
   </section>
 
+  <section class="screen" id="passScreen" hidden>
+    <div class="map-wrap">
+      <h2 class="map-title" data-i18n="seasonPass"></h2>
+      <div class="pass-head" id="passHead"></div>
+      <button class="btn primary" id="passBuy" type="button" hidden><span data-i18n="buyPass"></span><b class="price"></b></button>
+      <div class="pass-row" style="font-weight:800;font-size:14px;opacity:.85"><span></span><span style="text-align:center" data-i18n="passFree"></span><span style="text-align:center" data-i18n="passPremium"></span></div>
+      <div class="pass-list" id="passList"></div>
+      <button class="btn ghost" id="passBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
+  <section class="screen" id="albumScreen" hidden>
+    <div class="map-wrap">
+      <h2 class="map-title" data-i18n="album"></h2>
+      <div class="album-grid" id="albumGrid"></div>
+      <button class="btn ghost" id="albumBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
   <section class="screen center" id="wheelScreen" hidden>
     <div class="card">
       <h2 data-i18n="luckyWheel"></h2>
@@ -708,6 +772,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   <section class="screen" id="misScreen" hidden>
     <div class="map-wrap">
       <h2 class="map-title" data-i18n="missions"></h2>
+      <div class="tabs" id="misTabs" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+        <button type="button" data-tab="weekly" class="on"><span data-i18n="missions"></span></button>
+        <button type="button" data-tab="ach"><span data-i18n="achievements"></span></button>
+      </div>
       <div class="mis-list" id="misList"></div>
       <p class="mis-foot" id="misFoot"></p>
       <button class="btn ghost" id="misBack" type="button"><span data-i18n="menu"></span></button>
@@ -1468,6 +1536,32 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const WHEEL_KEYS = ["luckyWheel", "freeSpin", "spin"];
   const STR_WHEEL = {"en": ["Lucky wheel", "Free spin!", "Spin"], "fa": ["چرخ شانس", "چرخش رایگان!", "بچرخان"], "ar": ["عجلة الحظ", "دورة مجانية!", "أدر"], "ru": ["Колесо удачи", "Бесплатное вращение!", "Крутить"], "uk": ["Колесо удачі", "Безкоштовне обертання!", "Крутити"], "tr": ["Şans çarkı", "Ücretsiz çevirme!", "Çevir"], "az": ["Şans çarxı", "Pulsuz fırlatma!", "Fırlat"], "uz": ["Omad g'ildiragi", "Bepul aylantirish!", "Aylantirish"], "kk": ["Сәттілік дөңгелегі", "Тегін айналдыру!", "Айналдыру"], "es": ["Ruleta de la suerte", "¡Giro gratis!", "Girar"], "pt": ["Roda da sorte", "Giro grátis!", "Girar"], "fr": ["Roue de la chance", "Tour gratuit !", "Tourner"], "de": ["Glücksrad", "Gratis-Dreh!", "Drehen"], "it": ["Ruota della fortuna", "Giro gratis!", "Gira"], "nl": ["Geluksrad", "Gratis draai!", "Draaien"], "pl": ["Koło fortuny", "Darmowy obrót!", "Zakręć"], "id": ["Roda keberuntungan", "Putaran gratis!", "Putar"], "hi": ["किस्मत का पहिया", "मुफ़्त स्पिन!", "घुमाओ"], "zh": ["幸运转盘", "免费转一次！", "转动"], "ja": ["ラッキールーレット", "無料スピン！", "回す"], "ko": ["행운의 룰렛", "무료 스핀!", "돌리기"], "vi": ["Vòng quay may mắn", "Quay miễn phí!", "Quay"]};
   for (const k in STR_WHEEL) STR_WHEEL[k].forEach((v, i) => { STR[k][WHEEL_KEYS[i]] = v; });
+  const LIVE_KEYS = ["seasonPass", "passFree", "passPremium", "passTier", "passEnds", "buyPass", "chestOpen", "chestSpeed", "chestFull", "achievements", "a_stars", "a_combo", "a_heroes", "a_gold", "a_daily", "a_raid", "album", "evHalloween", "evYalda", "evNewYear", "evNowruz", "eventBonus", "worldBoss", "raidNote", "raidOpensIn", "raidYour", "raidDefeated", "raidFight", "inviteReward", "friendsJoined"];
+  const STR_LIVE = {
+    en: ["Season Pass", "Free", "Premium", "Tier {n}", "Season ends in {n} d", "Get Premium", "Open!", "Tap again to open now for {n} gold", "Chest slots are full — open one first", "Achievements", "Collect {n} stars", "Reach a {n}× combo", "Own {n} heroes", "Earn {n} gold", "Win {n} daily challenges", "Join {n} World Boss fights", "Monster album", "Halloween", "Yalda Night", "New Year", "Nowruz", "Double gold!", "World Boss", "Every weekend all players fight one giant boss together!", "Opens in {n} h", "Your damage", "Defeated! Everyone who fought gets 500 gold", "Fight!", "Invite friends: you both get 200 gold · 5 friends = a free hero", "{n} friends joined"],
+    fa: ["پاس فصل", "رایگان", "ویژه", "ردیف {n}", "پایان فصل تا {n} روز دیگر", "گرفتن پاس ویژه", "باز کن!", "دوباره بزن تا همین حالا با {n} طلا باز شود", "جای صندوق پر است — اول یکی را باز کن", "دستاوردها", "{n} ستاره جمع کن", "به کمبوی {n}× برس", "{n} شخصیت داشته باش", "{n} طلا به دست بیاور", "{n} چالش روزانه را ببر", "در {n} نبرد غول جهانی شرکت کن", "آلبوم هیولاها", "هالووین", "شب یلدا", "سال نو میلادی", "نوروز", "طلای دوبرابر!", "غول جهانی", "هر آخر هفته همهٔ بازیکن‌ها با هم با یک غول عظیم می‌جنگند!", "تا {n} ساعت دیگر باز می‌شود", "آسیب تو", "شکست خورد! هر کس جنگید ۵۰۰ طلا می‌گیرد", "بجنگ!", "دوستانت را دعوت کن: هر دو ۲۰۰ طلا می‌گیرید · ۵ دوست = یک شخصیت رایگان", "{n} دوست وارد شدند"],
+    ar: ["تذكرة الموسم", "مجاني", "مميز", "المستوى {n}", "ينتهي الموسم خلال {n} يوم", "احصل على المميز", "افتح!", "اضغط مرة أخرى للفتح الآن مقابل {n} ذهب", "خانات الصناديق ممتلئة — افتح واحدًا أولًا", "الإنجازات", "اجمع {n} نجمة", "حقق كومبو {n}×", "امتلك {n} شخصيات", "اكسب {n} ذهبًا", "اربح {n} تحديات يومية", "شارك في {n} معارك ضد الزعيم العالمي", "ألبوم الوحوش", "الهالوين", "ليلة يلدا", "رأس السنة", "النوروز", "ذهب مضاعف!", "الزعيم العالمي", "كل نهاية أسبوع يقاتل جميع اللاعبين زعيمًا عملاقًا واحدًا معًا!", "يفتح خلال {n} ساعة", "ضررك", "هُزم! كل من قاتل يحصل على 500 ذهب", "قاتل!", "ادعُ أصدقاءك: يحصل كل منكما على 200 ذهب · 5 أصدقاء = شخصية مجانية", "انضم {n} أصدقاء"],
+    ru: ["Боевой пропуск", "Бесплатно", "Премиум", "Уровень {n}", "Сезон закончится через {n} дн.", "Купить премиум", "Открыть!", "Нажми ещё раз, чтобы открыть сейчас за {n} золота", "Все места для сундуков заняты — сначала открой один", "Достижения", "Собери {n} звёзд", "Сделай комбо ×{n}", "Открой {n} героев", "Заработай {n} золота", "Победи в {n} заданиях дня", "Сразись с Мировым боссом {n} раз", "Альбом монстров", "Хэллоуин", "Ночь Ялда", "Новый год", "Навруз", "Двойное золото!", "Мировой босс", "Каждые выходные все игроки вместе сражаются с одним гигантским боссом!", "Откроется через {n} ч", "Твой урон", "Повержен! Все участники получают 500 золота", "В бой!", "Зови друзей: вы оба получите 200 золота · 5 друзей = бесплатный герой", "Пришло друзей: {n}"],
+    uk: ["Бойовий пропуск", "Безкоштовно", "Преміум", "Рівень {n}", "Сезон закінчиться за {n} дн.", "Придбати преміум", "Відкрити!", "Натисни ще раз, щоб відкрити зараз за {n} золота", "Усі місця для скринь зайняті — спершу відкрий одну", "Досягнення", "Збери {n} зірок", "Зроби комбо ×{n}", "Відкрий {n} героїв", "Заробі {n} золота", "Переможи в {n} завданнях дня", "Бийся зі Світовим босом {n} разів", "Альбом монстрів", "Гелловін", "Ніч Ялда", "Новий рік", "Навруз", "Подвійне золото!", "Світовий бос", "Щовихідних усі гравці разом б'ються з одним гігантським босом!", "Відкриється за {n} год", "Твоя шкода", "Переможений! Кожен учасник отримує 500 золота", "До бою!", "Клич друзів: ви обидва отримаєте 200 золота · 5 друзів = безкоштовний герой", "Прийшло друзів: {n}"],
+    tr: ["Sezon Kartı", "Ücretsiz", "Premium", "Kademe {n}", "Sezon {n} gün sonra bitiyor", "Premium al", "Aç!", "Şimdi {n} altına açmak için tekrar dokun", "Sandık yerleri dolu — önce birini aç", "Başarımlar", "{n} yıldız topla", "{n}× komboya ulaş", "{n} karaktere sahip ol", "{n} altın kazan", "{n} günlük görev kazan", "{n} Dünya Boss savaşına katıl", "Canavar albümü", "Cadılar Bayramı", "Yalda Gecesi", "Yılbaşı", "Nevruz", "Çifte altın!", "Dünya Boss'u", "Her hafta sonu tüm oyuncular birlikte dev bir boss'la savaşır!", "{n} saat sonra açılır", "Senin hasarın", "Yenildi! Savaşan herkes 500 altın alır", "Savaş!", "Arkadaşlarını davet et: ikiniz de 200 altın alırsınız · 5 arkadaş = bedava karakter", "{n} arkadaş katıldı"],
+    az: ["Mövsüm keçidi", "Pulsuz", "Premium", "Pillə {n}", "Mövsüm {n} gün sonra bitir", "Premium al", "Aç!", "İndi {n} qızıla açmaq üçün yenə toxun", "Sandıq yerləri doludur — əvvəlcə birini aç", "Nailiyyətlər", "{n} ulduz topla", "{n}× komboya çat", "{n} personaja sahib ol", "{n} qızıl qazan", "{n} günlük sınaq qazan", "{n} Dünya Bossu döyüşünə qoşul", "Canavar albomu", "Hellouin", "Yalda gecəsi", "Yeni il", "Novruz", "İkiqat qızıl!", "Dünya Bossu", "Hər həftəsonu bütün oyunçular birlikdə nəhəng bir bossla vuruşur!", "{n} saata açılır", "Sənin zərərin", "Məğlub oldu! Vuruşan hər kəs 500 qızıl alır", "Vuruş!", "Dostlarını dəvət et: hər ikiniz 200 qızıl alırsınız · 5 dost = pulsuz personaj", "{n} dost qoşuldu"],
+    uz: ["Mavsum chiptasi", "Bepul", "Premium", "{n}-pog'ona", "Mavsum {n} kunda tugaydi", "Premium olish", "Och!", "Hozir {n} oltinga ochish uchun yana bos", "Sandiq joylari to'la — avval bittasini och", "Yutuqlar", "{n} ta yulduz yig'", "{n}× komboga yet", "{n} ta qahramonga ega bo'l", "{n} oltin topib ol", "{n} ta kunlik sinovni yut", "{n} marta Jahon bossi jangiga qo'shil", "Maxluqlar albomi", "Xellouin", "Yalda kechasi", "Yangi yil", "Navro'z", "Ikki baravar oltin!", "Jahon bossi", "Har dam olish kuni barcha o'yinchilar birga ulkan boss bilan jang qiladi!", "{n} soatdan keyin ochiladi", "Sening zararing", "Yengildi! Jang qilgan har kim 500 oltin oladi", "Jang!", "Do'stlarni taklif qil: ikkalangiz 200 oltin olasiz · 5 do'st = bepul qahramon", "{n} do'st qo'shildi"],
+    kk: ["Маусым билеті", "Тегін", "Премиум", "{n}-саты", "Маусым {n} күннен кейін бітеді", "Премиум алу", "Аш!", "Қазір {n} алтынға ашу үшін тағы бас", "Сандық орындары толы — алдымен біреуін аш", "Жетістіктер", "{n} жұлдыз жина", "{n}× комбоға жет", "{n} кейіпкерің болсын", "{n} алтын тап", "{n} күн сынағын ұт", "Әлем басымен {n} рет шайқас", "Құбыжықтар альбомы", "Хэллоуин", "Ялда түні", "Жаңа жыл", "Наурыз", "Екі есе алтын!", "Әлем басы", "Әр демалыста барлық ойыншылар бірге бір алып баспен шайқасады!", "{n} сағаттан кейін ашылады", "Сенің зақымың", "Жеңілді! Шайқасқан әркім 500 алтын алады", "Шайқас!", "Достарыңды шақыр: екеуің де 200 алтын аласыңдар · 5 дос = тегін кейіпкер", "{n} дос қосылды"],
+    es: ["Pase de temporada", "Gratis", "Premium", "Nivel {n}", "La temporada termina en {n} d", "Obtener Premium", "¡Abrir!", "Toca otra vez para abrirlo ya por {n} de oro", "Los huecos de cofres están llenos: abre uno primero", "Logros", "Consigue {n} estrellas", "Logra un combo ×{n}", "Ten {n} personajes", "Gana {n} de oro", "Gana {n} desafíos diarios", "Participa en {n} peleas contra el Jefe Mundial", "Álbum de monstruos", "Halloween", "Noche de Yalda", "Año Nuevo", "Nowruz", "¡Oro doble!", "Jefe Mundial", "¡Cada fin de semana todos los jugadores luchan juntos contra un jefe gigante!", "Abre en {n} h", "Tu daño", "¡Derrotado! Todos los que lucharon reciben 500 de oro", "¡A luchar!", "Invita amigos: ambos recibís 200 de oro · 5 amigos = un personaje gratis", "{n} amigos se unieron"],
+    pt: ["Passe de temporada", "Grátis", "Premium", "Nível {n}", "A temporada termina em {n} d", "Obter Premium", "Abrir!", "Toque de novo para abrir agora por {n} de ouro", "Os espaços de baú estão cheios — abra um primeiro", "Conquistas", "Junte {n} estrelas", "Faça um combo ×{n}", "Tenha {n} personagens", "Ganhe {n} de ouro", "Vença {n} desafios diários", "Participe de {n} lutas contra o Chefão Mundial", "Álbum de monstros", "Halloween", "Noite de Yalda", "Ano-Novo", "Nowruz", "Ouro em dobro!", "Chefão Mundial", "Todo fim de semana todos os jogadores enfrentam juntos um chefão gigante!", "Abre em {n} h", "Seu dano", "Derrotado! Todos que lutaram ganham 500 de ouro", "Lutar!", "Convide amigos: vocês dois ganham 200 de ouro · 5 amigos = um personagem grátis", "{n} amigos entraram"],
+    fr: ["Passe de saison", "Gratuit", "Premium", "Palier {n}", "La saison se termine dans {n} j", "Obtenir Premium", "Ouvrir !", "Touche encore pour l'ouvrir maintenant pour {n} or", "Les emplacements de coffres sont pleins — ouvre-en un d'abord", "Succès", "Récolte {n} étoiles", "Atteins un combo ×{n}", "Possède {n} personnages", "Gagne {n} or", "Gagne {n} défis du jour", "Participe à {n} combats contre le Boss mondial", "Album des monstres", "Halloween", "Nuit de Yalda", "Nouvel An", "Norouz", "Or doublé !", "Boss mondial", "Chaque week-end, tous les joueurs affrontent ensemble un boss géant !", "Ouvre dans {n} h", "Tes dégâts", "Vaincu ! Chaque combattant reçoit 500 or", "Combattre !", "Invite tes amis : vous recevez chacun 200 or · 5 amis = un personnage gratuit", "{n} amis ont rejoint"],
+    de: ["Saisonpass", "Gratis", "Premium", "Stufe {n}", "Saison endet in {n} T.", "Premium holen", "Öffnen!", "Nochmal tippen, um sie jetzt für {n} Gold zu öffnen", "Alle Truhenplätze sind voll – öffne zuerst eine", "Erfolge", "Sammle {n} Sterne", "Erreiche eine ×{n}-Kombo", "Besitze {n} Figuren", "Verdiene {n} Gold", "Gewinne {n} Tages-Challenges", "Kämpfe {n}-mal gegen den Weltboss", "Monsteralbum", "Halloween", "Yalda-Nacht", "Neujahr", "Nouruz", "Doppeltes Gold!", "Weltboss", "Jedes Wochenende kämpfen alle Spieler gemeinsam gegen einen Riesenboss!", "Öffnet in {n} Std.", "Dein Schaden", "Besiegt! Jeder, der mitgekämpft hat, bekommt 500 Gold", "Kämpfen!", "Lade Freunde ein: ihr bekommt beide 200 Gold · 5 Freunde = eine Gratis-Figur", "{n} Freunde dabei"],
+    it: ["Pass stagionale", "Gratis", "Premium", "Livello {n}", "La stagione finisce tra {n} g", "Ottieni Premium", "Apri!", "Tocca di nuovo per aprirlo ora per {n} oro", "Gli spazi forzieri sono pieni: aprine uno prima", "Obiettivi", "Raccogli {n} stelle", "Fai una combo ×{n}", "Possiedi {n} personaggi", "Guadagna {n} oro", "Vinci {n} sfide del giorno", "Partecipa a {n} battaglie contro il Boss mondiale", "Album dei mostri", "Halloween", "Notte di Yalda", "Capodanno", "Nowruz", "Oro doppio!", "Boss mondiale", "Ogni weekend tutti i giocatori combattono insieme un boss gigante!", "Apre tra {n} h", "I tuoi danni", "Sconfitto! Chi ha combattuto riceve 500 oro", "Combatti!", "Invita amici: ricevete entrambi 200 oro · 5 amici = un personaggio gratis", "{n} amici si sono uniti"],
+    nl: ["Seizoenspas", "Gratis", "Premium", "Trede {n}", "Seizoen eindigt over {n} d", "Premium nemen", "Openen!", "Tik nog eens om hem nu te openen voor {n} goud", "Alle kistplekken zijn vol — open er eerst een", "Prestaties", "Verzamel {n} sterren", "Haal een ×{n}-combo", "Bezit {n} personages", "Verdien {n} goud", "Win {n} dagelijkse uitdagingen", "Vecht {n} keer tegen de Wereldbaas", "Monsteralbum", "Halloween", "Yalda-nacht", "Nieuwjaar", "Nowruz", "Dubbel goud!", "Wereldbaas", "Elk weekend vechten alle spelers samen tegen één gigantische baas!", "Opent over {n} u", "Jouw schade", "Verslagen! Iedereen die meevocht krijgt 500 goud", "Vechten!", "Nodig vrienden uit: jullie krijgen allebei 200 goud · 5 vrienden = een gratis personage", "{n} vrienden doen mee"],
+    pl: ["Przepustka sezonowa", "Darmowa", "Premium", "Poziom {n}", "Sezon kończy się za {n} dni", "Kup Premium", "Otwórz!", "Stuknij ponownie, by otworzyć teraz za {n} złota", "Miejsca na skrzynie są pełne — najpierw otwórz jedną", "Osiągnięcia", "Zbierz {n} gwiazdek", "Zrób combo ×{n}", "Miej {n} postaci", "Zdobądź {n} złota", "Wygraj {n} wyzwań dnia", "Weź udział w {n} walkach z Bossem świata", "Album potworów", "Halloween", "Noc Yalda", "Nowy Rok", "Nowruz", "Podwójne złoto!", "Boss świata", "W każdy weekend wszyscy gracze razem walczą z jednym gigantycznym bossem!", "Otwarcie za {n} godz.", "Twoje obrażenia", "Pokonany! Każdy, kto walczył, dostaje 500 złota", "Do walki!", "Zaproś znajomych: oboje dostajecie 200 złota · 5 znajomych = darmowa postać", "Dołączyło {n} znajomych"],
+    id: ["Season Pass", "Gratis", "Premium", "Tingkat {n}", "Musim berakhir dalam {n} hari", "Ambil Premium", "Buka!", "Ketuk lagi untuk membuka sekarang dengan {n} emas", "Slot peti penuh — buka satu dulu", "Prestasi", "Kumpulkan {n} bintang", "Capai kombo ×{n}", "Punya {n} karakter", "Dapatkan {n} emas", "Menangkan {n} tantangan harian", "Ikut {n} pertarungan Bos Dunia", "Album monster", "Halloween", "Malam Yalda", "Tahun Baru", "Nowruz", "Emas ganda!", "Bos Dunia", "Setiap akhir pekan semua pemain melawan satu bos raksasa bersama-sama!", "Buka dalam {n} jam", "Kerusakanmu", "Kalah! Semua yang ikut bertarung dapat 500 emas", "Lawan!", "Undang teman: kalian berdua dapat 200 emas · 5 teman = karakter gratis", "{n} teman bergabung"],
+    hi: ["सीज़न पास", "मुफ़्त", "प्रीमियम", "स्तर {n}", "सीज़न {n} दिन में ख़त्म", "प्रीमियम लो", "खोलो!", "अभी {n} सोने में खोलने के लिए फिर से टैप करो", "संदूक की जगहें भरी हैं — पहले एक खोलो", "उपलब्धियाँ", "{n} सितारे जमा करो", "{n}× कॉम्बो बनाओ", "{n} किरदार पाओ", "{n} सोना कमाओ", "{n} रोज़ की चुनौतियाँ जीतो", "{n} बार विश्व बॉस से लड़ो", "राक्षस एल्बम", "हैलोवीन", "यल्दा की रात", "नया साल", "नौरोज़", "दोगुना सोना!", "विश्व बॉस", "हर वीकेंड सारे खिलाड़ी मिलकर एक विशाल बॉस से लड़ते हैं!", "{n} घंटे में खुलेगा", "तुम्हारा नुकसान", "हार गया! लड़ने वाले हर किसी को 500 सोना", "लड़ो!", "दोस्तों को बुलाओ: दोनों को 200 सोना · 5 दोस्त = एक मुफ़्त किरदार", "{n} दोस्त जुड़े"],
+    zh: ["赛季通行证", "免费", "高级", "第 {n} 级", "赛季将在 {n} 天后结束", "获取高级版", "打开！", "再点一次，花 {n} 金币立即打开", "宝箱栏已满——先打开一个", "成就", "收集 {n} 颗星", "达成 {n}× 连击", "拥有 {n} 个角色", "赚取 {n} 金币", "赢得 {n} 次每日挑战", "参加 {n} 次世界首领战", "怪物图鉴", "万圣节", "雅尔达之夜", "新年", "诺鲁孜节", "双倍金币！", "世界首领", "每个周末，所有玩家一起对抗一个巨型首领！", "{n} 小时后开放", "你的伤害", "已击败！所有参战者获得 500 金币", "开战！", "邀请好友：你们各得 200 金币 · 5 位好友 = 免费角色", "已有 {n} 位好友加入"],
+    ja: ["シーズンパス", "無料", "プレミアム", "ティア {n}", "シーズン終了まであと {n} 日", "プレミアムを入手", "開ける！", "もう一度タップで {n} ゴールドで今すぐ開ける", "宝箱の枠がいっぱい — 先に 1 つ開けよう", "実績", "星を {n} 個集める", "{n}× コンボを達成", "キャラクターを {n} 人そろえる", "ゴールドを {n} 稼ぐ", "デイリーチャレンジに {n} 回勝つ", "ワールドボス戦に {n} 回参加", "モンスター図鑑", "ハロウィン", "ヤルダーの夜", "お正月", "ノウルーズ", "ゴールド 2 倍！", "ワールドボス", "毎週末、全プレイヤーで 1 体の巨大ボスに挑む！", "あと {n} 時間で開始", "あなたのダメージ", "撃破！ 参加した全員に 500 ゴールド", "戦う！", "友達を招待：2 人とも 200 ゴールド · 5 人で無料キャラ", "{n} 人の友達が参加"],
+    ko: ["시즌 패스", "무료", "프리미엄", "{n}단계", "시즌 종료까지 {n}일", "프리미엄 받기", "열기!", "한 번 더 누르면 {n} 골드로 바로 열려요", "상자 칸이 가득 찼어요 — 먼저 하나를 여세요", "업적", "별 {n}개 모으기", "{n}× 콤보 달성", "캐릭터 {n}명 보유", "골드 {n} 획득", "일일 챌린지 {n}번 승리", "월드 보스전 {n}번 참여", "몬스터 도감", "핼러윈", "얄다의 밤", "새해", "노루즈", "골드 2배!", "월드 보스", "주말마다 모든 플레이어가 함께 거대한 보스와 싸워요!", "{n}시간 후 열림", "내 피해량", "처치! 싸운 모두에게 500 골드", "싸우기!", "친구 초대: 둘 다 200 골드 · 친구 5명 = 무료 캐릭터", "친구 {n}명 참여"],
+    vi: ["Thẻ mùa", "Miễn phí", "Cao cấp", "Bậc {n}", "Mùa kết thúc sau {n} ngày", "Mua Cao cấp", "Mở!", "Chạm lần nữa để mở ngay với {n} vàng", "Ô rương đã đầy — mở một cái trước", "Thành tích", "Thu thập {n} sao", "Đạt combo ×{n}", "Sở hữu {n} nhân vật", "Kiếm {n} vàng", "Thắng {n} thử thách ngày", "Tham gia {n} trận Trùm thế giới", "Album quái vật", "Halloween", "Đêm Yalda", "Năm mới", "Nowruz", "Vàng gấp đôi!", "Trùm thế giới", "Mỗi cuối tuần tất cả người chơi cùng đánh một con trùm khổng lồ!", "Mở sau {n} giờ", "Sát thương của bạn", "Đã hạ! Ai tham chiến đều nhận 500 vàng", "Chiến!", "Mời bạn bè: cả hai nhận 200 vàng · 5 bạn = nhân vật miễn phí", "{n} bạn đã tham gia"]
+  };
+  for (const k in STR_LIVE) STR_LIVE[k].forEach((v, i) => { STR[k][LIVE_KEYS[i]] = v; });
 
   // ---- Characters ------------------------------------------------------
   // Each hero swaps Volya's portrait and brings one small perk. They unlock with level progress,
@@ -2599,7 +2693,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (how === "slice") sliceApart(e, ang || 0); else poof(e);
     sfx("pop");
     goalProgress("kill", 1);
-    if (state === "play") { track("kills"); if (e.boss) track("bosses"); }
+    if (state === "play") { track("kills"); if (e.boss) track("bosses"); meta.kt = meta.kt || {}; meta.kt[e.type] = (meta.kt[e.type] || 0) + 1; }
     if (e.boss) {
       goalProgress("boss", 1);
       emit("glow", e.x, e.y, { n: 24, spd: [60, 420], life: [0.6, 1.2], size: [20, 44], colors: ["#ff7a3d", "#ffd84d", "#ffffff"], drag: 0.9 });
@@ -3631,7 +3725,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen", "passScreen", "albumScreen"]) $(s).hidden = s !== id;
     if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
@@ -3655,7 +3749,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("wheelScreen").hidden) { if (!spinning) showScreen("titleScreen"); }
+    if (!$("passScreen").hidden || !$("albumScreen").hidden) showScreen("titleScreen");
+    else if (!$("wheelScreen").hidden) { if (!spinning) showScreen("titleScreen"); }
     else if (!$("shopScreen").hidden) showScreen("titleScreen");
     else if (!$("cardScreen").hidden) showScreen(cardReturn);
     else if (!$("contScreen").hidden) giveUp();
@@ -3741,9 +3836,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (!LV) recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
     {
       if (LV && LV.daily) dailyFinish(false);
-      const g = LV ? 0 : Math.floor(score / 250), xp = LV ? 15 : Math.min(200, Math.floor(score / 150));
+      const g0 = LV ? 0 : Math.floor(score / 250), xp = LV ? 15 : Math.min(200, Math.floor(score / 150));
       if (!LV) track("endless");
-      addGold(g); addXp(xp); saveMeta();
+      const g = earn(g0); addXp(xp); stat("combo", bestCombo, true);
+      addPass(LV ? 10 : Math.min(60, Math.floor(score / 200)));
+      if (!LV && score >= 3000) addChest("common");
+      saveMeta();
       rewardLine("ovReward", g, xp);
     }
     sfx("over");
@@ -3950,13 +4048,15 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     lastStars = stars;
     let winGold = 10 + stars * 5 + (LV.boss ? 15 : 0);
-    if (LV.daily) winGold += dailyFinish(true);
+    addPass(30); stat("combo", bestCombo, true);
+    if (LV.daily) { const bonus = dailyFinish(true); winGold += bonus; if (bonus) { stat("daily"); addPass(50); addChest("rare"); } }
     else {
+      addChest(LV.boss ? "epic" : stars === 3 ? "rare" : "common");
       progress.stars[levelN] = Math.max(progress.stars[levelN] || 0, stars);
       progress.unlocked = Math.min(MAX_LEVEL, Math.max(progress.unlocked, levelN + 1));
       saveProgress();
     }
-    track("wins"); addGold(winGold); addXp(40); saveMeta();
+    track("wins"); winGold = earn(winGold); addXp(40); saveMeta();
     rewardLine("winReward", winGold, 40);
     sfx("rainbow"); haptic("success");
     setTimeout(() => {
@@ -4106,9 +4206,17 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     $("goldAmt").textContent = fmt(meta.gold);
     $("misDot").hidden = !meta.mis.some((m) => m.done && !m.claimed);
     $("wheelDot").hidden = !freeSpin();
+    $("misDot").hidden = $("misDot").hidden && !achClaimable();
+    $("passDot").hidden = !passClaimable();
+    $("albumDot").hidden = !albumClaimable();
+    const ev = activeEvent(), eb = $("eventBanner");
+    eb.hidden = !ev;
+    if (ev) { eb.textContent = ev.icon + " " + tr(ev.key) + " · " + tr("eventBonus") + " " + ev.icon; eb.style.background = ev.bg; }
+    $("titlePortrait").parentElement.classList.toggle("golden", !!meta.frame);
+    renderChests();
     $("dailyDot").hidden = dailyToday() && meta.daily.done;
   }
-  function addGold(n) { meta.gold = Math.max(0, meta.gold + n); }
+  function addGold(n) { meta.gold = Math.max(0, meta.gold + n); if (n > 0) { meta.st = meta.st || {}; meta.st.gold = (meta.st.gold || 0) + n; } }
   const dayKey = (d = new Date()) => d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 
   // hero levels: XP from runs makes the hero's perk stronger
@@ -4257,6 +4365,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     else if (id === "gold_m") addGold(2000);
     else if (id === "gold_l") addGold(6000);
     else if (id === "boosts") for (const k in meta.boost) meta.boost[k] += 5;
+    else if (id === "pass") passState().premium = true;
     else if (id.startsWith("hero_")) { const h = id.slice(5); progress.gift = [...new Set([].concat(progress.gift || [], h))]; saveProgress(); }
   }
   async function claimPurchases(retry) {
@@ -4402,6 +4511,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     saveMeta();
   }
   function track(t, n = 1) {
+    if (["kills", "bosses", "wins", "endless", "rage", "darts"].includes(t)) stat(t, n);
     for (const m of meta.mis) {
       if (m.t !== t || m.done) continue;
       m.have = Math.min(m.need, m.have + n);
@@ -4410,6 +4520,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function openMissions() {
     ensureMissions();
+    document.querySelectorAll("#misTabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === misTab));
+    if (misTab === "ach") { renderAchievements(); showScreen("misScreen"); return; }
     const list = $("misList"); list.textContent = "";
     for (const m of meta.mis) {
       const d = document.createElement("div"); d.className = "mis" + (m.claimed ? " claimed" : "");
@@ -4418,7 +4530,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const b = document.createElement("button"); b.type = "button"; b.className = "btn " + (m.done && !m.claimed ? "primary" : "ghost");
       b.disabled = !m.done || m.claimed;
       b.innerHTML = COIN_SVG + `<span>${m.claimed ? "✓" : fmt(m.gold)}</span>`;
-      b.addEventListener("click", () => { if (!m.done || m.claimed) return; m.claimed = true; addGold(m.gold); saveMeta(); sfx("charge"); haptic("success"); openMissions(); });
+      b.addEventListener("click", () => { if (!m.done || m.claimed) return; m.claimed = true; earn(m.gold); addPass(40); saveMeta(); sfx("charge"); haptic("success"); openMissions(); });
       d.append(t, b, bar); list.appendChild(d);
     }
     const left = Math.max(1, Math.ceil((weekNo() + 1) * 7 - 3 - Date.now() / 86400000));
@@ -4458,6 +4570,206 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (!canSubmit() || sc <= 0) return;
     api("/daily", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData: tgInitData(), day: dayNo(), score: sc, hero: HERO.id }) }).catch(() => {});
   }
+
+
+  // ---- Seasonal events: double gold and festive particles ----
+  const EVENTS = [
+    { id: "halloween", from: [10, 24], to: [11, 2], key: "evHalloween", icon: "🎃", colors: ["#ff8a1f", "#8a3fd1", "#ffd84d"], bg: "linear-gradient(90deg,#ff8a1f,#8a3fd1)" },
+    { id: "yalda", from: [12, 18], to: [12, 23], key: "evYalda", icon: "🍉", colors: ["#ff3b4a", "#ffcf3d", "#7dff8a"], bg: "linear-gradient(90deg,#c0102a,#ff6a3d)" },
+    { id: "newyear", from: [12, 28], to: [1, 4], key: "evNewYear", icon: "🎆", colors: ["#ffd84d", "#7ff0ff", "#ff5ab8"], bg: "linear-gradient(90deg,#3d7bff,#ff5ab8)" },
+    { id: "nowruz", from: [3, 14], to: [4, 2], key: "evNowruz", icon: "🌷", colors: ["#7dff8a", "#ffb3e0", "#ffe066"], bg: "linear-gradient(90deg,#2fae7a,#ff8ad0)" }
+  ];
+  function activeEvent() {
+    try { const forced = new URLSearchParams(location.search).get("ev"); if (forced) return EVENTS.find((e) => e.id === forced) || null; } catch (e) {}
+    const d = new Date(), v = (d.getMonth() + 1) * 100 + d.getDate();
+    return EVENTS.find((e) => { const a = e.from[0] * 100 + e.from[1], b = e.to[0] * 100 + e.to[1]; return a <= b ? v >= a && v <= b : v >= a || v <= b; }) || null;
+  }
+  // gold earned by playing is doubled during events
+  function earn(n) { const g = n * (activeEvent() ? 2 : 1); addGold(g); return g; }
+
+  // ---- Season pass: 30 tiers over 28 days ----
+  const PASS_TIERS = 30, TIER_PTS = 100;
+  const seasonNo = () => Math.floor(dayNo() / 28);
+  function passState() {
+    if (!meta.pass || meta.pass.season !== seasonNo()) meta.pass = { season: seasonNo(), pts: 0, free: [], prem: [], premium: false };
+    return meta.pass;
+  }
+  function addPass(n) { passState().pts += n; }
+  const passTier = () => Math.min(PASS_TIERS, Math.floor(passState().pts / TIER_PTS));
+  const BOOST_KEYS = ["rockets", "moves", "shield"];
+  function passReward(t, prem) {
+    if (t === PASS_TIERS) return prem ? { gold: 1000, frame: true } : { gold: 300, all: 1 };
+    if (t % 5 === 0) return prem ? { all: 2 } : { boost: BOOST_KEYS[(t / 5) % 3] };
+    if (prem && t % 3 === 0) return { xp: 80 };
+    return { gold: prem ? 80 + t * 8 : 40 + t * 4 };
+  }
+  function rewardIcon(r) {
+    if (r.frame) return "<span>👑</span>";
+    if (r.boost) return `<img src="${boostIcon(r.boost)}" alt="">`;
+    if (r.all) return `<img src="${boostIcon("rockets")}" alt="">`;
+    if (r.xp) return `<span style="color:#9fe8ff">XP</span>`;
+    return COIN_SVG;
+  }
+  const rewardText = (r) => r.frame ? "+" + fmt(r.gold) : r.boost ? "×1" : r.all ? "×" + fmt(r.all) : r.xp ? "+" + fmt(r.xp) : fmt(r.gold);
+  function grantReward(r) {
+    const parts = [];
+    if (r.gold) { addGold(r.gold); parts.push("+" + fmt(r.gold) + " " + tr("gold")); }
+    if (r.boost) { meta.boost[r.boost]++; parts.push(tr("b_" + r.boost)); }
+    if (r.boosts) for (const k in r.boosts) { meta.boost[k] += r.boosts[k]; parts.push(tr("b_" + k)); }
+    if (r.all) { for (const k of BOOST_KEYS) meta.boost[k] += r.all; parts.push(tr("boosters") + " ×" + fmt(r.all)); }
+    if (r.xp) { addXp(r.xp); parts.push("+" + fmt(r.xp) + " XP"); }
+    if (r.frame) { meta.frame = true; parts.push("👑"); }
+    return parts.join(" · ");
+  }
+  function openPass() { renderPass(); showScreen("passScreen"); }
+  function renderPass() {
+    const P = passState(), tier = passTier(), into = P.pts - tier * TIER_PTS;
+    const days = Math.max(1, (seasonNo() + 1) * 28 - dayNo());
+    $("passHead").innerHTML = `<small><span>${tr("passTier", tier)}</span><span>${tr("passEnds", days)}</span></small><div class="bar"><i style="width:${tier >= PASS_TIERS ? 100 : (into / TIER_PTS) * 100}%"></i></div><small><span>${fmt(P.pts)}</span><span>${tier >= PASS_TIERS ? "★" : fmt((tier + 1) * TIER_PTS)}</span></small>`;
+    $("passBuy").hidden = P.premium || !starsReady();
+    $("passBuy").querySelector(".price").innerHTML = STAR_SVG + "<span>" + fmt(300) + "</span>";
+    const list = $("passList"); list.textContent = "";
+    for (let t = 1; t <= PASS_TIERS; t++) {
+      const row = document.createElement("div"); row.className = "pass-row" + (t <= tier ? " reached" : "");
+      const n = document.createElement("b"); n.textContent = fmt(t); row.appendChild(n);
+      for (const prem of [false, true]) {
+        const r = passReward(t, prem), done = (prem ? P.prem : P.free).includes(t), can = t <= tier && !done && (!prem || P.premium);
+        const c = document.createElement("button"); c.type = "button";
+        c.className = "pass-cell" + (prem ? " prem" : "") + (done ? " done" : can ? " can" : "") + (prem && !P.premium ? " lock" : "");
+        c.innerHTML = rewardIcon(r) + "<span>" + rewardText(r) + "</span>";
+        c.disabled = !can;
+        c.addEventListener("click", () => {
+          if (!can) return;
+          (prem ? P.prem : P.free).push(t);
+          toast(grantReward(r)); saveMeta(); sfx("charge"); haptic("success"); renderPass();
+        });
+        row.appendChild(c);
+      }
+      list.appendChild(row);
+    }
+    const first = list.querySelector(".can") || list.children[Math.max(0, tier - 1)];
+    if (first) setTimeout(() => first.scrollIntoView({ block: "center" }), 30);
+  }
+  const passClaimable = () => { const P = passState(), tier = passTier(); for (let t = 1; t <= tier; t++) if (!P.free.includes(t) || (P.premium && !P.prem.includes(t))) return true; return false; };
+
+  // ---- Timed chests: won in play, open after a few hours ----
+  const CHEST_DEF = { common: { h: 3, c: "#9aa2b8", d: "#4a5068" }, rare: { h: 5, c: "#3fd0ff", d: "#14608a" }, epic: { h: 8, c: "#c77dff", d: "#4f1a99" } };
+  const chestSvg = (k) => { const C = CHEST_DEF[k]; return `<svg viewBox="0 0 40 32" aria-hidden="true"><rect x="4" y="13" width="32" height="16" rx="3" fill="${C.c}" stroke="#1a1035" stroke-width="2"/><path d="M4 14v-3a9 9 0 019-9h14a9 9 0 019 9v3z" fill="${C.d}" stroke="#1a1035" stroke-width="2"/><rect x="17" y="11" width="6" height="8" rx="1.5" fill="#ffcf3d" stroke="#1a1035" stroke-width="1.6"/><path d="M8 18h24" stroke="rgba(255,255,255,.4)" stroke-width="2"/></svg>`; };
+  function addChest(k) {
+    if (!meta.chests) meta.chests = [null, null, null, null];
+    const i = meta.chests.findIndex((c) => !c);
+    if (i < 0) { toast(tr("chestFull")); return false; }
+    meta.chests[i] = { k, t: Date.now() + CHEST_DEF[k].h * 3600000 };
+    return true;
+  }
+  function chestLoot(k) {
+    const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    if (k === "common") return { gold: R(40, 80), boosts: Math.random() < 0.3 ? { [pick(BOOST_KEYS)]: 1 } : null };
+    if (k === "rare") return { gold: R(100, 180), boosts: { [pick(BOOST_KEYS)]: 1 }, xp: 40 };
+    return { gold: R(250, 400), boosts: { [pick(BOOST_KEYS)]: 1, [pick(BOOST_KEYS)]: 1 }, xp: 100 };
+  }
+  let chestTap = { i: -1, t: 0 };
+  function tapChest(i) {
+    const c = meta.chests && meta.chests[i];
+    if (!c) return;
+    const left = c.t - Date.now();
+    if (left > 0) {
+      const price = Math.max(10, Math.ceil(left / 60000 / 4));
+      if (chestTap.i === i && Date.now() - chestTap.t < 3000) {
+        if (meta.gold < price) { toast(tr("notEnough")); sfx("nope"); return; }
+        addGold(-price); c.t = Date.now();
+      } else { chestTap = { i, t: Date.now() }; toast(tr("chestSpeed", price)); sfx("click"); return; }
+    }
+    meta.chests[i] = null;
+    const loot = chestLoot(c.k);
+    addPass(15);
+    toast(grantReward(loot)); saveMeta(); sfx("rainbow"); haptic("success");
+    renderChests();
+  }
+  function renderChests() {
+    const box = $("chests"); if (!box) return;
+    if (!meta.chests) meta.chests = [null, null, null, null];
+    box.textContent = "";
+    meta.chests.forEach((c, i) => {
+      const b = document.createElement("button"); b.type = "button";
+      if (!c) { b.className = "chest empty"; b.innerHTML = chestSvg("common"); b.disabled = true; }
+      else {
+        const left = c.t - Date.now();
+        b.className = "chest" + (left <= 0 ? " ready" : "");
+        const mins = Math.ceil(left / 60000), h = Math.floor(mins / 60), m = mins % 60;
+        b.innerHTML = chestSvg(c.k) + `<span>${left <= 0 ? tr("chestOpen") : h > 0 ? fmt(h) + "h " + fmt(m) + "m" : fmt(m) + "m"}</span>`;
+        b.addEventListener("click", () => tapChest(i));
+      }
+      box.appendChild(b);
+    });
+  }
+  setInterval(() => { if (state === "title" && !$("titleScreen").hidden) renderChests(); }, 30000);
+
+  // ---- Achievements ----
+  const ACH = [
+    { id: "kills", key: "ms_kills", t: [500, 5000, 50000] }, { id: "bosses", key: "ms_bosses", t: [5, 50, 300] },
+    { id: "wins", key: "ms_wins", t: [10, 100, 500] }, { id: "stars", key: "a_stars", t: [30, 300, 1500] },
+    { id: "endless", key: "ms_endless", t: [5, 50, 200] }, { id: "combo", key: "a_combo", t: [20, 50, 100] },
+    { id: "rage", key: "ms_rage", t: [10, 100, 500] }, { id: "darts", key: "ms_darts", t: [25, 250, 1000] },
+    { id: "heroes", key: "a_heroes", t: [3, 8, 16] }, { id: "gold", key: "a_gold", t: [1000, 10000, 100000] },
+    { id: "daily", key: "a_daily", t: [3, 15, 50] }, { id: "raid", key: "a_raid", t: [1, 5, 20] }
+  ];
+  const ACH_GOLD = [100, 250, 600];
+  function achValue(id) {
+    if (id === "stars") return Object.values(progress.stars).reduce((a, b) => a + b, 0);
+    if (id === "heroes") return HEROES.filter(heroOpen).length;
+    return (meta.st && meta.st[id]) || 0;
+  }
+  const achDone = (a) => a.t.filter((x) => achValue(a.id) >= x).length;
+  const achClaimed = (a) => (meta.ach && meta.ach[a.id]) || 0;
+  const achClaimable = () => ACH.some((a) => achDone(a) > achClaimed(a));
+  function stat(id, n = 1, max) {
+    if (!meta.st) meta.st = {};
+    meta.st[id] = max ? Math.max(meta.st[id] || 0, n) : (meta.st[id] || 0) + n;
+  }
+  let misTab = "weekly";
+  function renderAchievements() {
+    const list = $("misList"); list.textContent = "";
+    for (const a of ACH) {
+      const done = achDone(a), claimed = achClaimed(a), tier = Math.min(claimed, 2), target = a.t[Math.min(claimed, 2)], v = achValue(a.id);
+      const d = document.createElement("div"); d.className = "mis" + (claimed >= 3 ? " claimed" : "");
+      const t = document.createElement("p"); t.textContent = tr(a.key, target) + "  " + fmt(Math.min(v, target)) + "/" + fmt(target);
+      const md = document.createElement("span"); md.className = "medal"; md.innerHTML = ["b", "s", "g"].map((c, i) => `<i class="${i < claimed ? c : ""}"></i>`).join(""); t.appendChild(md);
+      const bar = document.createElement("div"); bar.className = "bar"; bar.innerHTML = `<i style="width:${Math.min(1, v / target) * 100}%"></i>`;
+      const can = done > claimed && claimed < 3;
+      const b = document.createElement("button"); b.type = "button"; b.className = "btn " + (can ? "primary" : "ghost"); b.disabled = !can;
+      b.innerHTML = claimed >= 3 ? "<span>✓</span>" : COIN_SVG + `<span>${fmt(ACH_GOLD[tier])}</span>`;
+      b.addEventListener("click", () => { if (!can) return; meta.ach = meta.ach || {}; meta.ach[a.id] = claimed + 1; addGold(ACH_GOLD[tier]); saveMeta(); sfx("charge"); haptic("success"); renderAchievements(); });
+      d.append(t, b, bar); list.appendChild(d);
+    }
+    $("misFoot").textContent = "";
+  }
+
+  // ---- Monster album: kill counts per enemy unlock cards and stars ----
+  const ALBUM = ["crawler", "runner", "ghost", "brute", "splitter", "knight", "healer", "thrower", "boss"];
+  const ALBUM_T = [10, 100, 500], ALBUM_GOLD = [50, 150, 400];
+  const albumKills = (k) => (meta.kt && meta.kt[k]) || 0;
+  const albumClaimable = () => ALBUM.some((k) => ALBUM_T.filter((x) => albumKills(k) >= x).length > ((meta.ab && meta.ab[k]) || 0));
+  function openAlbum() { renderAlbum(); showScreen("albumScreen"); }
+  function renderAlbum() {
+    const g = $("albumGrid"); g.textContent = "";
+    for (const k of ALBUM) {
+      const n = albumKills(k), got = ALBUM_T.filter((x) => n >= x).length, claimed = (meta.ab && meta.ab[k]) || 0;
+      const d = document.createElement("div"); d.className = "mcard" + (n ? "" : " unknown");
+      const im = document.createElement("img"); im.src = enemyIcon(k); im.alt = "";
+      const st = document.createElement("div"); st.className = "stars"; st.innerHTML = [0, 1, 2].map((i) => starSvg(i < got, 16)).join("");
+      const sm = document.createElement("small"); sm.textContent = fmt(n) + (claimed < 3 ? " / " + fmt(ALBUM_T[Math.min(claimed, 2)]) : "");
+      d.append(im, st, sm);
+      if (n) d.addEventListener("click", (ev) => { if (ev.target.closest("button")) return; toast(tr(k + "Note")); });
+      if (got > claimed) {
+        const b = document.createElement("button"); b.type = "button"; b.className = "btn primary"; b.innerHTML = COIN_SVG + "<span>" + fmt(ALBUM_GOLD[claimed]) + "</span>";
+        b.addEventListener("click", () => { meta.ab = meta.ab || {}; meta.ab[k] = claimed + 1; addGold(ALBUM_GOLD[claimed]); saveMeta(); sfx("charge"); haptic("success"); renderAlbum(); });
+        d.appendChild(b);
+      }
+      g.appendChild(d);
+    }
+  }
+  function openRaid() { toast(tr("offline")); }
 
   // ---- Shareable score card ----
   let cardBlob = null, cardUrl = "", lastStars = 1;
@@ -4908,6 +5220,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
 
   function ambient(dt) {
+    const ev = activeEvent();
+    if (ev && state === "play" && !reduceMotion && Math.random() < dt * 3 && particles.length < MAXP * 0.6)
+      emit("shard", rand(0, W), hudH * 0.4, { n: 1, spd: [0, 20], life: [4, 6], size: [3, 6], colors: ev.colors, vy: 40, vr: 6 });
     const a = TH.ambient;
     if (!a || reduceMotion || Math.random() > dt * 9 || particles.length > MAXP * 0.7) return;
     if (a === "snow") emit("flake", rand(0, W), hudH * 0.5, { n: 1, spd: [0, 15], life: [5, 8], size: [4, 8], colors: ["#ffffff"], vy: 40, vr: 2 });
@@ -5444,6 +5759,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.stroke();
     ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,0.8)";
     ctx.beginPath(); ctx.arc(0, 0, R + R * 0.04, 1.1 * Math.PI, 1.65 * Math.PI); ctx.stroke();
+    if (meta.frame) {
+      ctx.save(); ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.5 + Math.sin(now * 3) * 0.2;
+      ctx.drawImage(glow("#ffcf3d"), -R * 1.9, -R * 1.9, R * 3.8, R * 3.8);
+      ctx.restore();
+      ctx.beginPath(); ctx.arc(0, 0, R * 1.2, 0, TAU); ctx.strokeStyle = "#ffcf3d"; ctx.lineWidth = R * 0.08; ctx.stroke();
+    }
     drawCrown(TH.crown, R);
     ctx.restore();
 
@@ -6096,6 +6418,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("contAd").addEventListener("click", () => showAd().then((ok) => { if (ok) doContinue(); }));
   $("shopBtn").addEventListener("click", clickSfx(openShop));
   $("wheelBtn").addEventListener("click", clickSfx(openWheel));
+  $("passBtn").addEventListener("click", clickSfx(openPass));
+  $("passBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
+  $("passBuy").addEventListener("click", clickSfx(() => buyStars("pass")));
+  $("albumBtn").addEventListener("click", clickSfx(openAlbum));
+  $("albumBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
+  $("raidBtn").addEventListener("click", clickSfx(() => openRaid()));
+  document.querySelectorAll("#misTabs button").forEach((b) => b.addEventListener("click", () => { sfx("click"); misTab = b.dataset.tab; openMissions(); }));
   $("wheelSpin").addEventListener("click", spinWheel);
   $("wheelBack").addEventListener("click", clickSfx(() => { if (!spinning) showScreen("titleScreen"); }));
   $("hfGoldBuy").addEventListener("click", () => buyHeroGold(heroById(heroFocus)));
