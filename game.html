@@ -280,6 +280,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .switch[aria-checked="true"] i { transform: translateX(26px); }
 [dir="rtl"] .switch[aria-checked="true"] i { transform: translateX(-26px); }
 
+.price { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px 0; border-radius: 999px; background: rgba(74,35,0,.18); font-size: 20px; }
+.price svg { width: 22px; height: 22px; }
 .lvl-tag { font-size: 16px; padding: 3px 10px 1px; border-radius: 999px; background: rgba(74,35,0,.16); }
 .hud.levels .best { display: none; }
 .goals {
@@ -322,6 +324,49 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .intro-shape svg { width: 92px; height: auto; }
 .fail-reason { text-align: center; color: #ff8a9a; font-weight: 800; font-size: 20px; margin-top: -6px; }
 .portrait { cursor: pointer; }
+.gold-chip { position: absolute; top: 14px; inset-inline-start: 12px; display: flex; align-items: center; gap: 6px; padding: 5px 14px 3px 6px; border-radius: 999px;
+  background: rgba(8,12,44,.78); box-shadow: inset 0 0 0 2px rgba(255,207,61,.45); font-weight: 800; font-size: 18px; color: #ffe066; z-index: 2; }
+.gold-chip svg { width: 26px; height: 26px; }
+.btn .dot { position: absolute; top: 6px; inset-inline-end: 10px; width: 12px; height: 12px; border-radius: 50%; background: #ff3b5c; box-shadow: 0 0 0 2px #fff; }
+.btn { position: relative; }
+.btn-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.btn-row.three .btn { font-size: 15px; padding-inline: 6px; gap: 5px; }
+.days { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.dayc { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 6px; border-radius: 16px; background: rgba(0,0,0,.25); font-weight: 800; font-size: 13px; }
+.dayc img, .dayc svg { width: 34px; height: 34px; object-fit: contain; }
+.dayc b { font-size: 15px; color: #ffe066; }
+.dayc.done { opacity: .45; }
+.dayc.done::after { content: "✓"; position: absolute; top: 2px; inset-inline-end: 8px; color: #7dff8a; font-size: 18px; }
+.dayc.today { background: linear-gradient(#ffe98a, #ffbf1f 60%, #e08a00); color: #4a2300; box-shadow: 0 4px 0 #9a5a00, 0 0 0 3px #fff; }
+.dayc.today b { color: #7a3d00; }
+.dayc.big { grid-column: span 2; }
+.boost-row { display: flex; justify-content: center; gap: 10px; }
+.boost { appearance: none; border: 0; cursor: pointer; position: relative; width: 74px; padding: 8px 4px 6px; border-radius: 18px; background: rgba(0,0,0,.3);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.14); display: flex; flex-direction: column; align-items: center; gap: 3px; color: #fff; font: 800 13px/1 inherit; font-family: inherit; }
+.boost img { width: 40px; height: 40px; object-fit: contain; }
+.boost b { display: flex; align-items: center; gap: 3px; font-size: 14px; }
+.boost b svg { width: 15px; height: 15px; }
+.boost.on { background: linear-gradient(#5fe08a, #23a052); box-shadow: 0 4px 0 #126a32, 0 0 0 3px #fff; }
+.boost.on::after { content: "✓"; position: absolute; top: -6px; inset-inline-end: -4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; color: #23a052; display: grid; place-items: center; font-size: 15px; }
+.boost:disabled { opacity: .35; cursor: default; }
+.boost-label { margin: 0; text-align: center; font-weight: 800; font-size: 15px; opacity: .85; }
+.reward-line { display: flex; justify-content: center; align-items: center; gap: 14px; font-weight: 800; font-size: 20px; color: #ffe066; }
+.reward-line span { display: flex; align-items: center; gap: 4px; }
+.reward-line svg { width: 22px; height: 22px; }
+.reward-line .xp { color: #9fe8ff; }
+.mis-list { display: flex; flex-direction: column; gap: 10px; }
+.mis { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 10px 12px; border-radius: 18px; background: rgba(0,0,0,.25); }
+.mis p { margin: 0; font-weight: 800; font-size: 16px; }
+.mis .bar { grid-column: 1; height: 10px; border-radius: 999px; background: rgba(0,0,0,.4); overflow: hidden; }
+.mis .bar i { display: block; height: 100%; background: linear-gradient(#9fe8ff, #3d7bff); border-radius: 999px; }
+.mis .btn { grid-row: 1 / span 2; grid-column: 2; min-height: 44px; font-size: 16px; padding-inline: 12px; gap: 4px; }
+.mis .btn svg { width: 18px; height: 18px; }
+.mis.claimed { opacity: .5; }
+.mis-foot { text-align: center; font-size: 14px; opacity: .75; margin: 0; }
+.hf-xp { display: block; font-size: 13px; font-weight: 800; color: #9fe8ff; margin-top: 2px; }
+.hf-xp i { display: block; height: 7px; margin-top: 4px; border-radius: 999px; background: rgba(0,0,0,.4); overflow: hidden; }
+.hf-xp i u { display: block; height: 100%; background: linear-gradient(#bff4ff, #3fd0ff); }
+.hero-tile em { position: absolute; top: 5px; inset-inline-start: 5px; font-style: normal; font-size: 10px; font-weight: 800; background: #3fd0ff; color: #06243a; border-radius: 999px; padding: 1px 6px; }
 .hero-focus { display: grid; grid-template-columns: 38% 1fr; gap: 14px; align-items: center; padding: 12px; border-radius: 22px; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 2px rgba(255,255,255,.14); }
 .hero-focus img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 16px; box-shadow: 0 6px 0 rgba(0,0,0,.35); background: #13206b; }
 .hero-focus b { display: block; font-size: 24px; font-weight: 800; line-height: 1.1; }
@@ -466,6 +511,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7zm8.6 5.1l-1.7-.9a7 7 0 000-1.4l1.7-.9a1 1 0 00.4-1.3l-1.3-2.3a1 1 0 00-1.3-.4l-1.7.9a7 7 0 00-1.2-.7V4.8a1 1 0 00-1-1h-2.6a1 1 0 00-1 1v1.9c-.4.2-.8.4-1.2.7l-1.7-.9a1 1 0 00-1.3.4L3 9.2a1 1 0 00.4 1.3l1.7.9a7 7 0 000 1.4l-1.7.9a1 1 0 00-.4 1.3l1.3 2.3a1 1 0 001.3.4l1.7-.9c.4.3.8.5 1.2.7v1.9a1 1 0 001 1h2.6a1 1 0 001-1v-1.9c.4-.2.8-.4 1.2-.7l1.7.9a1 1 0 001.3-.4l1.3-2.3a1 1 0 00-.4-1.3z" fill="currentColor"/></svg>
     </button>
     <div class="title-wrap">
+      <div class="gold-chip" id="goldChip"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffcf3d" stroke="#9a5a00" stroke-width="2"/><circle cx="12" cy="12" r="6.3" fill="none" stroke="#e0a020" stroke-width="1.6"/><path d="M12 8.4l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="#fff6c2"/></svg><b id="goldAmt">0</b></div>
       <div class="portrait"><img id="titlePortrait" alt="Volya"></div>
       <h1 class="logo">VOLYA</h1>
       <p class="subtitle" data-i18n="subtitle"></p>
@@ -479,7 +525,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         <button class="btn secondary" id="mapBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5l5.5-2.5 7 2.5L21 4v13.5L15.5 20l-7-2.5L3 20z" fill="currentColor" opacity=".35"/><path d="M8.5 4v13.5M15.5 6.5V20" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.4" fill="currentColor"/></svg><span data-i18n="levels"></span></button>
         <button class="btn secondary" id="endlessBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5a3.5 3.5 0 100 7c2.6 0 4-3.5 5-3.5s2.4 3.5 5 3.5a3.5 3.5 0 100-7c-2.6 0-4 3.5-5 3.5S9.6 8.5 7 8.5z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></svg><span data-i18n="endless"></span></button>
       </div>
-      <button class="btn secondary hero-btn" id="heroBtn" type="button"><img id="heroBtnImg" alt=""><span data-i18n="heroes"></span></button>
+      <div class="btn-row">
+        <button class="btn secondary hero-btn" id="heroBtn" type="button"><img id="heroBtnImg" alt=""><span data-i18n="heroes"></span></button>
+        <button class="btn secondary" id="misBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3" fill="currentColor" opacity=".35"/><path d="M8 8.5l1.5 1.5L12 7.5M8 14.5l1.5 1.5 2.5-2.5M14 9h3M14 15h3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="missions"></span><i class="dot" id="misDot" hidden></i></button>
+      </div>
       <button class="btn share" id="titleInviteBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="inviteFriends"></span></button>
       <div class="btn-row">
         <button class="btn secondary" id="titleRecBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.5" fill="currentColor"/><rect x="9.75" y="7" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.5" fill="currentColor"/></svg><span data-i18n="myRecords"></span></button>
@@ -520,6 +569,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h2 class="over-title" data-i18n="gameOver"></h2>
       <div class="fail-reason" id="ovReason" hidden></div>
       <div class="big-score"><small data-i18n="score"></small><b id="ovScore">0</b></div>
+      <div class="reward-line" id="ovReward"></div>
       <div class="badge" id="ovBest"></div>
       <div class="improve" id="ovImprove" hidden></div>
       <div class="stats">
@@ -578,6 +628,33 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     </div>
   </section>
 
+  <section class="screen center" id="dailyScreen" hidden>
+    <div class="card">
+      <h2 data-i18n="dailyReward"></h2>
+      <div class="days" id="days"></div>
+      <button class="btn primary big" id="dailyClaim" type="button"><span data-i18n="claim"></span></button>
+    </div>
+  </section>
+
+  <section class="screen" id="misScreen" hidden>
+    <div class="map-wrap">
+      <h2 class="map-title" data-i18n="missions"></h2>
+      <div class="mis-list" id="misList"></div>
+      <p class="mis-foot" id="misFoot"></p>
+      <button class="btn ghost" id="misBack" type="button"><span data-i18n="menu"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="contScreen" hidden>
+    <div class="card">
+      <h2 data-i18n="continueQ"></h2>
+      <p class="fail-reason" id="contReason"></p>
+      <button class="btn primary big" id="contGold" type="button"><span data-i18n="continueBtn"></span><b class="price"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffcf3d" stroke="#9a5a00" stroke-width="2"/><circle cx="12" cy="12" r="6.3" fill="none" stroke="#e0a020" stroke-width="1.6"/><path d="M12 8.4l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="#fff6c2"/></svg><span>150</span></b></button>
+      <button class="btn share" id="contAd" type="button" hidden><span data-i18n="watchAd"></span></button>
+      <button class="btn ghost" id="contGiveUp" type="button"><span data-i18n="giveUp"></span></button>
+    </div>
+  </section>
+
   <section class="screen" id="heroScreen" hidden>
     <div class="map-wrap">
       <h2 class="map-title" data-i18n="heroes"></h2>
@@ -585,6 +662,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         <img id="hfImg" alt="">
         <div>
           <b id="hfName"></b>
+          <span class="hf-xp" id="hfXp"></span>
           <small id="hfPerk"></small>
           <span class="hf-lock" id="hfLock"></span>
           <div class="btn-row">
@@ -604,6 +682,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h2 id="inLevel"></h2>
       <div class="intro-goals" id="inGoals"></div>
       <div class="intro-shape" id="inShape" hidden></div>
+      <p class="boost-label" data-i18n="boosters"></p>
+      <div class="boost-row" id="inBoosts"></div>
       <div class="unlock" id="inUnlock" hidden><img id="inUnlockImg" alt=""><div><b id="inUnlockTitle"></b><span id="inUnlockName"></span><small id="inUnlockNote"></small></div></div>
       <button class="btn primary big" id="inStart" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.9l10-6.5a1 1 0 000-1.7l-10-6.5A1 1 0 008 5.5z" fill="currentColor"/></svg><span data-i18n="start"></span></button>
       <button class="btn ghost" id="inBack" type="button"><span data-i18n="levels"></span></button>
@@ -615,6 +695,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <h2 class="win-title" data-i18n="levelComplete"></h2>
       <div class="win-stars" id="winStars"></div>
       <div class="big-score"><small data-i18n="score"></small><b id="winScore">0</b></div>
+      <div class="reward-line" id="winReward"></div>
       <div class="unlock" id="winUnlock" hidden><img id="winUnlockImg" alt=""><div><b id="winUnlockTitle"></b><span id="winUnlockName"></span><small id="winUnlockNote"></small></div></div>
       <button class="btn primary big" id="winNext" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.9l10-6.5a1 1 0 000-1.7l-10-6.5A1 1 0 008 5.5z" fill="currentColor"/></svg><span data-i18n="nextLevel"></span></button>
       <button class="btn share" id="winShare" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 19c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6z" fill="currentColor"/><path d="M18.5 7.5v7M15 11h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-i18n="challenge"></span></button>
@@ -1284,6 +1365,32 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     vi: ["Nhân vật", "Chọn", "Đã chọn", "Đạt màn {n}", "Đã mở khóa {n}!", "Tham gia đội {n} trong Volya Gem Defense! 💎", "Hồi máu từ từ", "Thanh cuồng nộ đầy nhanh hơn 25%", "Chế độ Cuồng nộ kéo dài thêm 2 giây", "+25% điểm từ mọi thứ", "Sét nhảy thêm sang 2 kẻ địch", "Băng đóng băng lâu hơn 50%", "Hồi máu và bảo vệ mạnh hơn 50%", "Mây độc to hơn 40% và tồn tại lâu hơn", "Bắt đầu mỗi ván với một lượt Gió", "Đòn đánh vào thùng và đá được tính gấp đôi", "Phi tiêu trúng hai mục tiêu", "+3 lượt và +15 giây ở màn giới hạn", "Bắt đầu mỗi ván với một lượt Nova", "Chém trong cuồng nộ gây sát thương gấp đôi lên trùm", "Tên lửa và bom rơi ra gấp đôi", "Hồn ma không thể ẩn và kẻ địch chậm hơn 10%"]
   };
   for (const k in STR_HERO) STR_HERO[k].forEach((v, i) => { STR[k][HERO_KEYS[i]] = v; });
+  const META_KEYS = ["gold", "dailyReward", "day", "claim", "comeBack", "dailyChallenge", "dailyDone", "boosters", "b_rockets", "b_moves", "b_shield", "continueQ", "continueBtn", "watchAd", "giveUp", "missions", "ms_kills", "ms_wins", "ms_darts", "ms_bombs", "ms_gems", "ms_bosses", "ms_rage", "ms_endless", "resetsIn", "shop", "unlockNow", "heroLevel", "maxLevel", "shareCard", "saveImage", "teamWar", "teamWarNote", "notEnough", "thanks", "todayBest", "offline"];
+  const STR_META = {
+    en: ["Gold", "Daily reward", "Day {n}", "Claim", "Come back tomorrow for the next reward!", "Daily challenge", "Done today ✓", "Boosters", "Start with 2 rockets", "+5 moves or +20 s", "Start with a shield", "Keep going?", "Continue", "Watch ad", "Give up", "Weekly missions", "Defeat {n} monsters", "Win {n} levels", "Make {n} darts", "Make {n} bombs", "Clear {n} gems", "Defeat {n} bosses", "Use Rage Mode {n} times", "Play {n} Endless runs", "New missions in {n} d", "Shop", "Unlock now", "Level {n}", "Max level", "Share card", "Save image", "Team war", "Every Endless score counts for your character's team this week", "Not enough gold", "Thank you! Added to your account", "Today's best", "Online features are not available yet"],
+    fa: ["طلا", "پاداش روزانه", "روز {n}", "دریافت", "فردا برای پاداش بعدی برگرد!", "چالش روزانه", "امروز انجام شد ✓", "بوسترها", "شروع با ۲ موشک", "۵+ حرکت یا ۲۰+ ثانیه", "شروع با سپر", "ادامه می‌دهی؟", "ادامه", "دیدن تبلیغ", "تسلیم", "مأموریت‌های هفتگی", "{n} هیولا را شکست بده", "{n} مرحله را ببر", "{n} دارت بساز", "{n} بمب بساز", "{n} جواهر بترکان", "{n} غول را شکست بده", "{n} بار حالت خشم بگیر", "{n} بار بی‌پایان بازی کن", "مأموریت‌های جدید تا {n} روز دیگر", "فروشگاه", "همین حالا باز کن", "سطح {n}", "حداکثر سطح", "کارت امتیاز", "ذخیرهٔ تصویر", "جنگ تیم‌ها", "هر امتیاز بی‌پایان این هفته به تیم شخصیتت اضافه می‌شود", "طلا کافی نیست", "ممنون! به حسابت اضافه شد", "بهترین امروز", "امکانات آنلاین هنوز فعال نشده"],
+    ar: ["ذهب", "مكافأة يومية", "اليوم {n}", "استلام", "عد غدًا للمكافأة التالية!", "تحدي اليوم", "أُنجز اليوم ✓", "معززات", "ابدأ بصاروخين", "+5 حركات أو +20 ث", "ابدأ بدرع", "هل تواصل؟", "متابعة", "شاهد إعلانًا", "استسلام", "مهام أسبوعية", "اهزم {n} وحشًا", "اربح {n} مراحل", "اصنع {n} سهامًا", "اصنع {n} قنابل", "امسح {n} جوهرة", "اهزم {n} زعماء", "استخدم وضع الغضب {n} مرات", "العب {n} جولات بلا نهاية", "مهام جديدة خلال {n} يوم", "المتجر", "افتح الآن", "المستوى {n}", "أعلى مستوى", "بطاقة النتيجة", "حفظ الصورة", "حرب الفرق", "كل نتيجة في وضع بلا نهاية تُحسب لفريق شخصيتك هذا الأسبوع", "الذهب غير كافٍ", "شكرًا! أُضيف إلى حسابك", "أفضل نتيجة اليوم", "الميزات عبر الإنترنت غير متاحة بعد"],
+    ru: ["Золото", "Ежедневная награда", "День {n}", "Забрать", "Возвращайся завтра за следующей наградой!", "Задание дня", "Сегодня пройдено ✓", "Бустеры", "Старт с 2 ракетами", "+5 ходов или +20 с", "Старт со щитом", "Продолжить?", "Продолжить", "Смотреть рекламу", "Сдаться", "Задания недели", "Победи {n} монстров", "Пройди {n} уровней", "Сделай {n} дротиков", "Сделай {n} бомб", "Убери {n} камней", "Победи {n} боссов", "Включи ярость {n} раз", "Сыграй {n} бесконечных забегов", "Новые задания через {n} дн.", "Магазин", "Открыть сейчас", "Уровень {n}", "Макс. уровень", "Карточка счёта", "Сохранить картинку", "Война команд", "Каждый бесконечный забег на этой неделе идёт в зачёт команде твоего персонажа", "Не хватает золота", "Спасибо! Добавлено на счёт", "Лучший сегодня", "Онлайн-функции пока недоступны"],
+    uk: ["Золото", "Щоденна нагорода", "День {n}", "Забрати", "Повертайся завтра по наступну нагороду!", "Завдання дня", "Сьогодні виконано ✓", "Бустери", "Старт із 2 ракетами", "+5 ходів або +20 с", "Старт зі щитом", "Продовжити?", "Продовжити", "Дивитися рекламу", "Здатися", "Завдання тижня", "Переможи {n} монстрів", "Пройди {n} рівнів", "Зроби {n} дротиків", "Зроби {n} бомб", "Прибери {n} каменів", "Переможи {n} босів", "Увімкни лють {n} разів", "Зіграй {n} нескінченних забігів", "Нові завдання за {n} дн.", "Крамниця", "Відкрити зараз", "Рівень {n}", "Макс. рівень", "Картка рахунку", "Зберегти зображення", "Війна команд", "Кожен нескінченний забіг цього тижня йде в залік команді твого персонажа", "Бракує золота", "Дякуємо! Додано на рахунок", "Найкращий сьогодні", "Онлайн-функції поки недоступні"],
+    tr: ["Altın", "Günlük ödül", "Gün {n}", "Al", "Sonraki ödül için yarın gel!", "Günün görevi", "Bugün tamam ✓", "Güçlendiriciler", "2 roketle başla", "+5 hamle veya +20 sn", "Kalkanla başla", "Devam mı?", "Devam et", "Reklam izle", "Pes et", "Haftalık görevler", "{n} canavar yen", "{n} bölüm kazan", "{n} dart yap", "{n} bomba yap", "{n} mücevher patlat", "{n} boss yen", "{n} kez Öfke Modu kullan", "{n} Sonsuz oyun oyna", "Yeni görevler {n} gün sonra", "Mağaza", "Hemen aç", "Seviye {n}", "Maks. seviye", "Skor kartı", "Resmi kaydet", "Takım savaşı", "Bu hafta her Sonsuz skor karakterinin takımına sayılır", "Yeterli altın yok", "Teşekkürler! Hesabına eklendi", "Bugünün en iyisi", "Çevrim içi özellikler henüz hazır değil"],
+    az: ["Qızıl", "Gündəlik mükafat", "Gün {n}", "Al", "Növbəti mükafat üçün sabah gəl!", "Günün sınağı", "Bu gün edildi ✓", "Gücləndiricilər", "2 raketlə başla", "+5 gediş və ya +20 san", "Qalxanla başla", "Davam edirsən?", "Davam et", "Reklama bax", "Təslim ol", "Həftəlik tapşırıqlar", "{n} canavarı məğlub et", "{n} mərhələ qazan", "{n} dart düzəlt", "{n} bomba düzəlt", "{n} daş partlat", "{n} bossu məğlub et", "{n} dəfə Qəzəb rejimi işlət", "{n} Sonsuz oyun oyna", "Yeni tapşırıqlar {n} gün sonra", "Mağaza", "İndi aç", "Səviyyə {n}", "Maks. səviyyə", "Xal kartı", "Şəkli saxla", "Komanda müharibəsi", "Bu həftə hər Sonsuz xal personajının komandasına yazılır", "Qızıl çatmır", "Təşəkkürlər! Hesabına əlavə edildi", "Bu günün ən yaxşısı", "Onlayn imkanlar hələ aktiv deyil"],
+    uz: ["Oltin", "Kunlik sovg'a", "{n}-kun", "Olish", "Keyingi sovg'a uchun ertaga qayt!", "Kun sinovi", "Bugun bajarildi ✓", "Kuchaytirgichlar", "2 ta raketa bilan boshlash", "+5 yurish yoki +20 s", "Qalqon bilan boshlash", "Davom etasanmi?", "Davom etish", "Reklama ko'rish", "Taslim bo'lish", "Haftalik vazifalar", "{n} ta maxluqni yeng", "{n} ta bosqichni yut", "{n} ta o'q yasa", "{n} ta bomba yasa", "{n} ta tosh portlat", "{n} ta bossni yeng", "G'azab rejimini {n} marta ishlat", "{n} marta Cheksiz o'yna", "Yangi vazifalar {n} kundan keyin", "Do'kon", "Hozir ochish", "{n}-daraja", "Maks. daraja", "Ochko kartasi", "Rasmni saqlash", "Jamoalar urushi", "Bu hafta har bir Cheksiz ochko qahramoningiz jamoasiga qo'shiladi", "Oltin yetarli emas", "Rahmat! Hisobingizga qo'shildi", "Bugungi eng yaxshi", "Onlayn imkoniyatlar hali ishlamaydi"],
+    kk: ["Алтын", "Күнделікті сыйлық", "{n}-күн", "Алу", "Келесі сыйлық үшін ертең кел!", "Күн сынағы", "Бүгін орындалды ✓", "Күшейткіштер", "2 зымыранмен бастау", "+5 жүріс не +20 с", "Қалқанмен бастау", "Жалғастырасың ба?", "Жалғастыру", "Жарнама көру", "Берілу", "Апталық тапсырмалар", "{n} құбыжықты жең", "{n} деңгейді ұт", "{n} жебе жаса", "{n} бомба жаса", "{n} тас жар", "{n} басты жең", "Ашу режимін {n} рет қолдан", "{n} рет Шексіз ойна", "Жаңа тапсырмалар {n} күннен кейін", "Дүкен", "Қазір ашу", "{n}-деңгей", "Макс. деңгей", "Ұпай картасы", "Суретті сақтау", "Командалар соғысы", "Осы аптада әр Шексіз ұпай кейіпкеріңнің командасына қосылады", "Алтын жетпейді", "Рақмет! Шотыңа қосылды", "Бүгінгі ең үздік", "Онлайн мүмкіндіктер әлі қосылмаған"],
+    es: ["Oro", "Recompensa diaria", "Día {n}", "Reclamar", "¡Vuelve mañana por la siguiente recompensa!", "Desafío diario", "Hecho hoy ✓", "Potenciadores", "Empieza con 2 cohetes", "+5 movimientos o +20 s", "Empieza con escudo", "¿Sigues?", "Continuar", "Ver anuncio", "Rendirse", "Misiones semanales", "Derrota {n} monstruos", "Gana {n} niveles", "Crea {n} dardos", "Crea {n} bombas", "Elimina {n} gemas", "Derrota {n} jefes", "Usa el Modo Furia {n} veces", "Juega {n} partidas infinitas", "Nuevas misiones en {n} d", "Tienda", "Desbloquear ya", "Nivel {n}", "Nivel máximo", "Tarjeta de puntos", "Guardar imagen", "Guerra de equipos", "Cada puntuación infinita de esta semana suma para el equipo de tu personaje", "No tienes suficiente oro", "¡Gracias! Añadido a tu cuenta", "Mejor de hoy", "Las funciones en línea aún no están disponibles"],
+    pt: ["Ouro", "Recompensa diária", "Dia {n}", "Resgatar", "Volte amanhã para a próxima recompensa!", "Desafio diário", "Feito hoje ✓", "Reforços", "Comece com 2 foguetes", "+5 jogadas ou +20 s", "Comece com escudo", "Continuar jogando?", "Continuar", "Ver anúncio", "Desistir", "Missões semanais", "Derrote {n} monstros", "Vença {n} fases", "Crie {n} dardos", "Crie {n} bombas", "Elimine {n} gemas", "Derrote {n} chefões", "Use o Modo Fúria {n} vezes", "Jogue {n} partidas infinitas", "Novas missões em {n} d", "Loja", "Desbloquear agora", "Nível {n}", "Nível máximo", "Cartão de pontos", "Salvar imagem", "Guerra de times", "Toda pontuação infinita desta semana conta para o time do seu personagem", "Ouro insuficiente", "Obrigado! Adicionado à sua conta", "Melhor de hoje", "Recursos online ainda não estão disponíveis"],
+    fr: ["Or", "Récompense du jour", "Jour {n}", "Récupérer", "Reviens demain pour la prochaine récompense !", "Défi du jour", "Fait aujourd'hui ✓", "Bonus", "Commencer avec 2 fusées", "+5 coups ou +20 s", "Commencer avec un bouclier", "Continuer ?", "Continuer", "Voir une pub", "Abandonner", "Missions de la semaine", "Bats {n} monstres", "Gagne {n} niveaux", "Crée {n} fléchettes", "Crée {n} bombes", "Fais exploser {n} gemmes", "Bats {n} boss", "Utilise le mode Rage {n} fois", "Joue {n} parties infinies", "Nouvelles missions dans {n} j", "Boutique", "Débloquer", "Niveau {n}", "Niveau max", "Carte de score", "Enregistrer l'image", "Guerre des équipes", "Chaque score Infini de la semaine compte pour l'équipe de ton personnage", "Pas assez d'or", "Merci ! Ajouté à ton compte", "Meilleur du jour", "Les fonctions en ligne ne sont pas encore disponibles"],
+    de: ["Gold", "Tagesbelohnung", "Tag {n}", "Abholen", "Komm morgen für die nächste Belohnung wieder!", "Tages-Challenge", "Heute geschafft ✓", "Booster", "Mit 2 Raketen starten", "+5 Züge oder +20 s", "Mit Schild starten", "Weitermachen?", "Weiter", "Werbung ansehen", "Aufgeben", "Wochenmissionen", "Besiege {n} Monster", "Gewinne {n} Level", "Bau {n} Pfeile", "Bau {n} Bomben", "Räum {n} Steine ab", "Besiege {n} Bosse", "Nutze {n}-mal den Wutmodus", "Spiele {n} Endlos-Runden", "Neue Missionen in {n} T.", "Shop", "Jetzt freischalten", "Stufe {n}", "Max. Stufe", "Punktekarte", "Bild speichern", "Teamkrieg", "Jeder Endlos-Punktestand zählt diese Woche für das Team deiner Figur", "Nicht genug Gold", "Danke! Deinem Konto gutgeschrieben", "Heute Bester", "Online-Funktionen sind noch nicht verfügbar"],
+    it: ["Oro", "Premio giornaliero", "Giorno {n}", "Riscatta", "Torna domani per il prossimo premio!", "Sfida del giorno", "Fatta oggi ✓", "Potenziamenti", "Parti con 2 razzi", "+5 mosse o +20 s", "Parti con lo scudo", "Continui?", "Continua", "Guarda pubblicità", "Arrenditi", "Missioni settimanali", "Sconfiggi {n} mostri", "Vinci {n} livelli", "Crea {n} dardi", "Crea {n} bombe", "Fai esplodere {n} gemme", "Sconfiggi {n} boss", "Usa la Modalità Furia {n} volte", "Gioca {n} partite infinite", "Nuove missioni tra {n} g", "Negozio", "Sblocca ora", "Livello {n}", "Livello max", "Scheda punteggio", "Salva immagine", "Guerra delle squadre", "Ogni punteggio Infinito di questa settimana conta per la squadra del tuo personaggio", "Oro insufficiente", "Grazie! Aggiunto al tuo account", "Migliore di oggi", "Le funzioni online non sono ancora disponibili"],
+    nl: ["Goud", "Dagelijkse beloning", "Dag {n}", "Ophalen", "Kom morgen terug voor de volgende beloning!", "Dagelijkse uitdaging", "Vandaag gedaan ✓", "Boosters", "Start met 2 raketten", "+5 zetten of +20 s", "Start met een schild", "Doorgaan?", "Doorgaan", "Advertentie kijken", "Opgeven", "Weekmissies", "Versla {n} monsters", "Win {n} levels", "Maak {n} pijlen", "Maak {n} bommen", "Ruim {n} stenen op", "Versla {n} bazen", "Gebruik {n} keer Woedemodus", "Speel {n} eindeloze rondes", "Nieuwe missies over {n} d", "Winkel", "Nu vrijspelen", "Level {n}", "Max. level", "Scorekaart", "Afbeelding opslaan", "Teamoorlog", "Elke eindeloze score telt deze week mee voor het team van je personage", "Niet genoeg goud", "Bedankt! Toegevoegd aan je account", "Beste van vandaag", "Online functies zijn nog niet beschikbaar"],
+    pl: ["Złoto", "Nagroda dnia", "Dzień {n}", "Odbierz", "Wróć jutro po kolejną nagrodę!", "Wyzwanie dnia", "Zrobione dziś ✓", "Wzmocnienia", "Start z 2 rakietami", "+5 ruchów lub +20 s", "Start z tarczą", "Grasz dalej?", "Kontynuuj", "Obejrzyj reklamę", "Poddaj się", "Misje tygodnia", "Pokonaj {n} potworów", "Wygraj {n} poziomów", "Zrób {n} strzałek", "Zrób {n} bomb", "Zbij {n} klejnotów", "Pokonaj {n} bossów", "Użyj szału {n} razy", "Zagraj {n} gier bez końca", "Nowe misje za {n} dni", "Sklep", "Odblokuj teraz", "Poziom {n}", "Maks. poziom", "Karta wyniku", "Zapisz obraz", "Wojna drużyn", "W tym tygodniu każdy wynik bez końca liczy się dla drużyny twojej postaci", "Za mało złota", "Dziękujemy! Dodano do konta", "Najlepszy dziś", "Funkcje online nie są jeszcze dostępne"],
+    id: ["Emas", "Hadiah harian", "Hari {n}", "Ambil", "Kembali besok untuk hadiah berikutnya!", "Tantangan harian", "Selesai hari ini ✓", "Penguat", "Mulai dengan 2 roket", "+5 langkah atau +20 dtk", "Mulai dengan perisai", "Lanjut?", "Lanjutkan", "Tonton iklan", "Menyerah", "Misi mingguan", "Kalahkan {n} monster", "Menangkan {n} level", "Buat {n} panah", "Buat {n} bom", "Hancurkan {n} permata", "Kalahkan {n} bos", "Pakai Mode Amarah {n} kali", "Main {n} kali Tanpa akhir", "Misi baru dalam {n} hari", "Toko", "Buka sekarang", "Level {n}", "Level maks.", "Kartu skor", "Simpan gambar", "Perang tim", "Setiap skor Tanpa akhir minggu ini dihitung untuk tim karaktermu", "Emas tidak cukup", "Terima kasih! Sudah ditambahkan", "Terbaik hari ini", "Fitur online belum tersedia"],
+    hi: ["सोना", "रोज़ का इनाम", "दिन {n}", "लो", "अगले इनाम के लिए कल आना!", "आज की चुनौती", "आज पूरा ✓", "बूस्टर", "2 रॉकेट के साथ शुरू", "+5 चालें या +20 से.", "ढाल के साथ शुरू", "जारी रखें?", "जारी रखो", "विज्ञापन देखो", "हार मानो", "साप्ताहिक मिशन", "{n} राक्षस हराओ", "{n} स्तर जीतो", "{n} डार्ट बनाओ", "{n} बम बनाओ", "{n} रत्न फोड़ो", "{n} बॉस हराओ", "{n} बार क्रोध मोड चलाओ", "{n} बार अंतहीन खेलो", "नए मिशन {n} दिन में", "दुकान", "अभी खोलो", "स्तर {n}", "अधिकतम स्तर", "स्कोर कार्ड", "तस्वीर सहेजो", "टीम युद्ध", "इस हफ़्ते हर अंतहीन स्कोर तुम्हारे किरदार की टीम में जुड़ता है", "सोना कम है", "धन्यवाद! खाते में जुड़ गया", "आज का सबसे अच्छा", "ऑनलाइन सुविधाएँ अभी उपलब्ध नहीं हैं"],
+    zh: ["金币", "每日奖励", "第 {n} 天", "领取", "明天再来领取下一份奖励！", "每日挑战", "今日已完成 ✓", "道具", "开局带 2 个火箭", "+5 步或 +20 秒", "开局带护盾", "继续吗？", "继续", "看广告", "放弃", "每周任务", "击败 {n} 个怪物", "通过 {n} 关", "做出 {n} 个飞镖", "做出 {n} 个炸弹", "消除 {n} 颗宝石", "击败 {n} 个首领", "使用 {n} 次狂怒模式", "玩 {n} 局无尽模式", "{n} 天后刷新任务", "商店", "立即解锁", "{n} 级", "满级", "成绩卡", "保存图片", "战队大战", "本周每次无尽模式得分都会计入你角色的战队", "金币不足", "谢谢！已加入你的账户", "今日最佳", "在线功能尚未开放"],
+    ja: ["ゴールド", "デイリー報酬", "{n} 日目", "受け取る", "次の報酬はまた明日！", "デイリーチャレンジ", "今日はクリア済み ✓", "ブースター", "ロケット 2 つでスタート", "手数 +5 か時間 +20 秒", "シールドでスタート", "続ける？", "続ける", "広告を見る", "あきらめる", "ウィークリーミッション", "モンスターを {n} 体倒す", "ステージを {n} 回クリア", "ダーツを {n} 個作る", "爆弾を {n} 個作る", "宝石を {n} 個消す", "ボスを {n} 体倒す", "怒りモードを {n} 回使う", "エンドレスを {n} 回遊ぶ", "新しいミッションまであと {n} 日", "ショップ", "今すぐ解放", "レベル {n}", "最大レベル", "スコアカード", "画像を保存", "チーム戦", "今週のエンドレスのスコアはすべてキャラクターのチームに加算される", "ゴールドが足りない", "ありがとう！アカウントに追加しました", "今日のベスト", "オンライン機能はまだ使えません"],
+    ko: ["골드", "일일 보상", "{n}일차", "받기", "다음 보상은 내일 받아요!", "일일 챌린지", "오늘 완료 ✓", "부스터", "로켓 2개로 시작", "이동 +5 또는 +20초", "방패로 시작", "계속할까요?", "계속", "광고 보기", "포기", "주간 미션", "몬스터 {n}마리 처치", "스테이지 {n}개 클리어", "다트 {n}개 만들기", "폭탄 {n}개 만들기", "보석 {n}개 터뜨리기", "보스 {n}마리 처치", "분노 모드 {n}번 사용", "무한 모드 {n}판 플레이", "{n}일 후 새 미션", "상점", "지금 해금", "레벨 {n}", "최대 레벨", "점수 카드", "이미지 저장", "팀 대전", "이번 주 무한 모드 점수는 모두 캐릭터 팀에 더해져요", "골드가 부족해요", "감사합니다! 계정에 추가됐어요", "오늘의 최고", "온라인 기능은 아직 준비 중이에요"],
+    vi: ["Vàng", "Quà hằng ngày", "Ngày {n}", "Nhận", "Mai quay lại nhận quà tiếp nhé!", "Thử thách ngày", "Hôm nay đã xong ✓", "Vật phẩm hỗ trợ", "Bắt đầu với 2 tên lửa", "+5 lượt hoặc +20 giây", "Bắt đầu với khiên", "Chơi tiếp?", "Tiếp tục", "Xem quảng cáo", "Bỏ cuộc", "Nhiệm vụ tuần", "Hạ {n} quái vật", "Thắng {n} màn", "Tạo {n} phi tiêu", "Tạo {n} bom", "Phá {n} viên ngọc", "Hạ {n} trùm", "Dùng Cuồng nộ {n} lần", "Chơi Vô tận {n} lần", "Nhiệm vụ mới sau {n} ngày", "Cửa hàng", "Mở khóa ngay", "Cấp {n}", "Cấp tối đa", "Thẻ điểm", "Lưu ảnh", "Chiến tranh đội", "Mọi điểm Vô tận tuần này được cộng cho đội nhân vật của bạn", "Không đủ vàng", "Cảm ơn! Đã cộng vào tài khoản", "Tốt nhất hôm nay", "Tính năng trực tuyến chưa sẵn sàng"]
+  };
+  for (const k in STR_META) STR_META[k].forEach((v, i) => { STR[k][META_KEYS[i]] = v; });
 
   // ---- Characters ------------------------------------------------------
   // Each hero swaps Volya's portrait and brings one small perk. They unlock with level progress,
@@ -2269,12 +2376,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     hpSeen = MAX_HP; hpLag = 1;
     goals = LV ? LV.goals.map((g) => Object.assign({}, g, { have: 0 })) : [];
     bossT = LV && LV.boss ? 4 : 0;
-    movesLeft = LV && LV.moves ? LV.moves + (perk("yoda") ? 3 : 0) : 0; timeLeft = LV && LV.time ? LV.time + (perk("yoda") ? 15 : 0) : 0;
+    movesLeft = LV && LV.moves ? LV.moves + (perk("yoda") ? Math.round(3 * pk()) : 0) : 0; timeLeft = LV && LV.time ? LV.time + (perk("yoda") ? Math.round(15 * pk()) : 0) : 0;
     mask = LV && LV.shape ? LV.shape.map((row) => [...row].map((ch) => ch === "x")) : null;
     moveMade = false; slimeHit = false; bombsSpawned = 0; dropsSpawned = 0; shots = []; failReason = null;
     playTime = 0; hp = MAX_HP; score = 0; shownScore = 0; combo = 0; comboT = 0; comboPop = 0; bestCombo = 0; kills = 0;
     elapsed = 0; wave = 1; spawnT = 2.5; guard = 0; zones = []; flyers = [];
-    powers = { nova: perk("memegram") && unlocked("nova") ? 1 : 0, wind: perk("utya") && unlocked("wind") ? 1 : 0, shield: 0, magnet: 0 }; dome = 0; regenT = 0; magnetFx = null; moveCleared = 0; rageMeter = 0; castQueue = []; castCD = 0; carry = {}; danger = 0;
+    powers = { nova: perk("memegram") && unlocked("nova") ? (pk() >= 2 ? 2 : 1) : 0, wind: perk("utya") && unlocked("wind") ? (pk() >= 2 ? 2 : 1) : 0, shield: 0, magnet: 0 }; dome = 0; regenT = 0; magnetFx = null; moveCleared = 0; rageMeter = 0; castQueue = []; castCD = 0; carry = {}; danger = 0;
     boardParts = []; boardFx = []; pendingCreates = []; moveSpecials = 0; moveNova = false;
     initBoard();
     if (LV) placeBlockers();
@@ -2299,7 +2406,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const lvScale = LV ? (type === "boss" ? 1 + (LV.hpScale - 1) * 0.6 : LV.hpScale) : 1;
     const hpScale = (LV ? lvScale * (1 + t / 160) : 1 + t / 70) * hpMul;
     const spd = LV ? LV.spdScale * Math.min(1 + t / 200, 1.4) : Math.min(1 + t / 120, 2.4);
-    const e = { type, x, y, r: d.r, hp: d.hp * hpScale, maxHp: d.hp * hpScale, speed: d.speed * spd * S * (perk("noctis") ? 0.9 : 1), dmg: d.dmg, pts: d.pts, c: d.c,
+    const e = { type, x, y, r: d.r, hp: d.hp * hpScale, maxHp: d.hp * hpScale, speed: d.speed * spd * S * (perk("noctis") ? 1 - 0.1 * pk() : 1), dmg: d.dmg, pts: d.pts, c: d.c,
       frozen: 0, slow: 0, flash: 0, hit: 0, kx: 0, ky: 0, phase: rand(0, TAU), ghostT: rand(0, 2), dead: false, boss: type === "boss",
       armor: d.armor ? d.armor * hpScale : 0, maxArmor: d.armor ? d.armor * hpScale : 0, actT: rand(1.5, 3) };
     enemies.push(e);
@@ -2409,12 +2516,13 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     kills++; combo++; comboT = COMBO_WINDOW; comboPop = 1;
     bestCombo = Math.max(bestCombo, combo);
     const mult = 1 + (combo - 1) * 0.1;
-    const pts = Math.round(e.pts * mult * (how === "slice" ? 2 : 1) * (perk("notcoin") ? 1.25 : 1));
+    const pts = Math.round(e.pts * mult * (how === "slice" ? 2 : 1) * (perk("notcoin") ? 1 + 0.25 * pk() : 1));
     score += pts;
     addText("+" + fmt(pts), e.x, e.y - e.r, how === "slice" ? "#ffffff" : "#ffe066", 18 + Math.min(combo, 20) * 0.5, 0.85);
     if (how === "slice") sliceApart(e, ang || 0); else poof(e);
     sfx("pop");
     goalProgress("kill", 1);
+    if (state === "play") { track("kills"); if (e.boss) track("bosses"); }
     if (e.boss) {
       goalProgress("boss", 1);
       emit("glow", e.x, e.y, { n: 24, spd: [60, 420], life: [0.6, 1.2], size: [20, 44], colors: ["#ff7a3d", "#ffd84d", "#ffffff"], drag: 0.9 });
@@ -2501,7 +2609,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       doFlash("#ff7a3d", 0.07 * t);
       sfx("boom", t);
     } else if (p.el === "poison") {
-      const R = POISON.R[t] * S * (perk("virus") ? 1.4 : 1), dur = POISON.dur[t] * (perk("virus") ? 1.4 : 1);
+      const R = POISON.R[t] * S * (perk("virus") ? 1 + 0.4 * pk() : 1), dur = POISON.dur[t] * (perk("virus") ? 1 + 0.4 * pk() : 1);
       zones.push({ x: p.x, y: p.y, R, t: dur, max: dur, dps: POISON.dps[t], spin: rand(0, TAU) });
       emit("goo", p.x, p.y, { n: 14 + t * 5, spd: [120, 340], life: [0.5, 0.9], size: [3, 7], colors: ["#6ee03a", "#b8ff6a", "#2f9e1e"], g: 500, vy: -140 });
       emit("glow", p.x, p.y, { n: 6 + t * 2, spd: [30, R * 1.2], life: [0.4, 0.7], size: [R * 0.3, R * 0.5], colors: ["#6ee03a", "#b8ff6a"], drag: 0.88 });
@@ -2509,7 +2617,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       addShake(2 + t * 2);
       sfx("boom", 1);
     } else {
-      const R = ICE.R[t] * S, fz = (ICE.freeze[t] + (unlocked("boostIce") ? 1 : 0)) * (perk("pengu") ? 1.5 : 1);
+      const R = ICE.R[t] * S, fz = (ICE.freeze[t] + (unlocked("boostIce") ? 1 : 0)) * (perk("pengu") ? 1 + 0.5 * pk() : 1);
       for (const e of enemies) {
         if (e.dead || Math.hypot(e.x - p.x, e.y - p.y) >= R + e.r) continue;
         e.frozen = Math.max(e.frozen, fz);
@@ -2528,9 +2636,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
   function healUp(t) {
-    const amt = Math.min(MAX_HP - hp, Math.round(HEAL.hp[t] * (unlocked("boostHeal") ? 1.5 : 1) * (perk("teddy") ? 1.5 : 1)));
+    const amt = Math.min(MAX_HP - hp, Math.round(HEAL.hp[t] * (unlocked("boostHeal") ? 1.5 : 1) * (perk("teddy") ? 1 + 0.5 * pk() : 1)));
     hp += amt;
-    guard = Math.max(guard, HEAL.guard[t] * (perk("teddy") ? 1.5 : 1));
+    guard = Math.max(guard, HEAL.guard[t] * (perk("teddy") ? 1 + 0.5 * pk() : 1));
     if (amt > 0) addText("+" + fmt(amt), cx, cy - coreR - 20, "#ff8fc8", 26, 1);
     emit("heart", cx, cy, { n: 10 + t * 4, spd: [60, 180], life: [0.8, 1.3], size: [6, 11], colors: ["#ff6fb5", "#ff9fd0", "#ffd1e8"], vy: -120, drag: 0.94, vr: 2 });
     emit("glow", cx, cy, { n: 8, spd: [30, 120], life: [0.4, 0.8], size: [20, 34], colors: ["#ff6fb5", "#ffd1e8"] });
@@ -2553,7 +2661,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     haptic("heavy");
   }
   function shieldUp() {
-    dome = DOME_TIME * (perk("teddy") ? 1.5 : 1);
+    dome = DOME_TIME * (perk("teddy") ? 1 + 0.5 * pk() : 1);
     ring(cx, cy, coreR * 3.2, "#bfeaff", 0.5, 12);
     emit("glow", cx, cy, { n: 14, spd: [60, 220], life: [0.4, 0.8], size: [16, 30], colors: ["#4fc3ff", "#e0f6ff", "#ffffff"], drag: 0.9 });
     tone(520, 1040, 0.35, "sine", 0.08); tone(780, 1560, 0.3, "triangle", 0.05, 0.05);
@@ -2617,7 +2725,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     const range = BOLT.range[t] * S;
     let i = 0;
-    while (cur && i < BOLT.chains[t] + (unlocked("boostBolt") ? 2 : 0) + (perk("gramcat") ? 2 : 0)) {
+    while (cur && i < BOLT.chains[t] + (unlocked("boostBolt") ? 2 : 0) + (perk("gramcat") ? Math.round(2 * pk()) : 0)) {
       hit.add(cur);
       pts.push({ x: cur.x, y: cur.y });
       emit("glow", cur.x, cur.y, { n: 1, spd: [0, 0], life: [0.25, 0.25], size: [30 + t * 8, 30 + t * 8], colors: ["#fff3a0"] });
@@ -2846,8 +2954,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         else {
           hit.add(k); g.hitT = 1;
           iceFx(r, c, g.el === "crate" ? "wood" : g.el === "stone" ? "stone" : g.el === "slime" ? "goo" : g.chain ? "chain" : "ice");
-          if (g.el === "crate") { g.hp -= perk("egor") ? 2 : 1; if (g.hp > 0) return; goalProgress("crate", 1); }
-          else if (g.el === "stone") { g.hp -= hard || hardAll ? 3 : perk("egor") ? 2 : 1; if (g.hp > 0) return; goalProgress("stone", 1); }
+          if (g.el === "crate") { g.hp -= perk("egor") ? Math.round(1 + pk()) : 1; if (g.hp > 0) return; goalProgress("crate", 1); }
+          else if (g.el === "stone") { g.hp -= hard || hardAll ? 3 : perk("egor") ? Math.round(1 + pk()) : 1; if (g.hp > 0) return; goalProgress("stone", 1); }
           else if (g.el === "slime") { slimeHit = true; goalProgress("slime", 1); }
           else if (g.chain) { g.chain--; if (!g.chain) goalProgress("chain", 1); return; }
           else if (g.ice > 1) { g.ice--; return; }
@@ -2895,10 +3003,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const ox = sums[el][0] / counts[el], oy = sums[el][1] / counts[el];
       flyers.push({ x: ox, y: oy, tx: cx, ty: cy - coreR * 0.35, t: 0, dur: 0.32, c: EL[el].c, done: () => castQueue.push({ el, tier }) });
     }
-    score += Math.round(total * 5 * Math.max(1, cascade) * (perk("notcoin") ? 1.25 : 1));
+    score += Math.round(total * 5 * Math.max(1, cascade) * (perk("notcoin") ? 1 + 0.25 * pk() : 1));
     moveCleared += total;
+    if (state === "play") track("gems", total);
     if (!rage) {
-      rageMeter = Math.min(RAGE_MAX, rageMeter + total * (perk("pinkbull") ? 1.25 : 1));
+      rageMeter = Math.min(RAGE_MAX, rageMeter + total * (perk("pinkbull") ? 1 + 0.25 * pk() : 1));
       if (rageMeter >= RAGE_MAX && state === "play") {
         let top = "fire", best2 = -1;
         for (const el in counts) if (counts[el] > best2) { best2 = counts[el]; top = el; }
@@ -2941,7 +3050,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     } else if (g.sp === "dart") {
       for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) add(r + dr, c + dc, d + 0.05);
       const picked = [];
-      for (let k = 0; k < (perk("tgdog") ? 2 : 1); k++) {
+      for (let k = 0; k < (perk("tgdog") ? (pk() >= 2 ? 3 : 2) : 1); k++) {
         const t = dartTarget(r, c, picked);
         if (!t) break;
         picked.push(t);
@@ -3019,9 +3128,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       let sp = null;
       if (g.maxRun >= 5) sp = unlocked("nova") ? "rainbow" : "bomb";
       else if (g.lt) sp = "bomb";
-      if (sp === "bomb") { const q = cellCenter(g.cells[0][0], g.cells[0][1]); later(0.25, () => grantPower("shield", q.x, q.y)); }
+      if (sp === "bomb") { track("bombs"); const q = cellCenter(g.cells[0][0], g.cells[0][1]); later(0.25, () => grantPower("shield", q.x, q.y)); }
       else if (g.maxRun === 4) sp = g.hMax >= 4 ? "rocketV" : "rocketH";
-      if (!sp && g.square) sp = "dart";
+      if (!sp && g.square) { sp = "dart"; track("darts"); }
       if (sp) {
         const at = g.cells.find(([r, c]) => swapped && swapped.some((q) => q[0] === r && q[1] === c)) || g.cells[Math.floor(g.cells.length / 2)];
         pendingCreates.push({ r: at[0], c: at[1], el: sp === "rainbow" ? "rainbow" : g.el, sp });
@@ -3139,7 +3248,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (pendingCreates.length) sfx("charge");
     pendingCreates = [];
     let freeSpecials = MAX_BOARD_SPECIALS + (perk("yaya") ? 1 : 0) - countSpecials();
-    const dropSp = DROP_SPECIAL * (perk("yaya") ? 2 : 1);
+    const dropSp = DROP_SPECIAL * (perk("yaya") ? 1 + pk() : 1);
     const wantDrop = LV && goals.some((g) => g.type === "drop" && dropsSpawned < g.need) && !grid.some((row) => row.some((g) => g && g.el === "drop" && g.pop === 0));
     const bombGoal = LV && goals.find((g) => g.type === "bombT");
     let timers = grid.reduce((n, row) => n + row.filter((g) => g && g.timer && g.pop === 0).length, 0);
@@ -3402,9 +3511,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     cast(die(el, tier), t ? t.x : null, t ? t.y : null);
   }
   function triggerRage(el) {
-    const rt = RAGE_TIME + (perk("babyshark") ? 2 : 0);
+    const rt = RAGE_TIME + (perk("babyshark") ? 2 * pk() : 0);
     rage = { t: rt, max: rt, el: EL[el] && !EL[el].special ? el : "fire", sec: Math.ceil(rt), pop: 1 };
     texts = []; banner = null; praise = null; hintMove = null;
+    track("rage");
     rageMeter = 0;
     blade = [];
     selected = null;
@@ -3417,7 +3527,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen"]) $(s).hidden = s !== id;
+    if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
     renderGoalsHud();
@@ -3440,7 +3551,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
-    if (!$("heroScreen").hidden) showScreen("titleScreen");
+    if (!$("contScreen").hidden) giveUp();
+    else if (!$("dailyScreen").hidden) claimDaily();
+    else if (!$("misScreen").hidden) showScreen("titleScreen");
+    else if (!$("heroScreen").hidden) showScreen("titleScreen");
     else if (!$("introScreen").hidden) closeIntro();
     else if (!$("mapScreen").hidden) showScreen("titleScreen");
     else if (!$("winScreen").hidden) openMap();
@@ -3458,6 +3572,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     BOARD_GEMS = LV ? LV.gems : GEMS;
     setTheme(LV ? LV.w : 0);
     reset();
+    contUsed = false;
+    if (LV) useBoosts(); else boostSel = {};
     if (LV) banner = { text: tr("level", levelN), t: 2 };
     $("hud").classList.toggle("levels", !!LV);
     runBestStart = best; runRecordShown = false;
@@ -3483,6 +3599,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function toMenu() {
     state = "title";
     exitGuard(false);
+    setTimeout(() => { if (state === "title" && !$("titleScreen").hidden && dailyDue()) openDaily(); }, 400);
     LV = null; BOARD_GEMS = GEMS;
     setTheme(levelDef(progress.unlocked).w);
     reset();
@@ -3498,6 +3615,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     showScreen(settingsReturn === "pause" ? "pauseScreen" : "titleScreen");
   }
   function gameOver() {
+    if (LV && !contUsed && state === "play") { offerContinue(); return; }
     state = "over"; stateT = 0; rage = null;
     exitGuard(false);
     emit("glow", cx, cy, { n: 20, spd: [60, 400], life: [0.6, 1.2], size: [20, 40], colors: ["#3d7bff", "#ff4a3d", "#ffffff", "#3fd0ff"], drag: 0.9, grow: 0.4 });
@@ -3513,6 +3631,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
     }
     if (!LV) recordRun({ t: Date.now(), s: score, w: wave, k: kills, c: bestCombo }, newBest, prevBest);
+    {
+      const g = LV ? 0 : Math.floor(score / 250), xp = LV ? 15 : Math.min(200, Math.floor(score / 150));
+      if (!LV) track("endless");
+      addGold(g); addXp(xp); saveMeta();
+      rewardLine("ovReward", g, xp);
+    }
     sfx("over");
     haptic("error");
     const submitted = LV ? Promise.resolve(null) : submitScore({ score, wave, kills, duration: Math.round(playTime), hero: HERO.id });
@@ -3661,6 +3785,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     shp.hidden = !L.shape;
     if (L.shape) { shp.innerHTML = shapeSvg(L.shape); shp.style.color = THEMES[L.w % THEMES.length].star; }
     fillUnlock("in", n);
+    boostSel = {}; renderBoosts();
     showScreen("introScreen");
   }
   function closeIntro() { if (introReturn === "map") openMap(); else showScreen("titleScreen"); }
@@ -3716,6 +3841,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     progress.stars[levelN] = Math.max(progress.stars[levelN] || 0, stars);
     progress.unlocked = Math.min(MAX_LEVEL, Math.max(progress.unlocked, levelN + 1));
     saveProgress();
+    const winGold = 10 + stars * 5 + (LV.boss ? 15 : 0);
+    track("wins"); addGold(winGold); addXp(40); saveMeta();
+    rewardLine("winReward", winGold, 40);
     sfx("rainbow"); haptic("success");
     setTimeout(() => {
       if (state !== "won") return;
@@ -3831,6 +3959,205 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { const p = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param; if (p) return p; } catch (e) {}
     try { const q = new URLSearchParams(location.search); return q.get("tgWebAppStartParam") || q.get("startapp") || ""; } catch (e) { return ""; }
   }
+
+  // ---- Meta progress: gold, boosters, daily login, hero XP, weekly missions ----
+  const META_KEY = "dice-chain-meta-v1";
+  const COIN_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\" fill=\"#ffcf3d\" stroke=\"#9a5a00\" stroke-width=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"6.3\" fill=\"none\" stroke=\"#e0a020\" stroke-width=\"1.6\"/><path d=\"M12 8.4l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z\" fill=\"#fff6c2\"/></svg>";
+  let meta = { rev: 0, gold: 0, boost: { rockets: 0, moves: 0, shield: 0 }, login: { last: "", streak: 0 }, xp: {}, week: -1, mis: [], daily: { day: "", done: false, best: 0 } };
+  function fixMeta(m) {
+    const d = { rev: 0, gold: 0, boost: { rockets: 0, moves: 0, shield: 0 }, login: { last: "", streak: 0 }, xp: {}, week: -1, mis: [], daily: { day: "", done: false, best: 0 } };
+    m = Object.assign(d, m || {});
+    m.boost = Object.assign({ rockets: 0, moves: 0, shield: 0 }, m.boost || {});
+    return m;
+  }
+  function loadMeta() {
+    try { meta = fixMeta(JSON.parse(localStorage.getItem(META_KEY) || "{}")); } catch (e) {}
+    const cs = tgCloud();
+    if (cs) try {
+      cs.getItem(META_KEY, (err, val) => {
+        if (err || !val) return;
+        try { const m = fixMeta(JSON.parse(val)); if (m.rev > meta.rev) { meta = m; updateGold(); } } catch (e) {}
+      });
+    } catch (e) {}
+  }
+  function saveMeta() {
+    meta.rev++;
+    const data = JSON.stringify(meta);
+    try { localStorage.setItem(META_KEY, data); } catch (e) {}
+    const cs = tgCloud();
+    if (cs) try { cs.setItem(META_KEY, data, () => {}); } catch (e) {}
+    updateGold();
+  }
+  function updateGold() {
+    $("goldAmt").textContent = fmt(meta.gold);
+    $("misDot").hidden = !meta.mis.some((m) => m.done && !m.claimed);
+  }
+  function addGold(n) { meta.gold = Math.max(0, meta.gold + n); }
+  const dayKey = (d = new Date()) => d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+
+  // hero levels: XP from runs makes the hero's perk stronger
+  const XP_LV = [0, 300, 1000];
+  const heroLevel = (id) => { const x = meta.xp[id] || 0; return x >= XP_LV[2] ? 3 : x >= XP_LV[1] ? 2 : 1; };
+  const pk = () => [1, 1.5, 2][heroLevel(HERO.id) - 1];
+  function addXp(n) {
+    const before = heroLevel(HERO.id);
+    meta.xp[HERO.id] = (meta.xp[HERO.id] || 0) + n;
+    const after = heroLevel(HERO.id);
+    if (after > before) setTimeout(() => toast(HERO.name + " ⭐ " + tr("heroLevel", after)), 1600);
+  }
+
+  // daily login: a 7-day streak calendar
+  const DAILY = [{ gold: 50 }, { boost: "rockets" }, { gold: 100 }, { boost: "moves" }, { gold: 150 }, { boost: "shield" }, { gold: 300, all: true }];
+  let dailyNext = 1;
+  const BOOST_PRICE = { rockets: 60, moves: 80, shield: 70 };
+  const BOOST_ICON = {};
+  function boostIcon(k) {
+    if (BOOST_ICON[k]) return BOOST_ICON[k];
+    if (k === "shield") return (BOOST_ICON[k] = dieDataURL("shield"));
+    if (k === "moves") return (BOOST_ICON[k] = "data:image/svg+xml;utf8," + encodeURIComponent(MOVES_SVG.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" color="#ffe066" ')));
+    const c = mk(128, 128), g = c.getContext("2d"); g.scale(2, 2); g.translate(32, 32); g.rotate(-Math.PI / 4); paintRocket(g, 56);
+    return (BOOST_ICON[k] = c.toDataURL());
+  }
+  function dailyDue() { return meta.login.last !== dayKey(); }
+  function openDaily() {
+    const yest = dayKey(new Date(Date.now() - 86400000));
+    dailyNext = meta.login.last === yest ? (meta.login.streak % 7) + 1 : 1;
+    const box = $("days"); box.textContent = "";
+    DAILY.forEach((r, i) => {
+      const d = document.createElement("div");
+      d.className = "dayc" + (i + 1 < dailyNext ? " done" : "") + (i + 1 === dailyNext ? " today" : "") + (i === 6 ? " big" : "");
+      const t = document.createElement("span"); t.textContent = tr("day", i + 1);
+      d.appendChild(t);
+      if (r.boost) { const im = document.createElement("img"); im.src = boostIcon(r.boost); im.alt = ""; d.appendChild(im); }
+      else d.insertAdjacentHTML("beforeend", COIN_SVG);
+      const b = document.createElement("b"); b.textContent = r.gold ? fmt(r.gold) + (r.all ? " +3" : "") : "×1";
+      d.appendChild(b); box.appendChild(d);
+    });
+    showScreen("dailyScreen");
+  }
+  function claimDaily() {
+    const r = DAILY[dailyNext - 1];
+    if (r.gold) addGold(r.gold);
+    if (r.boost) meta.boost[r.boost]++;
+    if (r.all) for (const k in meta.boost) meta.boost[k]++;
+    meta.login = { last: dayKey(), streak: dailyNext };
+    saveMeta();
+    sfx("charge"); haptic("success");
+    toast(r.gold ? "+" + fmt(r.gold) + " " + tr("gold") : tr("boosters") + " +1");
+    showScreen("titleScreen");
+  }
+
+  // pre-level boosters
+  let boostSel = {};
+  function renderBoosts() {
+    const box = $("inBoosts"), L = levelDef(levelN);
+    box.textContent = "";
+    for (const k of ["rockets", "moves", "shield"]) {
+      const b = document.createElement("button"), have = meta.boost[k];
+      b.type = "button"; b.className = "boost" + (boostSel[k] ? " on" : "");
+      b.disabled = k === "moves" && !L.moves && !L.time;
+      b.setAttribute("aria-label", tr("b_" + k)); b.title = tr("b_" + k);
+      const im = document.createElement("img"); im.src = boostIcon(k); im.alt = "";
+      const t = document.createElement("b");
+      if (have) t.textContent = "×" + fmt(have); else t.innerHTML = COIN_SVG + fmt(BOOST_PRICE[k]);
+      b.append(im, t);
+      b.addEventListener("click", () => {
+        if (!boostSel[k] && !meta.boost[k] && meta.gold < BOOST_PRICE[k]) { toast(tr("notEnough")); sfx("nope"); return; }
+        boostSel[k] = !boostSel[k]; sfx("click"); renderBoosts();
+        if (boostSel[k]) toast(tr("b_" + k));
+      });
+      box.appendChild(b);
+    }
+  }
+  function useBoosts() {
+    const used = [];
+    for (const k of ["rockets", "moves", "shield"]) {
+      if (!boostSel[k]) continue;
+      if (meta.boost[k] > 0) meta.boost[k]--;
+      else if (meta.gold >= BOOST_PRICE[k]) addGold(-BOOST_PRICE[k]);
+      else continue;
+      used.push(k);
+    }
+    boostSel = {};
+    if (!used.length) return;
+    saveMeta();
+    if (used.includes("rockets")) {
+      const opts = [];
+      for (let r = 1; r < ROWS - 1; r++) for (let c = 0; c < COLS; c++) { const g = grid[r][c]; if (g && movable(g) && !g.sp && GEMS.includes(g.el)) opts.push(g); }
+      opts.sort(() => Math.random() - 0.5);
+      opts.slice(0, 2).forEach((g, i) => { g.sp = i ? "rocketV" : "rocketH"; g.spawn = 1; });
+    }
+    if (used.includes("moves")) { if (LV.moves) movesLeft += 5; else if (LV.time) timeLeft += 20; }
+    if (used.includes("shield")) dome = DOME_TIME;
+  }
+
+  // one continue per attempt after losing a level
+  const CONT_PRICE = 150;
+  let contUsed = false;
+  function offerContinue() {
+    state = "cont";
+    $("contReason").textContent = failReason ? tr(failReason) : "";
+    $("contGold").disabled = meta.gold < CONT_PRICE;
+    $("contGold").querySelector(".price span").textContent = fmt(CONT_PRICE);
+    $("contAd").hidden = !adsReady();
+    showScreen("contScreen");
+    sfx("warn"); haptic("warning");
+  }
+  function doContinue() {
+    contUsed = true;
+    if (failReason === "outOfMoves") movesLeft += 5;
+    else if (failReason === "outOfTime") timeLeft += 20;
+    else { hp = Math.max(hp, 60); guard = 2.5; }
+    failReason = null;
+    for (const e of enemies) if (!e.dead && !e.boss && Math.hypot(e.x - cx, e.y - cy) < coreR * 6) { e.dead = true; poof(e); }
+    tornado();
+    state = "play";
+    showScreen(null);
+  }
+  function giveUp() { contUsed = true; state = "play"; gameOver(); }
+  const adsReady = () => false;
+
+  // weekly missions
+  const MIS_DEF = { kills: [150, 150], wins: [5, 150], darts: [15, 120], bombs: [10, 120], gems: [800, 150], bosses: [3, 200], rage: [6, 120], endless: [3, 120] };
+  const weekNo = () => Math.floor((Date.now() / 86400000 + 3) / 7);
+  function ensureMissions() {
+    const w = weekNo();
+    if (meta.week === w && meta.mis.length) return;
+    const R = rng(w * 31 + 7), pool = Object.keys(MIS_DEF);
+    meta.week = w; meta.mis = [];
+    while (meta.mis.length < 3) {
+      const t = pool.splice(Math.floor(R() * pool.length), 1)[0];
+      meta.mis.push({ t, need: MIS_DEF[t][0], have: 0, done: false, claimed: false, gold: MIS_DEF[t][1] });
+    }
+    saveMeta();
+  }
+  function track(t, n = 1) {
+    for (const m of meta.mis) {
+      if (m.t !== t || m.done) continue;
+      m.have = Math.min(m.need, m.have + n);
+      if (m.have >= m.need) { m.done = true; toast("✓ " + tr("ms_" + t, m.need)); }
+    }
+  }
+  function openMissions() {
+    ensureMissions();
+    const list = $("misList"); list.textContent = "";
+    for (const m of meta.mis) {
+      const d = document.createElement("div"); d.className = "mis" + (m.claimed ? " claimed" : "");
+      const t = document.createElement("p"); t.textContent = tr("ms_" + m.t, m.need) + "  " + fmt(m.have) + "/" + fmt(m.need);
+      const bar = document.createElement("div"); bar.className = "bar"; bar.innerHTML = `<i style="width:${(m.have / m.need) * 100}%"></i>`;
+      const b = document.createElement("button"); b.type = "button"; b.className = "btn " + (m.done && !m.claimed ? "primary" : "ghost");
+      b.disabled = !m.done || m.claimed;
+      b.innerHTML = COIN_SVG + `<span>${m.claimed ? "✓" : fmt(m.gold)}</span>`;
+      b.addEventListener("click", () => { if (!m.done || m.claimed) return; m.claimed = true; addGold(m.gold); saveMeta(); sfx("charge"); haptic("success"); openMissions(); });
+      d.append(t, b, bar); list.appendChild(d);
+    }
+    const left = Math.max(1, Math.ceil((weekNo() + 1) * 7 - 3 - Date.now() / 86400000));
+    $("misFoot").textContent = tr("resetsIn", left);
+    showScreen("misScreen");
+  }
+  function rewardLine(id, gold, xp) {
+    $(id).innerHTML = (gold ? `<span>${COIN_SVG}+${fmt(gold)}</span>` : "") + (xp ? `<span class="xp">+${fmt(xp)} XP</span>` : "");
+  }
   const heroOpen = (h) => progress.unlocked >= h.at || (progress.gift || []).includes(h.id);
   function setHero(id) {
     const h = heroById(id);
@@ -3853,12 +4180,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       const nm = document.createElement("span"); nm.textContent = h.name;
       b.append(im, nm);
       if (!ok) { const lk = document.createElement("i"); lk.innerHTML = LOCK_SVG; lk.append(fmt(h.at)); b.appendChild(lk); }
+      else if (heroLevel(h.id) > 1) { const lv = document.createElement("em"); lv.textContent = "★" + fmt(heroLevel(h.id)); b.appendChild(lv); }
       b.setAttribute("aria-label", h.name);
       b.addEventListener("click", () => { sfx("click"); heroFocus = h.id; renderHeroes(); });
       grid.appendChild(b);
     }
     $("hfImg").src = heroCard(f);
     $("hfName").textContent = f.name;
+    {
+      const lv = heroLevel(f.id), x = meta.xp[f.id] || 0, lo = XP_LV[lv - 1], hi = XP_LV[lv];
+      $("hfXp").innerHTML = "";
+      $("hfXp").append(tr("heroLevel", lv) + (hi ? " · " + fmt(x) + "/" + fmt(hi) + " XP" : " · " + tr("maxLevel")));
+      const bar = document.createElement("i"); bar.innerHTML = `<u style="width:${hi ? ((x - lo) / (hi - lo)) * 100 : 100}%"></u>`;
+      $("hfXp").appendChild(bar);
+    }
     $("hfPerk").textContent = tr("perk_" + f.id);
     $("hfLock").textContent = open ? "" : tr("unlockLevel", f.at);
     $("hfSelect").disabled = !open || f === HERO;
@@ -3967,7 +4302,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Update ----------------------------------------------------------
   function update(dt) {
     stateT += dt;
-    if (state === "paused") return;
+    if (state === "paused" || state === "cont") return;
     const tsTarget = rage ? RAGE_SLOWMO : 1;
     timeScale += (tsTarget - timeScale) * Math.min(1, dt * 8);
     const wdt = dt * timeScale;
@@ -3982,7 +4317,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         if (rage.t <= 0) { const c = EL[rage.el].c; rage = null; blade = []; doFlash("#ffffff", 0.25); ring(cx, cy, Math.max(W, H) * 0.6, c, 0.6, 10); }
       }
       guard = Math.max(0, guard - dt);
-      if (perk("volya") && hp < MAX_HP) { regenT = (regenT || 0) + dt; if (regenT >= 3) { regenT = 0; hp = Math.min(MAX_HP, hp + 1); } }
+      if (perk("volya") && hp < MAX_HP) { regenT = (regenT || 0) + dt; if (regenT >= 3 / pk()) { regenT = 0; hp = Math.min(MAX_HP, hp + 1); } }
       if (dome > 0) {
         dome = Math.max(0, dome - wdt);
         const R = domeR();
@@ -4237,7 +4572,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       emit("spark", e.x, e.y, { n: 10, spd: [220, 560], dir: ang, spread: 0.35, life: [0.2, 0.4], size: [2, 3.5], colors: ["#ffffff", col.c2, col.c], drag: 0.9 });
       emit("spark", e.x, e.y, { n: 6, spd: [160, 380], dir: ang + Math.PI, spread: 0.35, life: [0.15, 0.3], size: [1.5, 3], colors: ["#ffffff", col.c], drag: 0.9 });
       ring(e.x, e.y, e.r * 2.6, col.c2, 0.25, 5);
-      if (e.boss) { if (now - (e.sliceT || 0) > 0.15) { e.sliceT = now; damage(e, perk("paws") ? 90 : 45); n++; } continue; }
+      if (e.boss) { if (now - (e.sliceT || 0) > 0.15) { e.sliceT = now; damage(e, perk("paws") ? 45 * (1 + pk()) : 45); n++; } continue; }
       kill(e, "slice", ang); n++;
     }
     if (n) {
@@ -5356,6 +5691,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("restartBtn").addEventListener("click", () => startGame());
   $("mapBtn").addEventListener("click", clickSfx(openMap));
   $("heroBtn").addEventListener("click", clickSfx(openHeroes));
+  $("misBtn").addEventListener("click", clickSfx(openMissions));
+  $("misBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
+  $("dailyClaim").addEventListener("click", claimDaily);
+  $("contGold").addEventListener("click", () => { if (meta.gold < CONT_PRICE) { toast(tr("notEnough")); return; } addGold(-CONT_PRICE); saveMeta(); sfx("charge"); doContinue(); });
+  $("contGiveUp").addEventListener("click", clickSfx(giveUp));
   document.querySelector("#titleScreen .portrait").addEventListener("click", clickSfx(openHeroes));
   $("heroBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   $("hfSelect").addEventListener("click", () => {
@@ -5417,6 +5757,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 
   loadStats();
   loadProgress();
+  loadMeta();
+  ensureMissions();
   {
     // community link: startapp=h_<id> (optionally after ref_<uid>_) unlocks and picks that hero
     const m = /(?:^|_)h_([a-z0-9]+)/.exec(startParam());
@@ -5435,6 +5777,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   setTheme(levelDef(progress.unlocked).w);
   reset();
   showScreen("titleScreen");
+  if (dailyDue()) setTimeout(() => { if (state === "title" && !$("titleScreen").hidden) openDaily(); }, 700);
   if (window.ResizeObserver) new ResizeObserver(layout).observe(stage);
   else window.addEventListener("resize", layout);
 
