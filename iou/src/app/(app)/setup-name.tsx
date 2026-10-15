@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { AppText, Banner, Button, Screen, TextField } from '@/components/ui';
+import { suggestedName } from '@/features/auth/auth';
 import { useUpdateProfile } from '@/features/profile/api';
 import { space } from '@/theme';
 
@@ -10,7 +11,7 @@ import { space } from '@/theme';
 export default function SetupName() {
   const { t } = useTranslation();
   const update = useUpdateProfile();
-  const [name, setName] = useState('');
+  const [name, setName] = useState(suggestedName);
   const [error, setError] = useState<string | null>(null);
 
   function save() {

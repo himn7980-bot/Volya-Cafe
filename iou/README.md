@@ -29,7 +29,7 @@ more group-money features ([roadmap](docs/roadmap.md)).
 ## Tech stack
 
 - **Expo SDK 57** (managed workflow, TypeScript, Expo Router), one codebase for Android and iOS
-- **Supabase**: Postgres with Row Level Security, Auth (phone OTP, email magic link, Google), Storage
+- **Supabase**: Postgres with Row Level Security, Auth (phone OTP, email magic link, Google, Apple on iOS), Storage
 - **State**: Zustand (device preferences, session) + TanStack Query (server data)
 - **i18n**: i18next + react-i18next + expo-localization, 16 languages, full RTL
 - **Fonts**: Vazirmatn (Arabic script), Noto Sans / Devanagari / Bengali / Hebrew; system font for Chinese
@@ -154,7 +154,12 @@ On a physical phone, `127.0.0.1` is the phone itself. Use your computer's LAN IP
 6. **Google**: create an OAuth client (type *Web application*) in Google Cloud Console,
    with redirect URI `https://<project-ref>.supabase.co/auth/v1/callback`. Paste the
    client ID and secret into Authentication → Providers → Google.
-7. Copy *Project URL* and the *anon public* key into `.env.local` (and into EAS
+7. **Apple** (iOS): in the Apple Developer portal, enable *Sign in with Apple* for the
+   app's identifier (EAS does this on the first build because `usesAppleSignIn` is on).
+   In Supabase → Authentication → Providers → Apple, enable it and add the bundle id
+   from `brand.json` (`app.iou.mobile`) to *Client IDs*. The native flow needs no secret.
+   The button shows on iOS only; Android keeps phone, email and Google.
+8. Copy *Project URL* and the *anon public* key into `.env.local` (and into EAS
    environment variables for builds, see "Building and publishing").
 
 ### Database tests
@@ -550,10 +555,8 @@ npx eas-cli build --profile preview --platform all             # builds to hand 
    Purpose: app functionality.
 5. **Review information**: the same test phone number and code as for Google, plus a
    short note: "Records informal loans between friends. The app never moves money."
-6. **Sign in with Apple**: App Review guideline 4.8 expects an equivalent
-   privacy-friendly login whenever Google sign-in is offered. Before submitting, either
-   enable Apple as a provider in Supabase and add the button (expo-apple-authentication),
-   or hide the Google button on iOS. This is the one open item for iOS.
+6. **Sign in with Apple** is built in on iOS (guideline 4.8 asks for it when Google
+   sign-in is offered). Make sure it is enabled in Supabase (see "Hosted project").
 7. Account deletion (guideline 5.1.1(v)) is in the app. Encryption export compliance is
    already answered in `app.config.ts` (`ITSAppUsesNonExemptEncryption: false`).
 8. Fill in the listing (description, keywords, support URL, privacy policy URL,

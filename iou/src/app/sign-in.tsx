@@ -1,12 +1,21 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, Banner, Button, Screen, TextField } from '@/components/ui';
-import { isValidEmail, normalizePhone, sendEmailLink, sendPhoneCode, signInWithGoogle } from '@/features/auth/auth';
+import {
+  appleSignInAvailable,
+  isValidEmail,
+  normalizePhone,
+  sendEmailLink,
+  sendPhoneCode,
+  signInWithApple,
+  signInWithGoogle,
+} from '@/features/auth/auth';
 import { usePrefs } from '@/i18n';
-import { minTapSize, radius, space, useColors } from '@/theme';
+import { minTapSize, radius, space, useColors, useIsDark } from '@/theme';
 
 type Method = 'phone' | 'email';
 
@@ -17,7 +26,13 @@ export default function SignIn() {
   const [value, setValue] = useState('');
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<'send' | 'google' | null>(null);
+  const [busy, setBusy] = useState<'send' | 'google' | 'apple' | null>(null);
+  const [apple, setApple] = useState(false);
+  const dark = useIsDark();
+
+  useEffect(() => {
+    void appleSignInAvailable().then(setApple);
+  }, []);
 
   async function send() {
     setError(null);
@@ -39,11 +54,11 @@ export default function SignIn() {
     }
   }
 
-  async function google() {
+  async function social(provider: 'google' | 'apple') {
     setError(null);
-    setBusy('google');
+    setBusy(provider);
     try {
-      await signInWithGoogle();
+      await (provider === 'apple' ? signInWithApple() : signInWithGoogle());
     } catch {
       setError(t('common.somethingWrong'));
     } finally {
@@ -117,11 +132,24 @@ export default function SignIn() {
 
       <Divider label={t('auth.or')} />
 
+      {apple ? (
+        // Apple's own button, as their guidelines require; it is labelled in the phone's language.
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+          buttonStyle={dark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+          cornerRadius={radius.md}
+          style={{ height: minTapSize, opacity: busy ? 0.5 : 1 }}
+          onPress={() => {
+            if (!busy) void social('apple');
+          }}
+        />
+      ) : null}
+
       <Button
         title={t('auth.google')}
         variant="secondary"
         icon="logo-google"
-        onPress={google}
+        onPress={() => void social('google')}
         loading={busy === 'google'}
         disabled={!!busy}
       />

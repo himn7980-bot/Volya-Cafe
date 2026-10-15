@@ -58,7 +58,7 @@ SHIM=1 DB_URL=postgresql://postgres:postgres@localhost:5432/postgres npm run tes
    (اگر بخواهید پیامک واقعی برود، یک سرویس مثل Twilio وصل کنید.)
 5. **ایمیل**: Authentication → Email Templates → Magic Link و محتوای
    `supabase/templates/magic_link.html` را جایگزین کنید تا ایمیل، کد ۶ رقمی هم داشته باشد.
-6. **گوگل** (اختیاری): طبق بخش «Set up Supabase» در README.
+6. **گوگل و اپل** (اختیاری): طبق بخش «Set up Supabase» در README. ورود با اپل فقط روی آیفون نمایش داده می‌شود.
 7. Edge Functionها را بفرستید:
    ```bash
    npm run functions:sync
@@ -171,6 +171,7 @@ npx eas-cli build --profile preview --platform android
 - [ ] ورود با شمارهٔ تست و کد `123456`
 - [ ] ورود با ایمیل: کد ۶ رقمی ایمیل کار کند، و لینک داخل ایمیل اپ را باز کند
 - [ ] ورود با گوگل (اگر تنظیم کرده‌اید)
+- [ ] آیفون: ورود با اپل؛ بار اول نام از اپل در صفحهٔ «نام شما» از قبل پر شده باشد
 - [ ] بار اول نام خواسته شود؛ نام خالی قبول نشود
 
 ### نمایه و تنظیمات

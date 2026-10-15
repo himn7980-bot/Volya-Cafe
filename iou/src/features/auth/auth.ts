@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
+import { Platform } from 'react-native';
 import { create } from 'zustand';
 
 import type { ResolvedPrefs } from '@/i18n';
@@ -112,6 +113,48 @@ export async function signInWithGoogle(): Promise<boolean> {
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
   if (result.type !== 'success') return false;
   return completeSignInFromUrl(result.url);
+}
+
+/**
+ * Sign in with Apple (iOS only, native sheet). Returns false when cancelled.
+ * Apple shares the person's name only the very first time, so it is saved to
+ * the profile right away when the profile has no name yet.
+ */
+export async function signInWithApple(): Promise<boolean> {
+  const AppleAuthentication = await import('expo-apple-authentication');
+  const Crypto = await import('expo-crypto');
+  // Apple gets the hashed nonce, Supabase the raw one, so a stolen token can't be replayed.
+  const rawNonce = Crypto.randomUUID();
+  const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawNonce);
+  let credential;
+  try {
+    credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
+      nonce: hashedNonce,
+    });
+  } catch (e) {
+    if ((e as { code?: string }).code === 'ERR_REQUEST_CANCELED') return false;
+    throw e;
+  }
+  if (!credential.identityToken) throw new Error('Apple returned no identity token');
+  const { data, error } = await supabase.auth.signInWithIdToken({ provider: 'apple', token: credential.identityToken, nonce: rawNonce });
+  if (error) throw error;
+  const name = [credential.fullName?.givenName, credential.fullName?.familyName].filter(Boolean).join(' ').trim();
+  suggestedName = name;
+  if (name && data.user) {
+    await supabase.from('profiles').update({ display_name: name.slice(0, 80) }).eq('id', data.user.id).eq('display_name', '');
+  }
+  return true;
+}
+
+/** A name the sign-in provider gave us, to prefill the "what's your name" step. */
+export let suggestedName = '';
+
+/** Whether this phone offers Sign in with Apple (iOS 13+). */
+export async function appleSignInAvailable(): Promise<boolean> {
+  if (Platform.OS !== 'ios') return false;
+  const AppleAuthentication = await import('expo-apple-authentication');
+  return AppleAuthentication.isAvailableAsync();
 }
 
 /** Sign out and forget this account's data on the phone. */

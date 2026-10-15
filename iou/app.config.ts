@@ -24,6 +24,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: brand.iosBundleIdentifier,
+    usesAppleSignIn: true,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -78,6 +79,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-sqlite',
+    'expo-apple-authentication',
     ['expo-notifications', { color: '#1F6F5C' }],
   ],
   experiments: {
