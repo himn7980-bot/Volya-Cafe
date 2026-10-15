@@ -17,8 +17,9 @@ The work is delivered in phases, with a review after each one.
 | 2 | Loans CRUD, local cache and sync | **done** |
 | 3 | Share link + public confirmation web page | **done** |
 | 4 | Repayments, reminders, push notifications | next |
-| 5 | Dashboard, export, settings, polish | |
-| 6 | Tests, EAS build config, store publishing guide | |
+| 5 | Group trips: shared expenses, up to 3 currencies, automatic settlement ([design](docs/group-trips.md)) | |
+| 6 | Dashboard, export, settings, polish | |
+| 7 | Tests, EAS build config, store publishing guide | |
 
 ## Tech stack
 
@@ -328,4 +329,4 @@ project.
 ## Building and publishing
 
 EAS build profiles and the step-by-step Google Play and App Store guide are part of
-Phase 6.
+Phase 7.
