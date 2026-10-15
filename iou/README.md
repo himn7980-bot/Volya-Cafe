@@ -21,6 +21,8 @@ The work is delivered in phases, with a review after each one.
 | 6 | Dashboard, export, settings, polish | |
 | 7 | Tests, EAS build config, store publishing guide | |
 
+After launch: travel companion and more group-money features, see [docs/roadmap.md](docs/roadmap.md).
+
 ## Tech stack
 
 - **Expo SDK 57** (managed workflow, TypeScript, Expo Router), one codebase for Android and iOS
