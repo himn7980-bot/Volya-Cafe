@@ -1,4 +1,4 @@
-# Group trips (planned: phase 5)
+# Group trips (planned: first feature after launch)
 
 A group (friends on a trip, flatmates, a team dinner) records shared expenses as
 they happen. When the trip is over, the app works out who owes whom and turns
@@ -13,7 +13,7 @@ no money is moved.
 | Closing a trip | The **creator** closes it. Members then have **24 hours** to object. |
 | Reading receipts | Manual amounts. Automatic reading of receipts is a later, **optional paid add-on**. Photos are stored from day one so it can plug in later. |
 | Currencies | Domestic trips: one currency. Trips abroad: **up to 3 currencies**, with exchange rates **entered by the group** from their exchange office. |
-| Order | Built after phase 4 (settling a trip needs repayments). |
+| Order | First feature after the MVP (friendly loans) has launched. |
 
 ## Members
 

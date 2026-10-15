@@ -52,8 +52,8 @@ begin
   return n;
 end $$;
 
-grant usage on schema tests to anon, authenticated;
-grant execute on all functions in schema tests to anon, authenticated;
+grant usage on schema tests to anon, authenticated, service_role;
+grant execute on all functions in schema tests to anon, authenticated, service_role;
 
 create or replace function tests.new_user(email text default null, phone text default null, meta jsonb default '{}')
 returns uuid language sql as $$

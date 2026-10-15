@@ -1,6 +1,6 @@
 import { RemoteError, runSync, MAX_ATTEMPTS } from '../syncEngine';
 
-import { FakeRemote, ME, makeLoan, newStore } from './helpers';
+import { FakeRemote, ME, makeLoan, makeRepayment, newStore } from './helpers';
 
 describe('local store', () => {
   it('shows a new loan immediately, marked pending', async () => {
@@ -180,7 +180,7 @@ describe('sync', () => {
     remote.serverEdit(loan.id, { status: 'confirmed' });
     await runSync(store, remote);
     expect((await store.getLoan(loan.id))!.status).toBe('confirmed');
-    expect(remote.calls.filter((c) => c.startsWith('pull'))[1]).toBe('pull 2026-10-14T23:58:05.000Z');
+    expect(remote.calls.filter((c) => c.startsWith('pull '))[1]).toBe('pull 2026-10-14T23:58:05.000Z');
   });
 
   it('keeps the names of the people I share records with', async () => {
@@ -195,5 +195,84 @@ describe('sync', () => {
     remote.serverEdit(loan.id, { note: 'x' });
     await runSync(store, remote);
     expect(await store.listPeople()).toEqual([]);
+  });
+
+});
+
+describe('repayments', () => {
+  async function confirmedLoan(over: Parameters<typeof makeLoan>[0] = {}) {
+    const store = await newStore();
+    const remote = new FakeRemote();
+    const loan = makeLoan({ status: 'confirmed', amountMinor: 1000, ...over });
+    remote.loans.set(loan.id, loan);
+    await store.applyServerLoans([loan]);
+    return { store, remote, loan };
+  }
+
+  it('records a repayment offline and sends it later', async () => {
+    const { store, remote, loan } = await confirmedLoan();
+    remote.online = false;
+    const rep = makeRepayment(loan.id, { amountMinor: 400, status: 'confirmed' }); // I am the lender
+    await store.createRepayment(rep);
+    expect((await store.getLoan(loan.id))!.repaidMinor).toBe(400);
+    expect((await store.listRepayments(loan.id))[0]).toMatchObject({ pending: true });
+    expect((await runSync(store, remote)).offline).toBe(true);
+
+    remote.online = true;
+    await runSync(store, remote);
+    expect(remote.repayments.get(rep.id)!.status).toBe('confirmed');
+    expect((await store.listRepayments(loan.id))[0]).toMatchObject({ pending: false, status: 'confirmed' });
+  });
+
+  it('settles the record when the last repayment is confirmed', async () => {
+    const { store, remote, loan } = await confirmedLoan({ lenderId: 'sara', borrowerId: ME, creatorId: ME });
+    const rep = makeRepayment(loan.id, { amountMinor: 1000 });
+    await store.createRepayment(rep);
+    await runSync(store, remote);
+    expect((await store.listRepayments(loan.id))[0]!.status).toBe('pending'); // waits for Sara
+
+    remote.serverAnswerRepayment(rep.id, 'confirmed');
+    await runSync(store, remote);
+    expect((await store.listRepayments(loan.id))[0]!.status).toBe('confirmed');
+    expect(await store.getLoan(loan.id)).toMatchObject({ status: 'settled', repaidMinor: 1000 });
+  });
+
+  it('withdraws an unsent repayment without contacting the server', async () => {
+    const { store, remote, loan } = await confirmedLoan();
+    const rep = makeRepayment(loan.id);
+    await store.createRepayment(rep);
+    await store.cancelRepayment(rep.id);
+    expect(await store.listRepayments(loan.id)).toEqual([]);
+    expect(await store.pendingCount()).toBe(0);
+    await runSync(store, remote);
+    expect(remote.calls.some((c) => c.startsWith('repay') || c.startsWith('cancel-repayment'))).toBe(false);
+  });
+
+  it('withdraws a sent pending repayment through the server', async () => {
+    const { store, remote, loan } = await confirmedLoan({ lenderId: 'sara', borrowerId: ME });
+    const rep = makeRepayment(loan.id);
+    await store.createRepayment(rep);
+    await runSync(store, remote);
+    await store.cancelRepayment(rep.id);
+    expect((await store.listRepayments(loan.id))[0]).toMatchObject({ status: 'cancelled', pending: true });
+    await runSync(store, remote);
+    expect(remote.repayments.get(rep.id)!.status).toBe('cancelled');
+  });
+
+  it('drops a repayment the server refuses', async () => {
+    const { store, remote, loan } = await confirmedLoan();
+    remote.serverEdit(loan.id, { status: 'settled' });
+    await store.createRepayment(makeRepayment(loan.id, { amountMinor: 10 }));
+    const r = await runSync(store, remote);
+    expect(r.rejected).toBe(1);
+    expect(await store.listRepayments(loan.id)).toEqual([]);
+  });
+
+  it('a pending repayment does not hide newer loan data', async () => {
+    const { store, remote, loan } = await confirmedLoan({ lenderId: 'sara', borrowerId: ME });
+    remote.online = false;
+    await store.createRepayment(makeRepayment(loan.id));
+    await store.applyServerLoans([{ ...loan, version: 2, note: 'from server' }]);
+    expect((await store.getLoan(loan.id))!.note).toBe('from server');
   });
 });

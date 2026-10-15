@@ -12,6 +12,8 @@ import {
   type LoanPatch,
   type LoanStatus,
   type LoanVersion,
+  type Repayment,
+  type RepaymentStatus,
 } from '@/shared/loans';
 
 export type SqlValue = string | number | null;
@@ -28,15 +30,27 @@ export interface LocalLoan extends Loan {
   pending: boolean;
   /** Photo picked on this phone and not uploaded yet. */
   localPhotoUri: string | null;
+  /** Sum of confirmed repayments. */
+  repaidMinor: number;
+}
+
+export interface LocalRepayment extends Repayment {
+  pending: boolean;
 }
 
 export type OutboxOp =
   | { seq: number; loanId: string; kind: 'create'; payload: Loan; baseVersion: null; attempts: number }
   | { seq: number; loanId: string; kind: 'update'; payload: LoanPatch; baseVersion: number; attempts: number }
-  | { seq: number; loanId: string; kind: 'photo'; payload: { localUri: string }; baseVersion: null; attempts: number };
+  | { seq: number; loanId: string; kind: 'photo'; payload: { localUri: string }; baseVersion: null; attempts: number }
+  | { seq: number; loanId: string; kind: 'repayment'; payload: Repayment; baseVersion: null; attempts: number }
+  | { seq: number; loanId: string; kind: 'repayment_cancel'; payload: { id: string }; baseVersion: null; attempts: number };
 
-// Bump when SCHEMA gains tables; every statement must be idempotent (IF NOT EXISTS).
-const SCHEMA_VERSION = 2;
+/** Outbox kinds that change the loan row itself (repayment ops live under the loan id too). */
+const LOAN_KINDS = "('create', 'update', 'photo')";
+
+// Bump when the schema changes. SCHEMA must stay idempotent (IF NOT EXISTS);
+// column additions to existing tables go in migrate().
+const SCHEMA_VERSION = 3;
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS loans (
@@ -53,6 +67,7 @@ CREATE TABLE IF NOT EXISTS loans (
   due_date TEXT,
   photo_path TEXT,
   local_photo_uri TEXT,
+  auto_remind INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL,
   share_token TEXT,
   version INTEGER NOT NULL,
@@ -86,6 +101,20 @@ CREATE TABLE IF NOT EXISTS people (
   language TEXT NOT NULL,
   avatar_path TEXT
 );
+CREATE TABLE IF NOT EXISTS repayments (
+  id TEXT PRIMARY KEY NOT NULL,
+  loan_id TEXT NOT NULL,
+  amount_minor INTEGER NOT NULL,
+  paid_on TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  created_by TEXT,
+  status TEXT NOT NULL,
+  responded_by TEXT,
+  response_comment TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS repayments_loan_idx ON repayments (loan_id);
 `;
 
 /** Someone I share a record with (from my_counterparts()). */
@@ -110,13 +139,68 @@ interface LoanRow {
   due_date: string | null;
   photo_path: string | null;
   local_photo_uri: string | null;
+  auto_remind: number;
   status: string;
   share_token: string | null;
   version: number;
   created_at: string;
   updated_at: string;
   pending?: number;
+  repaid_minor?: number;
 }
+
+interface RepaymentRow {
+  id: string;
+  loan_id: string;
+  amount_minor: number;
+  paid_on: string;
+  note: string;
+  created_by: string | null;
+  status: string;
+  responded_by: string | null;
+  response_comment: string | null;
+  created_at: string;
+  updated_at: string;
+  pending?: number;
+}
+
+const toRepayment = (r: RepaymentRow): LocalRepayment => ({
+  id: r.id,
+  loanId: r.loan_id,
+  amountMinor: r.amount_minor,
+  paidOn: r.paid_on,
+  note: r.note,
+  createdBy: r.created_by,
+  status: r.status as RepaymentStatus,
+  respondedBy: r.responded_by,
+  responseComment: r.response_comment,
+  createdAt: r.created_at,
+  updatedAt: r.updated_at,
+  pending: !!r.pending,
+});
+
+const UPSERT_REPAYMENT = `
+INSERT INTO repayments (id, loan_id, amount_minor, paid_on, note, created_by, status, responded_by,
+  response_comment, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT (id) DO UPDATE SET
+  amount_minor = excluded.amount_minor, paid_on = excluded.paid_on, note = excluded.note,
+  created_by = excluded.created_by, status = excluded.status, responded_by = excluded.responded_by,
+  response_comment = excluded.response_comment, updated_at = excluded.updated_at`;
+
+const repaymentParams = (r: Repayment): SqlValue[] => [
+  r.id,
+  r.loanId,
+  r.amountMinor,
+  r.paidOn,
+  r.note,
+  r.createdBy,
+  r.status,
+  r.respondedBy,
+  r.responseComment,
+  r.createdAt,
+  r.updatedAt,
+];
 
 const toLoan = (r: LoanRow): LocalLoan => ({
   id: r.id,
@@ -131,6 +215,7 @@ const toLoan = (r: LoanRow): LocalLoan => ({
   loanDate: r.loan_date,
   dueDate: r.due_date,
   photoPath: r.photo_path,
+  autoRemind: !!r.auto_remind,
   status: r.status as LoanStatus,
   shareToken: r.share_token,
   version: r.version,
@@ -138,6 +223,7 @@ const toLoan = (r: LoanRow): LocalLoan => ({
   updatedAt: r.updated_at,
   pending: !!r.pending,
   localPhotoUri: r.local_photo_uri,
+  repaidMinor: r.repaid_minor ?? 0,
 });
 
 const loanParams = (l: Loan): SqlValue[] => [
@@ -153,6 +239,7 @@ const loanParams = (l: Loan): SqlValue[] => [
   l.loanDate,
   l.dueDate,
   l.photoPath,
+  l.autoRemind ? 1 : 0,
   l.status,
   l.shareToken,
   l.version,
@@ -162,19 +249,22 @@ const loanParams = (l: Loan): SqlValue[] => [
 
 const UPSERT_LOAN = `
 INSERT INTO loans (id, creator_id, lender_id, borrower_id, counterparty_name, counterparty_phone,
-  amount_minor, currency, note, loan_date, due_date, photo_path, status, share_token, version,
+  amount_minor, currency, note, loan_date, due_date, photo_path, auto_remind, status, share_token, version,
   created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT (id) DO UPDATE SET
   creator_id = excluded.creator_id, lender_id = excluded.lender_id, borrower_id = excluded.borrower_id,
   counterparty_name = excluded.counterparty_name, counterparty_phone = excluded.counterparty_phone,
   amount_minor = excluded.amount_minor, currency = excluded.currency, note = excluded.note,
   loan_date = excluded.loan_date, due_date = excluded.due_date, photo_path = excluded.photo_path,
-  status = excluded.status, share_token = excluded.share_token, version = excluded.version,
+  auto_remind = excluded.auto_remind, status = excluded.status, share_token = excluded.share_token, version = excluded.version,
   created_at = excluded.created_at, updated_at = excluded.updated_at`;
 
 const SELECT_LOANS = `
-SELECT l.*, EXISTS (SELECT 1 FROM outbox o WHERE o.loan_id = l.id) AS pending FROM loans l`;
+SELECT l.*,
+  EXISTS (SELECT 1 FROM outbox o WHERE o.loan_id = l.id) AS pending,
+  (SELECT COALESCE(SUM(r.amount_minor), 0) FROM repayments r WHERE r.loan_id = l.id AND r.status = 'confirmed') AS repaid_minor
+FROM loans l`;
 
 export class LocalStore {
   private queue: Promise<unknown> = Promise.resolve();
@@ -217,6 +307,11 @@ export class LocalStore {
     const row = await this.db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
     if ((row?.user_version ?? 0) >= SCHEMA_VERSION) return;
     await this.db.execAsync(SCHEMA);
+    // v3: loans.auto_remind (installs from v1/v2 have the table without it).
+    const columns = await this.db.getAllAsync<{ name: string }>('PRAGMA table_info(loans)');
+    if (!columns.some((c) => c.name === 'auto_remind')) {
+      await this.db.execAsync('ALTER TABLE loans ADD COLUMN auto_remind INTEGER NOT NULL DEFAULT 0');
+    }
     await this.db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}`);
   }
 
@@ -296,6 +391,15 @@ export class LocalStore {
     });
   }
 
+  async listRepayments(loanId: string): Promise<LocalRepayment[]> {
+    const rows = await this.db.getAllAsync<RepaymentRow>(
+      `SELECT r.*, EXISTS (SELECT 1 FROM outbox o WHERE o.kind LIKE 'repayment%' AND json_extract(o.payload, '$.id') = r.id) AS pending
+       FROM repayments r WHERE r.loan_id = ? ORDER BY r.paid_on DESC, r.created_at DESC`,
+      loanId,
+    );
+    return rows.map(toRepayment);
+  }
+
   async getMeta(key: string): Promise<string | null> {
     const row = await this.db.getFirstAsync<{ value: string | null }>('SELECT value FROM meta WHERE key = ?', key);
     return row?.value ?? null;
@@ -323,7 +427,7 @@ export class LocalStore {
       if (!current) throw new Error(`unknown loan ${id}`);
       const changes = diffPatch(current, patch);
       if (Object.keys(changes).length === 0) return current;
-      const ops = (await this.pendingOps()).filter((o) => o.loanId === id);
+      const ops = (await this.pendingOps()).filter((o) => o.loanId === id && (o.kind === 'create' || o.kind === 'update'));
       const create = ops.find((o) => o.kind === 'create');
 
       if (create && changes.status === 'cancelled') {
@@ -346,7 +450,7 @@ export class LocalStore {
           await this.enqueue(id, 'update', changes, current.version);
         }
       }
-      return { ...next, pending: true, localPhotoUri: current.localPhotoUri };
+      return { ...next, pending: true, localPhotoUri: current.localPhotoUri, repaidMinor: current.repaidMinor };
     });
   }
 
@@ -365,6 +469,32 @@ export class LocalStore {
       const r = await this.db.runAsync("DELETE FROM outbox WHERE loan_id = ? AND kind = 'photo'", id);
       await this.db.runAsync('UPDATE loans SET local_photo_uri = NULL WHERE id = ?', id);
       return r.changes > 0;
+    });
+  }
+
+  /** Record a repayment locally (status already decided by who records it) and queue it. */
+  createRepayment(repayment: Repayment): Promise<void> {
+    return this.write(async () => {
+      await this.db.runAsync(UPSERT_REPAYMENT, ...repaymentParams(repayment));
+      await this.enqueue(repayment.loanId, 'repayment', repayment, null);
+    });
+  }
+
+  /** Withdraw my pending repayment. One that never left the phone is simply removed. */
+  cancelRepayment(id: string): Promise<void> {
+    return this.write(async () => {
+      const row = await this.db.getFirstAsync<RepaymentRow>('SELECT * FROM repayments WHERE id = ?', id);
+      if (!row) return;
+      const unsent = await this.db.runAsync(
+        "DELETE FROM outbox WHERE kind = 'repayment' AND json_extract(payload, '$.id') = ?",
+        id,
+      );
+      if (unsent.changes > 0) {
+        await this.db.runAsync('DELETE FROM repayments WHERE id = ?', id);
+        return;
+      }
+      await this.db.runAsync("UPDATE repayments SET status = 'cancelled' WHERE id = ?", id);
+      await this.enqueue(row.loan_id, 'repayment_cancel', { id }, null);
     });
   }
 
@@ -389,7 +519,7 @@ export class LocalStore {
       if (!op || !serverLoan) return;
       if (op.kind === 'photo') await this.db.runAsync('UPDATE loans SET local_photo_uri = NULL WHERE id = ?', op.loan_id);
       const remaining = await this.db.getFirstAsync<{ n: number }>(
-        "SELECT COUNT(*) AS n FROM outbox WHERE loan_id = ? AND kind <> 'photo'",
+        "SELECT COUNT(*) AS n FROM outbox WHERE loan_id = ? AND kind IN ('create', 'update')",
         op.loan_id,
       );
       if ((remaining?.n ?? 0) === 0) await this.db.runAsync(UPSERT_LOAN, ...loanParams(serverLoan));
@@ -417,7 +547,10 @@ export class LocalStore {
       if (!op) return;
       if (serverLoan) await this.db.runAsync(UPSERT_LOAN, ...loanParams(serverLoan));
       else {
-        const left = await this.db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM outbox WHERE loan_id = ?', op.loan_id);
+        const left = await this.db.getFirstAsync<{ n: number }>(
+          `SELECT COUNT(*) AS n FROM outbox WHERE loan_id = ? AND kind IN ${LOAN_KINDS}`,
+          op.loan_id,
+        );
         if (!left?.n) await this.db.runAsync('DELETE FROM loans WHERE id = ?', op.loan_id);
       }
     });
@@ -429,11 +562,42 @@ export class LocalStore {
     return this.write(async () => {
       let applied = 0;
       for (const loan of loans) {
-        const pending = await this.db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM outbox WHERE loan_id = ?', loan.id);
+        const pending = await this.db.getFirstAsync<{ n: number }>(
+          `SELECT COUNT(*) AS n FROM outbox WHERE loan_id = ? AND kind IN ${LOAN_KINDS}`,
+          loan.id,
+        );
         if (pending?.n) continue;
         const local = await this.db.getFirstAsync<{ version: number }>('SELECT version FROM loans WHERE id = ?', loan.id);
         if (local && local.version > loan.version) continue;
         await this.db.runAsync(UPSERT_LOAN, ...loanParams(loan));
+        applied += 1;
+      }
+      return applied;
+    });
+  }
+
+  /** A repayment op reached the server (or was refused): store the server's copy, if any. */
+  completeRepaymentOp(seq: number, serverRepayment: Repayment | null): Promise<void> {
+    return this.write(async () => {
+      const op = await this.db.getFirstAsync<{ payload: string }>('SELECT payload FROM outbox WHERE seq = ?', seq);
+      await this.db.runAsync('DELETE FROM outbox WHERE seq = ?', seq);
+      if (serverRepayment) await this.db.runAsync(UPSERT_REPAYMENT, ...repaymentParams(serverRepayment));
+      else if (op) await this.db.runAsync('DELETE FROM repayments WHERE id = ?', (JSON.parse(op.payload) as { id: string }).id);
+    });
+  }
+
+  /** Store repayments fetched from the server, except ones with local changes still pending. */
+  applyServerRepayments(repayments: Repayment[]): Promise<number> {
+    if (repayments.length === 0) return Promise.resolve(0);
+    return this.write(async () => {
+      let applied = 0;
+      for (const r of repayments) {
+        const pending = await this.db.getFirstAsync<{ n: number }>(
+          "SELECT COUNT(*) AS n FROM outbox WHERE kind LIKE 'repayment%' AND json_extract(payload, '$.id') = ?",
+          r.id,
+        );
+        if (pending?.n) continue;
+        await this.db.runAsync(UPSERT_REPAYMENT, ...repaymentParams(r));
         applied += 1;
       }
       return applied;
@@ -465,7 +629,9 @@ export class LocalStore {
   /** Forget everything (sign-out, or a different account on this phone). */
   clearAll(): Promise<void> {
     return this.write(async () => {
-      await this.db.execAsync('DELETE FROM loans; DELETE FROM outbox; DELETE FROM loan_versions; DELETE FROM meta; DELETE FROM people;');
+      await this.db.execAsync(
+        'DELETE FROM loans; DELETE FROM outbox; DELETE FROM loan_versions; DELETE FROM meta; DELETE FROM people; DELETE FROM repayments;',
+      );
     });
   }
 }

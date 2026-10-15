@@ -18,6 +18,8 @@ export interface Loan {
   loanDate: string; // ISO date
   dueDate: string | null;
   photoPath: string | null;
+  /** Send a gentle reminder automatically on the due date. */
+  autoRemind: boolean;
   status: LoanStatus;
   shareToken: string | null;
   version: number;
@@ -35,6 +37,7 @@ export interface LoanPatch {
   loanDate?: string;
   dueDate?: string | null;
   photoPath?: string | null;
+  autoRemind?: boolean;
   status?: 'cancelled';
 }
 
@@ -89,6 +92,7 @@ export interface LoanDraft {
   note: string;
   loanDate: string;
   dueDate: string | null;
+  autoRemind: boolean;
 }
 
 export type DraftError = 'nameRequired' | 'amountInvalid' | 'phoneInvalid' | 'dueBeforeLoan' | 'noteTooLong';
@@ -101,6 +105,24 @@ export function validateDraft(d: LoanDraft): Partial<Record<keyof LoanDraft, Dra
   if (d.dueDate && d.dueDate < d.loanDate) errors.dueDate = 'dueBeforeLoan';
   if (d.note.length > 500) errors.note = 'noteTooLong';
   return errors;
+}
+
+// ---------- Repayments ----------
+
+export type RepaymentStatus = 'pending' | 'confirmed' | 'disputed' | 'cancelled';
+
+export interface Repayment {
+  id: string;
+  loanId: string;
+  amountMinor: number;
+  paidOn: string; // ISO date
+  note: string;
+  createdBy: string | null;
+  status: RepaymentStatus;
+  respondedBy: string | null;
+  responseComment: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ---------- History ----------

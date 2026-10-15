@@ -78,6 +78,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-sqlite',
+    ['expo-notifications', { color: '#1F6F5C' }],
   ],
   experiments: {
     typedRoutes: true,
@@ -85,5 +86,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     brand,
     supportedLocales,
+    // From `npx eas-cli init`; needed for push notification tokens.
+    ...(process.env.EAS_PROJECT_ID ? { eas: { projectId: process.env.EAS_PROJECT_ID } } : {}),
   },
 });

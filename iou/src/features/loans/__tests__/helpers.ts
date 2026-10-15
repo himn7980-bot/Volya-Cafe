@@ -1,6 +1,7 @@
 // Test doubles: the real LocalStore SQL on Node's built-in SQLite, and an
 // in-memory server that applies the same rules as the database triggers.
-import { applyLoanEdit, diffPatch, isClosed, type Loan, type LoanPatch, type LoanVersion } from '@/shared/loans';
+import { balanceOf, initialRepaymentStatus } from '@/shared/balance';
+import { applyLoanEdit, diffPatch, isClosed, type Loan, type LoanPatch, type LoanVersion, type Repayment } from '@/shared/loans';
 
 import { LocalStore, type Person, type SqlDb, type SqlValue } from '../localStore';
 import { RemoteError, type Remote } from '../syncEngine';
@@ -34,6 +35,25 @@ export async function newStore() {
 export const ME = 'user-me';
 
 let n = 0;
+let rn = 0;
+export function makeRepayment(loanId: string, over: Partial<Repayment> = {}): Repayment {
+  rn += 1;
+  return {
+    id: `rep-${rn}`,
+    loanId,
+    amountMinor: 100,
+    paidOn: '2026-10-10',
+    note: '',
+    createdBy: ME,
+    status: 'pending',
+    respondedBy: null,
+    responseComment: null,
+    createdAt: '2026-10-10T10:00:00.000Z',
+    updatedAt: '2026-10-10T10:00:00.000Z',
+    ...over,
+  };
+}
+
 export function makeLoan(over: Partial<Loan> = {}): Loan {
   n += 1;
   return {
@@ -49,6 +69,7 @@ export function makeLoan(over: Partial<Loan> = {}): Loan {
     loanDate: '2026-10-01',
     dueDate: null,
     photoPath: null,
+    autoRemind: false,
     status: 'pending',
     shareToken: null,
     version: 1,
@@ -134,6 +155,56 @@ export class FakeRemote implements Remote {
   }
 
   people: Person[] = [];
+  repayments = new Map<string, Repayment>();
+  /** Who the fake server thinks is signed in (decides a new repayment's status). */
+  me = ME;
+
+  async insertRepayment(r: Repayment) {
+    this.guard(`repay ${r.id}`);
+    const existing = this.repayments.get(r.id);
+    if (existing) return existing;
+    const loan = this.loans.get(r.loanId);
+    if (!loan || loan.status !== 'confirmed') throw new RemoteError('not confirmed', 'rejected');
+    const b = balanceOf(loan.amountMinor, [...this.repayments.values()].filter((x) => x.loanId === loan.id));
+    if (r.amountMinor > b.maxNewRepayment) throw new RemoteError('too much', 'rejected');
+    const at = this.tick();
+    const row: Repayment = { ...r, createdBy: this.me, status: initialRepaymentStatus(this.me, loan.lenderId), createdAt: at, updatedAt: at };
+    this.repayments.set(r.id, row);
+    this.settleIfRepaid(loan.id);
+    return row;
+  }
+
+  /** The lender answers on the server side. */
+  serverAnswerRepayment(id: string, status: 'confirmed' | 'disputed') {
+    const r = this.repayments.get(id)!;
+    this.repayments.set(id, { ...r, status, updatedAt: this.tick() });
+    this.settleIfRepaid(r.loanId);
+  }
+
+  private settleIfRepaid(loanId: string) {
+    const loan = this.loans.get(loanId)!;
+    const b = balanceOf(loan.amountMinor, [...this.repayments.values()].filter((x) => x.loanId === loanId));
+    if (b.remaining === 0 && loan.status === 'confirmed') this.serverEdit(loanId, { status: 'settled' });
+  }
+
+  async cancelRepayment(id: string) {
+    this.guard(`cancel-repayment ${id}`);
+    const r = this.repayments.get(id);
+    if (!r || r.status !== 'pending') throw new RemoteError('not pending', 'rejected');
+    const row = { ...r, status: 'cancelled' as const, updatedAt: this.tick() };
+    this.repayments.set(id, row);
+    return row;
+  }
+
+  async fetchRepayment(id: string) {
+    this.guard(`fetch-repayment ${id}`);
+    return this.repayments.get(id) ?? null;
+  }
+
+  async fetchRepaymentsSince(since: string | null) {
+    this.guard(`pull-repayments ${since ?? 'all'}`);
+    return [...this.repayments.values()].filter((r) => !since || r.updatedAt >= since);
+  }
 
   async fetchPeople() {
     this.guard('people');

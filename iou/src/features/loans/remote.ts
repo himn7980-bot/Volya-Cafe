@@ -1,8 +1,8 @@
 import type { PostgrestError } from '@supabase/supabase-js';
 
-import type { LoanInsert, LoanRow, LoanUpdate } from '@/lib/database.types';
+import type { LoanInsert, LoanRow, LoanUpdate, RepaymentRow } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
-import type { Loan, LoanPatch, LoanVersion } from '@/shared/loans';
+import type { Loan, LoanPatch, LoanVersion, Repayment } from '@/shared/loans';
 
 import { RemoteError, type Remote } from './syncEngine';
 
@@ -19,6 +19,7 @@ export const toLoan = (r: LoanRow): Loan => ({
   loanDate: r.loan_date,
   dueDate: r.due_date,
   photoPath: r.photo_path,
+  autoRemind: !!r.auto_remind,
   status: r.status,
   shareToken: r.share_token,
   version: r.version,
@@ -38,6 +39,7 @@ const toInsert = (l: Loan): LoanInsert => ({
   note: l.note,
   loan_date: l.loanDate,
   due_date: l.dueDate,
+  auto_remind: l.autoRemind,
 });
 
 const toUpdate = (p: LoanPatch): LoanUpdate => {
@@ -50,9 +52,24 @@ const toUpdate = (p: LoanPatch): LoanUpdate => {
   if (p.loanDate !== undefined) u.loan_date = p.loanDate;
   if (p.dueDate !== undefined) u.due_date = p.dueDate;
   if (p.photoPath !== undefined) u.photo_path = p.photoPath;
+  if (p.autoRemind !== undefined) u.auto_remind = p.autoRemind;
   if (p.status !== undefined) u.status = p.status;
   return u;
 };
+
+export const toRepayment = (r: RepaymentRow): Repayment => ({
+  id: r.id,
+  loanId: r.loan_id,
+  amountMinor: Number(r.amount_minor),
+  paidOn: r.paid_on,
+  note: r.note,
+  createdBy: r.created_by,
+  status: r.status,
+  respondedBy: r.responded_by,
+  responseComment: r.response_comment,
+  createdAt: new Date(r.created_at).toISOString(),
+  updatedAt: new Date(r.updated_at).toISOString(),
+});
 
 /**
  * Turn a Supabase error into a sync decision: the change can never succeed
@@ -128,6 +145,46 @@ export const supabaseRemote: Remote = {
     }
   },
 
+  async insertRepayment(r) {
+    const { data, error, status } = await supabase
+      .from('repayments')
+      .insert({ id: r.id, loan_id: r.loanId, amount_minor: r.amountMinor, paid_on: r.paidOn, note: r.note })
+      .select('*')
+      .single();
+    if (error) {
+      if (error.code === '23505') {
+        const existing = await supabaseRemote.fetchRepayment(r.id);
+        if (existing) return existing;
+      }
+      throw classify({ ...error, status });
+    }
+    return toRepayment(data);
+  },
+
+  async cancelRepayment(id) {
+    const { data, error, status } = await supabase.from('repayments').update({ status: 'cancelled' }).eq('id', id).select('*');
+    if (error) throw classify({ ...error, status });
+    return data[0] ? toRepayment(data[0]) : null;
+  },
+
+  async fetchRepayment(id) {
+    const { data, error, status } = await supabase.from('repayments').select('*').eq('id', id).maybeSingle();
+    if (error) throw classify({ ...error, status });
+    return data ? toRepayment(data) : null;
+  },
+
+  async fetchRepaymentsSince(since) {
+    const out: Repayment[] = [];
+    for (let from = 0; ; from += PAGE) {
+      let query = supabase.from('repayments').select('*').order('updated_at').order('id').range(from, from + PAGE - 1);
+      if (since) query = query.gte('updated_at', since);
+      const { data, error, status } = await query;
+      if (error) throw classify({ ...error, status });
+      out.push(...data.map(toRepayment));
+      if (data.length < PAGE) return out;
+    }
+  },
+
   async fetchPeople() {
     const { data, error, status } = await supabase.rpc('my_counterparts');
     if (error) throw classify({ ...error, status });
@@ -173,4 +230,20 @@ export async function claimSharedLoan(token: string): Promise<string> {
 export async function respondToLoan(loanId: string, action: 'confirm' | 'dispute', comment: string | null) {
   const { error } = await supabase.rpc('respond_to_loan', { p_loan_id: loanId, p_action: action, p_comment: comment });
   if (error) throw error;
+}
+
+/** Confirm or dispute, as the lender, a repayment the borrower recorded. */
+export async function respondToRepayment(repaymentId: string, action: 'confirm' | 'dispute', comment: string | null) {
+  const { error } = await supabase.rpc('respond_to_repayment', { p_repayment_id: repaymentId, p_action: action, p_comment: comment });
+  if (error) throw error;
+}
+
+export type ReminderResult = { ok: true; nextAt: string } | { ok: false; reason: 'too_soon' | 'not_open' | 'no_account'; nextAt?: string };
+
+/** Record a reminder (the server enforces one per 48 hours) and, for 'push', notify the borrower. */
+export async function sendReminder(loanId: string, tone: 'gentle' | 'neutral' | 'firm', channel: 'push' | 'share'): Promise<ReminderResult> {
+  const { data, error } = await supabase.rpc('send_reminder', { p_loan_id: loanId, p_tone: tone, p_channel: channel });
+  if (error) throw error;
+  if (data.ok) return { ok: true, nextAt: data.next_at! };
+  return { ok: false, reason: data.error ?? 'not_open', nextAt: data.next_at };
 }

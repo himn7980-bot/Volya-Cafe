@@ -27,7 +27,8 @@ export type SharedLoan =
     }
   | {
       error?: undefined;
-      status: 'pending' | 'disputed';
+      /** confirmed: only repayments are waiting for an answer. */
+      status: 'pending' | 'disputed' | 'confirmed';
       open: true;
       creator_name: string;
       language: string;
@@ -41,6 +42,9 @@ export type SharedLoan =
       has_photo: boolean;
       dispute_comment: string | null;
       version: number;
+      repaid_minor?: number;
+      /** Repayments a lender without an account is asked to confirm. */
+      repayments?: { id: string; amount_minor: number; paid_on: string; note: string }[];
     };
 
 export type Dict = Record<string, unknown>;
@@ -112,6 +116,8 @@ export interface RecordView {
   amount: string;
   details: string[];
   disputed: string | null;
+  /** Questions about repayments waiting for the visitor. */
+  repayments: { id: string; question: string; note: string }[];
 }
 
 /** Sentences describing an open record, from the visitor's point of view. */
@@ -123,10 +129,21 @@ export function describeRecord(loan: Extract<SharedLoan, { open: true }>, t: T, 
   if (loan.due_date) details.push(t('web.dueDate', { date: formatDate(loan.due_date, fmt) }));
   if (loan.note) details.push(t('web.note', { note: loan.note }));
   if (loan.has_photo) details.push(t('web.photoAttached'));
+  const repaid = loan.repaid_minor ?? 0;
+  if (repaid > 0) details.push(t('web.remaining', { amount: formatMoney(loan.amount_minor - repaid, loan.currency, fmt) }));
   return {
     headline: t(loan.creator_role === 'lender' ? 'web.lentYou' : 'web.borrowedFromYou', { name, amount }),
     amount,
     details,
     disputed: loan.status === 'disputed' && loan.dispute_comment ? t('web.alreadyDisputed', { comment: loan.dispute_comment }) : null,
+    repayments: (loan.repayments ?? []).map((r) => ({
+      id: r.id,
+      question: t('web.repaymentQuestion', {
+        name,
+        amount: formatMoney(r.amount_minor, loan.currency, fmt),
+        date: formatDate(r.paid_on, fmt),
+      }),
+      note: r.note,
+    })),
   };
 }

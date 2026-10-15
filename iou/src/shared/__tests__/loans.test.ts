@@ -2,7 +2,7 @@ import { applyLoanEdit, describeVersion, diffPatch, directionFor, otherPartyId, 
 
 const loan: Loan = {
   id: 'l1', creatorId: 'me', lenderId: 'me', borrowerId: null, counterpartyName: 'Sara', counterpartyPhone: null,
-  amountMinor: 1000, currency: 'USD', note: '', loanDate: '2026-10-01', dueDate: null, photoPath: null,
+  amountMinor: 1000, currency: 'USD', note: '', loanDate: '2026-10-01', dueDate: null, photoPath: null, autoRemind: false,
   status: 'confirmed', shareToken: 't', version: 2, createdAt: '', updatedAt: '',
 };
 
@@ -44,7 +44,7 @@ describe('otherPartyId', () => {
 describe('validateDraft', () => {
   const draft: LoanDraft = {
     direction: 'lent', counterpartyName: 'Ali', counterpartyPhone: null, amountMinor: 500,
-    currency: 'USD', note: '', loanDate: '2026-10-10', dueDate: null,
+    currency: 'USD', note: '', loanDate: '2026-10-10', dueDate: null, autoRemind: false,
   };
   it('accepts a good draft', () => expect(validateDraft(draft)).toEqual({}));
   it('reports each problem', () => {

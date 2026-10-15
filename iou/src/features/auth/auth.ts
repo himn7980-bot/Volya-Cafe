@@ -118,6 +118,8 @@ export async function signInWithGoogle(): Promise<boolean> {
 export async function signOut() {
   // Imported lazily: the loans service pulls in SQLite, which auth doesn't need otherwise.
   const { clearLocalData } = await import('@/features/loans/service');
+  const { unregisterPush } = await import('@/features/notifications/push');
+  await unregisterPush().catch(() => undefined);
   await supabase.auth.signOut();
   await clearLocalData();
 }

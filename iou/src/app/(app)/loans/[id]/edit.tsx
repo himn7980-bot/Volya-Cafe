@@ -29,6 +29,7 @@ export default function EditLoan() {
         note: loan.note,
         loanDate: loan.loanDate,
         dueDate: loan.dueDate,
+        autoRemind: loan.autoRemind,
       }}
       submitLabel={t('loans.saveChanges')}
       onSubmit={async ({ draft, photo }) => {
@@ -40,6 +41,7 @@ export default function EditLoan() {
           note: draft.note,
           loanDate: draft.loanDate,
           dueDate: draft.dueDate,
+          autoRemind: draft.autoRemind,
         });
         if (photo.kind === 'remove') await removePhoto(loan);
         if (photo.kind === 'add') await attachPhoto(loan.id, photo.uri);

@@ -2,7 +2,7 @@ import { Contact } from 'expo-contacts';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CurrencyList } from '@/components/CurrencyList';
@@ -50,6 +50,7 @@ export function LoanForm({ initial, existingPhotoUri, editing, submitLabel, onSu
   const [loanDate, setLoanDate] = useState(initial?.loanDate ?? todayIso());
   const [dueDate, setDueDate] = useState<string | null>(initial?.dueDate ?? null);
   const [note, setNote] = useState(initial?.note ?? '');
+  const [autoRemind, setAutoRemind] = useState(initial?.autoRemind ?? false);
   const [photo, setPhoto] = useState<PhotoChange>({ kind: 'keep' });
   const [pickingCurrency, setPickingCurrency] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -100,6 +101,8 @@ export function LoanForm({ initial, existingPhotoUri, editing, submitLabel, onSu
       note,
       loanDate,
       dueDate,
+      // Only lenders remind, and only when there is a date to remind on.
+      autoRemind: direction === 'lent' && !!dueDate && autoRemind,
     };
     const found = validateDraft(draft);
     const messages = Object.fromEntries(Object.entries(found).map(([k, v]) => [k, t(`errors.${v}`)]));
@@ -193,6 +196,23 @@ export function LoanForm({ initial, existingPhotoUri, editing, submitLabel, onSu
         min={loanDate}
         error={errors.dueDate}
       />
+
+      {direction === 'lent' && dueDate ? (
+        <View style={[styles.switchRow, { borderColor: c.border, backgroundColor: c.surface }]}>
+          <View style={{ flex: 1 }}>
+            <AppText variant="label">{t('reminders.autoLabel')}</AppText>
+            <AppText variant="caption" muted>
+              {t('reminders.autoHint')}
+            </AppText>
+          </View>
+          <Switch
+            accessibilityLabel={t('reminders.autoLabel')}
+            value={autoRemind}
+            onValueChange={setAutoRemind}
+            trackColor={{ true: c.primary }}
+          />
+        </View>
+      ) : null}
 
       <TextField
         label={t('loans.note')}
@@ -309,4 +329,13 @@ const styles = StyleSheet.create({
     gap: space.xs,
   },
   photo: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.md, borderWidth: StyleSheet.hairlineWidth },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    padding: space.md,
+    minHeight: minTapSize,
+    borderRadius: radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
 });

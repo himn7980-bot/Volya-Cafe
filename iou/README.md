@@ -16,12 +16,12 @@ The work is delivered in phases, with a review after each one.
 | 1 | Project setup, i18n + RTL foundation, auth, profile | **done** |
 | 2 | Loans CRUD, local cache and sync | **done** |
 | 3 | Share link + public confirmation web page | **done** |
-| 4 | Repayments, reminders, push notifications | next |
-| 5 | Group trips: shared expenses, up to 3 currencies, automatic settlement ([design](docs/group-trips.md)) | |
-| 6 | Dashboard, export, settings, polish | |
-| 7 | Tests, EAS build config, store publishing guide | |
+| 4 | Repayments, reminders, push notifications | **done** |
+| 5 | Dashboard, export, settings, polish | next |
+| 6 | Tests, EAS build config, store publishing guide | |
 
-After launch: travel companion and more group-money features, see [docs/roadmap.md](docs/roadmap.md).
+After launch: group trips ([design](docs/group-trips.md)), then a travel companion and
+more group-money features ([roadmap](docs/roadmap.md)).
 
 ## Tech stack
 
@@ -93,6 +93,8 @@ npm test              # unit tests (money, calendars, formatting, languages, loa
 npm run i18n:check    # every locale has every key and matching {{variables}}
 npm run test:db       # database migrations + RLS tests (see below)
 npm run web:build     # build the public confirmation page into web/dist
+npm run functions:sync  # copy shared code + texts into supabase/functions (add -- --check in CI)
+deno test supabase/functions   # Edge Function tests (needs Deno 2)
 ```
 
 **Expo Go vs. development build.** Everything in Phase 1 runs in Expo Go. Switching
@@ -307,6 +309,63 @@ links), and the real store URLs in `appStoreUrl` / `playStoreUrl`.
 The page itself has a strict Content-Security-Policy and only talks to your Supabase
 project.
 
+## Repayments, reminders and notifications
+
+**Repayments.** On a confirmed record, either person can record a repayment, partial or
+full. The remaining balance updates automatically.
+
+- Recorded by the **lender** (the one getting the money back): counts at once, because it
+  only lowers what they're owed.
+- Recorded by the **borrower**: the lender confirms or disputes it (with a comment). This
+  happens in the app or, if the lender has no account, on the same confirmation page
+  through the share link.
+- Nobody can record more than is still open. When confirmed repayments cover the amount,
+  the record becomes **settled** (and that's part of its history).
+- A pending repayment can be withdrawn by whoever recorded it. Repayments are never edited.
+- Repayments work offline like everything else.
+
+**Reminders.** Only the lender can send them, and at most **one every 48 hours per
+record** (enforced by the database), so nobody gets nagged.
+
+- Pick a tone (gentle, neutral or firm) and see the message before sending.
+- If the borrower has the app, they get a notification in their language. Otherwise the
+  share sheet opens with the message, to send by WhatsApp, SMS, etc.
+- With **"Remind them on the pay-back date"**, a daily job sends a gentle reminder on the
+  due date (06:00 UTC) and tells the lender it's due.
+
+**Notifications** are sent for:
+
+- a record confirmed or disputed
+- a record changed and needing confirmation again
+- a repayment to confirm, recorded, confirmed or disputed
+- a record settled
+- reminders, and due dates
+
+Events go into a queue table (`notifications`). The `push` Edge Function sends them
+through the Expo Push API in each recipient's language, removes phones that uninstalled
+the app, and retries failures. The app asks for notification permission after the first
+record is created, when the benefit is obvious.
+
+### Set up push notifications
+
+1. `npx eas-cli init` and put the project id in `.env.local` as `EAS_PROJECT_ID`.
+2. Android: create a Firebase project and upload its FCM v1 service account key with
+   `npx eas-cli credentials` (Expo's push guide walks through it). iOS: EAS handles the
+   APNs key during the first build.
+3. Deploy the function and set its secret:
+   ```bash
+   npm run functions:sync
+   npx supabase functions deploy push --no-verify-jwt
+   npx supabase secrets set PUSH_CRON_SECRET=<a long random string>
+   # optional, if you turn on "push security" in Expo: EXPO_ACCESS_TOKEN=...
+   ```
+4. Enable `pg_cron` and `pg_net` (Database → Extensions), then run
+   `supabase/setup/push_cron.sql` once in the SQL editor, after filling in your project
+   URL and the secret.
+
+Push needs a development or store build: Expo Go can't receive remote notifications on
+Android.
+
 ## Privacy and security
 
 - Row Level Security on every table: a person can read and change only their own
@@ -318,6 +377,9 @@ project.
 - About the other person, the app only ever receives their name, language and photo
   (`my_counterparts()`), and only for people you share a record with. Never their
   phone number or email.
+- The notification queue and push tokens can't be read through the API. Only the push
+  function (service role) uses them, and a token always belongs to whoever signed in
+  last on that phone.
 - Receipt photos live in a private bucket under `<record id>/`. Both parties can view
   them; only the creator can add them.
 - `phone` and `email` on a profile are copied from the verified sign-in by a database
@@ -331,4 +393,4 @@ project.
 ## Building and publishing
 
 EAS build profiles and the step-by-step Google Play and App Store guide are part of
-Phase 7.
+Phase 6.

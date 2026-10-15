@@ -11,11 +11,21 @@ import { useSession } from '@/features/auth/auth';
 import { formatContextForLanguage, i18n } from '@/i18n';
 import { brand } from '@/lib/brand';
 import { supabase } from '@/lib/supabase';
+import { initialRepaymentStatus } from '@/shared/balance';
 import { formatDate, formatMoney } from '@/shared/format';
-import { directionFor, otherPartyId, type Loan, type LoanDraft, type LoanPatch } from '@/shared/loans';
+import { reminderMessage, type Tone } from '@/shared/notifications';
+import { directionFor, otherPartyId, type Loan, type LoanDraft, type LoanPatch, type Repayment } from '@/shared/loans';
 
 import { LocalStore, type LocalLoan, type Person } from './localStore';
-import { claimLoansByPhone, claimSharedLoan, respondToLoan, supabaseRemote } from './remote';
+import {
+  claimLoansByPhone,
+  claimSharedLoan,
+  respondToLoan,
+  respondToRepayment,
+  sendReminder,
+  supabaseRemote,
+  type ReminderResult,
+} from './remote';
 import { runSync } from './syncEngine';
 
 // ---------- Local database ----------
@@ -265,6 +275,73 @@ export async function claimLoan(token: string): Promise<string> {
   return id;
 }
 
+export function useRepayments(loanId: string | undefined) {
+  return useQuery({
+    queryKey: ['local', 'repayments', loanId],
+    queryFn: async () => (await getStore()).listRepayments(loanId!),
+    enabled: !!loanId,
+    networkMode: 'always',
+  });
+}
+
+/** Record a repayment (works offline). */
+export async function addRepayment(
+  loan: Loan,
+  userId: string,
+  v: { amountMinor: number; paidOn: string; note: string },
+): Promise<void> {
+  const now = new Date().toISOString();
+  const status = initialRepaymentStatus(userId, loan.lenderId);
+  const repayment: Repayment = {
+    id: Crypto.randomUUID(),
+    loanId: loan.id,
+    amountMinor: v.amountMinor,
+    paidOn: v.paidOn,
+    note: v.note.trim(),
+    createdBy: userId,
+    status,
+    respondedBy: status === 'confirmed' ? userId : null,
+    responseComment: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await (await getStore()).createRepayment(repayment);
+  requestSync();
+}
+
+export async function withdrawRepayment(id: string) {
+  await (await getStore()).cancelRepayment(id);
+  requestSync();
+}
+
+/** The lender confirms or disputes a repayment (needs the network). */
+export async function answerRepayment(id: string, action: 'confirm' | 'dispute', comment: string | null) {
+  await respondToRepayment(id, action, comment);
+  await syncNow();
+}
+
+/**
+ * Send a reminder. If the borrower has the app it's a notification;
+ * otherwise the share sheet opens with the message (in my language: we don't
+ * know theirs). The server allows one every 48 hours either way.
+ */
+export async function remind(loan: LocalLoan, tone: Tone, remainingMinor: number): Promise<ReminderResult> {
+  const channel = loan.borrowerId ? 'push' : 'share';
+  const result = await sendReminder(loan.id, tone, channel);
+  if (result.ok && channel === 'share') {
+    const fmt = formatContextForLanguage(i18n.language);
+    const message = reminderMessage(
+      tone,
+      { greetName: loan.counterpartyName, amountMinor: remainingMinor, currency: loan.currency, loanDate: loan.loanDate },
+      (k, p) => i18n.t(k, p),
+      fmt,
+    );
+    await Share.share({ message });
+  }
+  return result;
+}
+
+
 // ---------- Writes ----------
 
 export async function createLoan(draft: LoanDraft, userId: string): Promise<string> {
@@ -282,6 +359,7 @@ export async function createLoan(draft: LoanDraft, userId: string): Promise<stri
     loanDate: draft.loanDate,
     dueDate: draft.dueDate,
     photoPath: null,
+    autoRemind: draft.autoRemind,
     status: 'pending',
     shareToken: null,
     version: 1,

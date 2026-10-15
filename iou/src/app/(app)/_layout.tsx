@@ -7,6 +7,7 @@ import { useStackOptions } from '@/components/navigation';
 import { AppText, Button, Screen } from '@/components/ui';
 import { signOut } from '@/features/auth/auth';
 import { claimLoan, useSyncLoop } from '@/features/loans/service';
+import { usePush } from '@/features/notifications/push';
 import { useProfile } from '@/features/profile/api';
 import { useReconcilePrefs } from '@/features/profile/prefs';
 import { useSettings } from '@/stores/settings';
@@ -20,6 +21,7 @@ export default function AppLayout() {
   useReconcilePrefs(profile.data);
   // Loans are local-first: keep syncing even before the profile has loaded.
   useSyncLoop(true);
+  usePush(true);
 
   // A share link opened in the app (maybe before signing in): link it now.
   const pendingClaim = useSettings((s) => s.pendingClaim);
@@ -66,6 +68,7 @@ export default function AppLayout() {
         <Stack.Screen name="loans/new" options={{ title: t('loans.newRecord') }} />
         <Stack.Screen name="loans/[id]/index" options={{ title: t('loans.detailTitle') }} />
         <Stack.Screen name="loans/[id]/edit" options={{ title: t('loans.editTitle') }} />
+        <Stack.Screen name="loans/[id]/repay" options={{ title: t('repayments.screenTitle') }} />
       </Stack.Protected>
     </Stack>
   );

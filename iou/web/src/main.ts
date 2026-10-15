@@ -64,8 +64,10 @@ const token = decodeURIComponent(location.hash.slice(1)).trim();
 let data: SharedLoan | null = null;
 let lang: LangMeta = config.languages.find((l) => l.code === 'en')!;
 let t: T = (k) => k;
-let mode: 'view' | 'dispute' | 'done' = 'view';
+let mode: 'view' | 'dispute' | 'done' | 'repaymentDone' = 'view';
 let doneStatus: 'confirmed' | 'disputed' = 'confirmed';
+/** Repayment the visitor is explaining a "no" for. */
+let disputingRepayment: string | null = null;
 let notice: string | null = null;
 let busy = false;
 
@@ -152,6 +154,49 @@ async function answer(action: 'confirm' | 'dispute', comment: string | null) {
   }
 }
 
+async function answerRepayment(id: string, action: 'confirm' | 'dispute', comment: string | null) {
+  if (busy) return;
+  busy = true;
+  notice = null;
+  render();
+  try {
+    const r = await rpc<Answer>('respond_shared_repayment', { p_token: token, p_repayment_id: id, p_action: action, p_comment: comment });
+    if (r.status) {
+      disputingRepayment = null;
+      data = await rpc<SharedLoan>('get_shared_loan', { p_token: token });
+      // Everything answered: thank them; otherwise show the next question.
+      if (data.error || !data.open) mode = 'repaymentDone';
+    } else {
+      notice = t(r.error === 'rate_limited' ? 'web.rateLimited' : 'common.somethingWrong');
+    }
+  } catch {
+    notice = t('common.somethingWrong');
+  } finally {
+    busy = false;
+    render();
+  }
+}
+
+function commentForm(label: string, placeholder: string, onSend: (text: string) => void, onCancel: () => void) {
+  const area = el('textarea', { id: 'comment', maxlength: '500', rows: '4', placeholder });
+  const form = el(
+    'form',
+    { class: 'card' },
+    el('label', { for: 'comment' }, label),
+    area,
+    el('button', { class: 'button primary', type: 'submit' }, t('web.sendDispute')),
+    el('button', { class: 'button ghost', type: 'button' }, t('common.cancel')),
+  );
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (area.value.trim()) onSend(area.value.trim());
+    else area.focus();
+  });
+  form.querySelector('.ghost')!.addEventListener('click', onCancel);
+  setTimeout(() => area.focus(), 0);
+  return form;
+}
+
 function render() {
   const header = el('header', {}, el('strong', { class: 'brand' }, config.brand.name), languagePicker());
   const main = el('main', {});
@@ -166,6 +211,10 @@ function render() {
     return;
   }
   const name = `⁨${data.creator_name}⁩`;
+  if (mode === 'repaymentDone') {
+    main.append(message(t('web.confirmedTitle'), t('web.repaymentThanks', { name })), installCard());
+    return;
+  }
   if (mode === 'done') {
     main.append(
       doneStatus === 'confirmed'
@@ -194,28 +243,50 @@ function render() {
   main.append(card);
   if (notice) main.append(el('p', { class: 'notice', role: 'alert' }, notice));
 
+  // An already confirmed record: the visitor (a lender without the app) is
+  // only asked about repayments.
+  if (data.status === 'confirmed') {
+    for (const r of view.repayments) {
+      if (disputingRepayment === r.id) {
+        main.append(
+          commentForm(
+            t('web.repaymentNoLabel'),
+            '',
+            (text) => void answerRepayment(r.id, 'dispute', text),
+            () => {
+              disputingRepayment = null;
+              render();
+            },
+          ),
+        );
+        continue;
+      }
+      const yes = el('button', { class: 'button primary', type: 'button' }, t('web.repaymentYes'));
+      const no = el('button', { class: 'button secondary', type: 'button' }, t('web.repaymentNo'));
+      yes.addEventListener('click', () => void answerRepayment(r.id, 'confirm', null));
+      no.addEventListener('click', () => {
+        disputingRepayment = r.id;
+        render();
+      });
+      if (busy) [yes, no].forEach((b) => b.setAttribute('disabled', ''));
+      main.append(el('section', { class: 'actions' }, el('h2', {}, r.question), r.note ? el('p', { class: 'muted' }, r.note) : null, yes, no));
+    }
+    main.append(el('p', { class: 'muted small' }, t('web.privacy')));
+    return;
+  }
+
   if (mode === 'dispute') {
-    const area = el('textarea', { id: 'comment', maxlength: '500', rows: '4', placeholder: t('web.disputePlaceholder') });
-    const send = el('button', { class: 'button primary', type: 'submit' }, t('web.sendDispute'));
-    const form = el(
-      'form',
-      { class: 'card' },
-      el('label', { for: 'comment' }, t('web.disputeLabel')),
-      area,
-      send,
-      el('button', { class: 'button ghost', type: 'button' }, t('common.cancel')),
+    main.append(
+      commentForm(
+        t('web.disputeLabel'),
+        t('web.disputePlaceholder'),
+        (text) => void answer('dispute', text),
+        () => {
+          mode = 'view';
+          render();
+        },
+      ),
     );
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (area.value.trim()) void answer('dispute', area.value.trim());
-      else area.focus();
-    });
-    form.querySelector('.ghost')!.addEventListener('click', () => {
-      mode = 'view';
-      render();
-    });
-    main.append(form);
-    area.focus();
   } else {
     const confirm = el('button', { class: 'button primary', type: 'button' }, t('web.confirm'));
     confirm.addEventListener('click', () => void answer('confirm', null));

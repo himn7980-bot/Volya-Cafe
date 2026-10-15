@@ -4,7 +4,7 @@ Direction agreed 2026-10-15: grow from "money between friends" into a **travel a
 group companion**, one step at a time, without losing what makes the core work:
 simple, warm, offline-first, every language.
 
-Nothing here is built before the MVP (phases 1-7) has launched and real users tell
+Nothing here is built before the MVP (friendly loans, phases 1-6) has launched and real users tell
 us which of these they want most.
 
 ## Principles
@@ -21,7 +21,7 @@ us which of these they want most.
    banking licence. We stay a shared, trusted record.
 4. **Every feature works offline and in all languages,** like the core.
 
-## Stage A: travel companion (builds on group trips)
+## Stage A: travel companion (builds on [group trips](group-trips.md), the first post-launch feature)
 
 - Trip checklist and shared notes (packing, documents, who brings what).
 - Reminders: departure, check-in times, passport / visa / insurance expiry,

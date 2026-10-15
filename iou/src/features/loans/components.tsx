@@ -60,7 +60,9 @@ export function LoanCard({ loan, userId, name, onPress }: { loan: LocalLoan; use
   const fmt = useFormat();
   const lent = directionFor(loan, userId) === 'lent';
   const sentence = t(lent ? 'loans.theyOweYou' : 'loans.youOwe', { name });
-  const amount = formatMoney(loan.amountMinor, loan.currency, fmt);
+  // Partly paid back: show what is still open.
+  const open = isClosed(loan.status) ? loan.amountMinor : loan.amountMinor - loan.repaidMinor;
+  const amount = formatMoney(open, loan.currency, fmt);
   const overdue = !!loan.dueDate && loan.dueDate < todayIso() && !isClosed(loan.status);
 
   return (

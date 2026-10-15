@@ -14,7 +14,7 @@
 // server timestamps are transaction start times) replace local copies that
 // have no pending changes.
 
-import type { Loan, LoanPatch, LoanVersion } from '@/shared/loans';
+import type { Loan, LoanPatch, LoanVersion, Repayment } from '@/shared/loans';
 
 import type { LocalStore, Person } from './localStore';
 
@@ -41,6 +41,11 @@ export interface Remote {
   fetchVersions(loanId: string): Promise<LoanVersion[]>;
   /** Names and languages of everyone I share a record with. */
   fetchPeople(): Promise<Person[]>;
+  /** Insert; inserting the same id twice returns the existing row. */
+  insertRepayment(r: Repayment): Promise<Repayment>;
+  cancelRepayment(id: string): Promise<Repayment | null>;
+  fetchRepayment(id: string): Promise<Repayment | null>;
+  fetchRepaymentsSince(since: string | null): Promise<Repayment[]>;
 }
 
 export interface SyncResult {
@@ -52,6 +57,7 @@ export interface SyncResult {
 }
 
 export const PULL_CURSOR = 'loans.pullCursor';
+export const REPAYMENTS_CURSOR = 'repayments.pullCursor';
 const PULL_OVERLAP_MS = 2 * 60_000;
 /** Server errors (not network) are retried this many times before giving up on a change. */
 export const MAX_ATTEMPTS = 8;
@@ -60,6 +66,30 @@ export async function runSync(store: LocalStore, remote: Remote): Promise<SyncRe
   const result: SyncResult = { pushed: 0, rejected: 0, pulled: 0, offline: false };
 
   for (const op of await store.pendingOps()) {
+    if (op.kind === 'repayment' || op.kind === 'repayment_cancel') {
+      try {
+        const row =
+          op.kind === 'repayment' ? await remote.insertRepayment(op.payload) : await remote.cancelRepayment(op.payload.id);
+        await store.completeRepaymentOp(op.seq, row);
+        result.pushed += 1;
+      } catch (e) {
+        const err = e instanceof RemoteError ? e : new RemoteError(String(e), 'server');
+        if (err.kind === 'network') {
+          result.offline = true;
+          return result;
+        }
+        if (err.kind === 'rejected' || op.attempts + 1 >= MAX_ATTEMPTS) {
+          // e.g. the record was settled meanwhile: show the server's version.
+          const latest = await remote.fetchRepayment(op.payload.id).catch(() => null);
+          await store.completeRepaymentOp(op.seq, latest);
+          result.rejected += 1;
+          continue;
+        }
+        await store.failOp(op.seq, err.message);
+        return result;
+      }
+      continue;
+    }
     try {
       let row: Loan;
       if (op.kind === 'create') {
@@ -109,6 +139,13 @@ export async function runSync(store: LocalStore, remote: Remote): Promise<SyncRe
     if (newest && newest !== cursor) await store.setMeta(PULL_CURSOR, newest);
     // People change rarely; refresh when loans changed or on the first sync.
     if (rows.length > 0 || cursor === null) await store.savePeople(await remote.fetchPeople());
+
+    const rCursor = await store.getMeta(REPAYMENTS_CURSOR);
+    const rSince = rCursor ? new Date(Date.parse(rCursor) - PULL_OVERLAP_MS).toISOString() : null;
+    const reps = await remote.fetchRepaymentsSince(rSince);
+    result.pulled += await store.applyServerRepayments(reps);
+    const rNewest = reps.reduce<string | null>((max, r) => (max === null || r.updatedAt > max ? r.updatedAt : max), rCursor);
+    if (rNewest && rNewest !== rCursor) await store.setMeta(REPAYMENTS_CURSOR, rNewest);
   } catch (e) {
     if (e instanceof RemoteError && e.kind === 'network') result.offline = true;
     else throw e;
