@@ -1,0 +1,76 @@
+# CI for the IOU app in /iou: the same checks a contributor runs locally.
+name: IOU CI
+
+on:
+  push:
+    paths: ['iou/**', '.github/workflows/iou-ci.yml']
+  pull_request:
+    paths: ['iou/**', '.github/workflows/iou-ci.yml']
+
+concurrency:
+  group: iou-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: iou
+
+jobs:
+  app:
+    name: Typecheck, lint, unit tests, web build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: iou/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run i18n:check
+      - run: npm test -- --ci
+      - name: Edge Function copies are up to date
+        run: node scripts/sync-functions.mjs --check
+      - name: Build the confirmation page
+        run: npm run web:build
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: https://ci.supabase.co
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key
+      - name: Bundle the app for Android and iOS
+        run: npx expo export --platform android --platform ios --output-dir /tmp/expo-export
+        env:
+          CI: '1'
+          EXPO_OFFLINE: '1'
+          EXPO_PUBLIC_SUPABASE_URL: https://ci.supabase.co
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key
+
+  database:
+    name: Database (RLS) tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: npm run test:db
+        env:
+          SHIM: '1'
+          DB_URL: postgresql://postgres:postgres@localhost:5432/postgres
+
+  functions:
+    name: Edge Function tests (Deno)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno test --no-lock supabase/functions

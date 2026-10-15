@@ -102,12 +102,31 @@
     "version": "الإصدار {{version}}",
     "restartTitle": "يلزم إعادة التشغيل",
     "restartBody": "سيُعاد تشغيل التطبيق لتغيير اتجاه النص.",
-    "restartNow": "إعادة التشغيل الآن"
+    "restartNow": "إعادة التشغيل الآن",
+    "notifications": "الإشعارات",
+    "notificationsOn": "مفعّلة",
+    "notificationsOff": "متوقفة",
+    "notificationsBlocked": "متوقفة من إعدادات الهاتف. اضغط لفتحها.",
+    "notificationsUnavailable": "تحتاج التطبيق المثبّت",
+    "data": "بياناتك",
+    "privacy": "سياسة الخصوصية",
+    "deleteAccount": "حذف حسابي",
+    "deleteTitle": "هل تريد حذف حسابك؟",
+    "deleteBody": "سيُحذف ملفك الشخصي والسجلات التي كتبتها وصورها نهائيًا. السجلات التي كتبها الآخرون تبقى لديهم دون ربط باسمك. لا يمكن التراجع عن ذلك.",
+    "deleteConfirm": "احذف كل شيء",
+    "deleteFailed": "تعذّر حذف حسابك. تحقّق من الاتصال وحاول مرة أخرى."
   },
   "dashboard": {
     "greeting": "مرحبًا {{name}}",
     "emptyTitle": "لا توجد سجلات بعد",
-    "emptyBody": "عندما تُقرض أو تقترض مالًا، أضفه هنا. سيصل للطرف الآخر رابط لتأكيده."
+    "emptyBody": "عندما تُقرض أو تقترض مالًا، أضفه هنا. سيصل للطرف الآخر رابط لتأكيده.",
+    "owedToYou": "مستحق لك",
+    "youOweTotal": "عليك",
+    "people": "الأشخاص",
+    "allSettled": "كل شيء مُسدَّد",
+    "owesYou": "مدين لك بـ {{amount}}",
+    "youOweThem": "أنت مدين بـ {{amount}}",
+    "openCount": "سجلات مفتوحة: {{n}}"
   },
   "currency": {
     "title": "العملة",
@@ -257,7 +276,9 @@
     "amountInvalid": "يُرجى إدخال مبلغ، مثل 50 أو 12.50.",
     "phoneInvalid": "يبدو أن الرقم غير صحيح. يُرجى إدخال رمز الدولة.",
     "dueBeforeLoan": "لا يمكن أن يكون موعد السداد قبل تاريخ القرض.",
-    "noteTooLong": "يُرجى إبقاء الملاحظة أقل من 500 حرف."
+    "noteTooLong": "يُرجى إبقاء الملاحظة أقل من 500 حرف.",
+    "crashTitle": "حدث خطأ ما",
+    "crashBody": "سجلاتك بأمان. يرجى المحاولة مرة أخرى."
   },
   "sync": {
     "pending": "بعض التغييرات بانتظار الإرسال.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "الموعد اليوم",
     "due_todayBody": "موعد سداد {{name}} لمبلغ {{remaining}} هو اليوم.",
     "due_todayBodyNoApp": "موعد سداد {{name}} لمبلغ {{remaining}} هو اليوم. يمكنك إرسال تذكير له."
+  },
+  "person": {
+    "title": "شخص"
+  },
+  "export": {
+    "title": "تصدير",
+    "csv": "تصدير كجدول (CSV)",
+    "pdf": "تصدير كتقرير PDF",
+    "colDate": "التاريخ",
+    "colDirection": "النوع",
+    "colPerson": "الشخص",
+    "colAmount": "المبلغ",
+    "colCurrency": "العملة",
+    "colRepaid": "المُسدَّد",
+    "colRemaining": "المتبقي",
+    "colStatus": "الحالة",
+    "colDue": "تاريخ السداد",
+    "colNote": "ملاحظة",
+    "lent": "أقرضتُ",
+    "borrowed": "اقترضتُ",
+    "reportTitle": "سجلاتي",
+    "generated": "أُنشئ في {{date}}"
   }
 }

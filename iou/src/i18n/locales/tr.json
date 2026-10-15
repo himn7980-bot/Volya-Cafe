@@ -102,12 +102,31 @@
     "version": "Sürüm {{version}}",
     "restartTitle": "Yeniden başlatma gerekli",
     "restartBody": "Yazı yönünü değiştirmek için uygulama yeniden başlatılacak.",
-    "restartNow": "Şimdi yeniden başlat"
+    "restartNow": "Şimdi yeniden başlat",
+    "notifications": "Bildirimler",
+    "notificationsOn": "Açık",
+    "notificationsOff": "Kapalı",
+    "notificationsBlocked": "Telefon ayarlarında kapalı. Açmak için dokun.",
+    "notificationsUnavailable": "Yüklü uygulama gerekir",
+    "data": "Verilerin",
+    "privacy": "Gizlilik politikası",
+    "deleteAccount": "Hesabımı sil",
+    "deleteTitle": "Hesabın silinsin mi?",
+    "deleteBody": "Profilin, yazdığın kayıtlar ve fotoğrafları kalıcı olarak silinir. Başkalarının yazdığı kayıtlar onlarda kalır, adınla bağlantısı olmadan. Bu geri alınamaz.",
+    "deleteConfirm": "Her şeyi sil",
+    "deleteFailed": "Hesabın silinemedi. Bağlantını kontrol edip tekrar dene."
   },
   "dashboard": {
     "greeting": "Merhaba {{name}}",
     "emptyTitle": "Henüz kayıt yok",
-    "emptyBody": "Borç verdiğinizde veya aldığınızda buraya ekleyin. Karşı taraf onaylaması için bir bağlantı alır."
+    "emptyBody": "Borç verdiğinizde veya aldığınızda buraya ekleyin. Karşı taraf onaylaması için bir bağlantı alır.",
+    "owedToYou": "Alacağın",
+    "youOweTotal": "Borcun",
+    "people": "Kişiler",
+    "allSettled": "Her şey ödendi",
+    "owesYou": "Sana {{amount}} borçlu",
+    "youOweThem": "Ona {{amount}} borçlusun",
+    "openCount": "Açık kayıtlar: {{n}}"
   },
   "currency": {
     "title": "Para birimi",
@@ -257,7 +276,9 @@
     "amountInvalid": "Lütfen bir tutar girin, örneğin 50 veya 12,50.",
     "phoneInvalid": "Bu numara doğru görünmüyor. Lütfen ülke kodunu ekleyin.",
     "dueBeforeLoan": "Geri ödeme tarihi borç tarihinden önce olamaz.",
-    "noteTooLong": "Lütfen notu 500 karakterin altında tutun."
+    "noteTooLong": "Lütfen notu 500 karakterin altında tutun.",
+    "crashTitle": "Bir şeyler ters gitti",
+    "crashBody": "Kayıtların güvende. Lütfen tekrar dene."
   },
   "sync": {
     "pending": "Bazı değişiklikler gönderilmeyi bekliyor.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "Bugün son gün",
     "due_todayBody": "{{name}} bugün {{remaining}} geri ödemeli.",
     "due_todayBodyNoApp": "{{name}} bugün {{remaining}} geri ödemeli. Ona bir hatırlatma gönderebilirsiniz."
+  },
+  "person": {
+    "title": "Kişi"
+  },
+  "export": {
+    "title": "Dışa aktar",
+    "csv": "Tablo olarak dışa aktar (CSV)",
+    "pdf": "PDF rapor olarak dışa aktar",
+    "colDate": "Tarih",
+    "colDirection": "Yön",
+    "colPerson": "Kişi",
+    "colAmount": "Tutar",
+    "colCurrency": "Para birimi",
+    "colRepaid": "Geri ödenen",
+    "colRemaining": "Kalan",
+    "colStatus": "Durum",
+    "colDue": "Geri ödeme tarihi",
+    "colNote": "Not",
+    "lent": "Borç verdim",
+    "borrowed": "Borç aldım",
+    "reportTitle": "Kayıtlarım",
+    "generated": "{{date}} tarihinde oluşturuldu"
   }
 }

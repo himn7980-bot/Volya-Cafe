@@ -69,6 +69,7 @@ export default function AppLayout() {
         <Stack.Screen name="loans/[id]/index" options={{ title: t('loans.detailTitle') }} />
         <Stack.Screen name="loans/[id]/edit" options={{ title: t('loans.editTitle') }} />
         <Stack.Screen name="loans/[id]/repay" options={{ title: t('repayments.screenTitle') }} />
+        <Stack.Screen name="person/[key]" options={{ title: t('person.title') }} />
       </Stack.Protected>
     </Stack>
   );

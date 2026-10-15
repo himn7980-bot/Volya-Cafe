@@ -18,6 +18,7 @@
     "expo-constants": "~57.0.22",
     "expo-contacts": "~57.0.8",
     "expo-crypto": "~57.0.4",
+    "expo-dev-client": "~57.0.20",
     "expo-device": "~57.0.2",
     "expo-file-system": "~57.0.7",
     "expo-font": "~57.0.4",
@@ -26,8 +27,10 @@
     "expo-localization": "~57.0.2",
     "expo-network": "~57.0.2",
     "expo-notifications": "~57.0.23",
+    "expo-print": "~57.0.2",
     "expo-router": "~57.0.27",
     "expo-secure-store": "~57.0.4",
+    "expo-sharing": "~57.0.23",
     "expo-splash-screen": "~57.0.10",
     "expo-sqlite": "~57.0.4",
     "expo-status-bar": "~57.0.1",
@@ -67,7 +70,8 @@
     "lint": "eslint .",
     "test:db": "bash scripts/test-db.sh",
     "web:build": "node web/build.mjs",
-    "functions:sync": "node scripts/sync-functions.mjs"
+    "functions:sync": "node scripts/sync-functions.mjs",
+    "check": "npm run typecheck && npm run lint && npm run i18n:check && npm test && node scripts/sync-functions.mjs --check"
   },
   "private": true,
   "jest": {

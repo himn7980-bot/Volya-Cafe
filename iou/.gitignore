@@ -42,3 +42,6 @@ yarn-error.*
 
 # local env
 .env
+
+# Store credentials
+google-service-account*.json

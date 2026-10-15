@@ -102,12 +102,31 @@
     "version": "Versión {{version}}",
     "restartTitle": "Es necesario reiniciar",
     "restartBody": "La app se reiniciará para cambiar la dirección del texto.",
-    "restartNow": "Reiniciar ahora"
+    "restartNow": "Reiniciar ahora",
+    "notifications": "Notificaciones",
+    "notificationsOn": "Activadas",
+    "notificationsOff": "Desactivadas",
+    "notificationsBlocked": "Desactivadas en los ajustes del teléfono. Toca para abrirlos.",
+    "notificationsUnavailable": "Requiere la app instalada",
+    "data": "Tus datos",
+    "privacy": "Política de privacidad",
+    "deleteAccount": "Eliminar mi cuenta",
+    "deleteTitle": "¿Eliminar tu cuenta?",
+    "deleteBody": "Tu perfil, los registros que escribiste y sus fotos se eliminarán para siempre. Los registros que escribieron otras personas se quedan con ellas, sin vínculo con tu nombre. No se puede deshacer.",
+    "deleteConfirm": "Eliminar todo",
+    "deleteFailed": "No se pudo eliminar tu cuenta. Revisa tu conexión e inténtalo de nuevo."
   },
   "dashboard": {
     "greeting": "Hola, {{name}}",
     "emptyTitle": "Aún no hay registros",
-    "emptyBody": "Cuando prestes o pidas dinero, añádelo aquí. La otra persona recibirá un enlace para confirmarlo."
+    "emptyBody": "Cuando prestes o pidas dinero, añádelo aquí. La otra persona recibirá un enlace para confirmarlo.",
+    "owedToYou": "Te deben",
+    "youOweTotal": "Debes",
+    "people": "Personas",
+    "allSettled": "Todo saldado",
+    "owesYou": "Te debe {{amount}}",
+    "youOweThem": "Le debes {{amount}}",
+    "openCount": "Registros abiertos: {{n}}"
   },
   "currency": {
     "title": "Moneda",
@@ -257,7 +276,9 @@
     "amountInvalid": "Escribe un importe, como 50 o 12,50.",
     "phoneInvalid": "Ese número no parece correcto. Incluye el código de país.",
     "dueBeforeLoan": "La fecha de devolución no puede ser anterior a la del préstamo.",
-    "noteTooLong": "La nota debe tener menos de 500 caracteres."
+    "noteTooLong": "La nota debe tener menos de 500 caracteres.",
+    "crashTitle": "Algo salió mal",
+    "crashBody": "Tus registros están a salvo. Inténtalo de nuevo."
   },
   "sync": {
     "pending": "Hay cambios esperando a enviarse.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "Vence hoy",
     "due_todayBody": "{{name}} debe devolver {{remaining}} hoy.",
     "due_todayBodyNoApp": "{{name}} debe devolver {{remaining}} hoy. Puedes enviarle un recordatorio."
+  },
+  "person": {
+    "title": "Persona"
+  },
+  "export": {
+    "title": "Exportar",
+    "csv": "Exportar como hoja de cálculo (CSV)",
+    "pdf": "Exportar como informe PDF",
+    "colDate": "Fecha",
+    "colDirection": "Tipo",
+    "colPerson": "Persona",
+    "colAmount": "Importe",
+    "colCurrency": "Moneda",
+    "colRepaid": "Devuelto",
+    "colRemaining": "Pendiente",
+    "colStatus": "Estado",
+    "colDue": "Fecha de devolución",
+    "colNote": "Nota",
+    "lent": "Presté",
+    "borrowed": "Me prestaron",
+    "reportTitle": "Mis registros",
+    "generated": "Creado el {{date}}"
   }
 }

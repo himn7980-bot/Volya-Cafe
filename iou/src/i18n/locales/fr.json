@@ -102,12 +102,31 @@
     "version": "Version {{version}}",
     "restartTitle": "Redémarrage nécessaire",
     "restartBody": "L'appli va redémarrer pour changer le sens du texte.",
-    "restartNow": "Redémarrer"
+    "restartNow": "Redémarrer",
+    "notifications": "Notifications",
+    "notificationsOn": "Activées",
+    "notificationsOff": "Désactivées",
+    "notificationsBlocked": "Désactivées dans les réglages du téléphone. Touchez pour les ouvrir.",
+    "notificationsUnavailable": "Nécessite l'application installée",
+    "data": "Vos données",
+    "privacy": "Politique de confidentialité",
+    "deleteAccount": "Supprimer mon compte",
+    "deleteTitle": "Supprimer votre compte ?",
+    "deleteBody": "Votre profil, les fiches que vous avez écrites et leurs photos seront supprimés définitivement. Les fiches écrites par d'autres restent chez eux, sans lien avec votre nom. C'est irréversible.",
+    "deleteConfirm": "Tout supprimer",
+    "deleteFailed": "Impossible de supprimer votre compte. Vérifiez votre connexion et réessayez."
   },
   "dashboard": {
     "greeting": "Bonjour {{name}}",
     "emptyTitle": "Aucune trace pour l'instant",
-    "emptyBody": "Quand vous prêtez ou empruntez de l'argent, ajoutez-le ici. L'autre personne reçoit un lien pour le confirmer."
+    "emptyBody": "Quand vous prêtez ou empruntez de l'argent, ajoutez-le ici. L'autre personne reçoit un lien pour le confirmer.",
+    "owedToYou": "On vous doit",
+    "youOweTotal": "Vous devez",
+    "people": "Personnes",
+    "allSettled": "Tout est réglé",
+    "owesYou": "Vous doit {{amount}}",
+    "youOweThem": "Vous devez {{amount}}",
+    "openCount": "Fiches ouvertes : {{n}}"
   },
   "currency": {
     "title": "Devise",
@@ -257,7 +276,9 @@
     "amountInvalid": "Saisissez un montant, comme 50 ou 12,50.",
     "phoneInvalid": "Ce numéro ne semble pas correct. Ajoutez l'indicatif du pays.",
     "dueBeforeLoan": "La date de remboursement ne peut pas précéder la date du prêt.",
-    "noteTooLong": "La note doit faire moins de 500 caractères."
+    "noteTooLong": "La note doit faire moins de 500 caractères.",
+    "crashTitle": "Un problème est survenu",
+    "crashBody": "Vos fiches sont en sécurité. Veuillez réessayer."
   },
   "sync": {
     "pending": "Des modifications attendent d'être envoyées.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "Échéance aujourd'hui",
     "due_todayBody": "{{name}} doit rembourser {{remaining}} aujourd'hui.",
     "due_todayBodyNoApp": "{{name}} doit rembourser {{remaining}} aujourd'hui. Vous pouvez lui envoyer un rappel."
+  },
+  "person": {
+    "title": "Personne"
+  },
+  "export": {
+    "title": "Exporter",
+    "csv": "Exporter en tableur (CSV)",
+    "pdf": "Exporter en rapport PDF",
+    "colDate": "Date",
+    "colDirection": "Sens",
+    "colPerson": "Personne",
+    "colAmount": "Montant",
+    "colCurrency": "Devise",
+    "colRepaid": "Remboursé",
+    "colRemaining": "Reste dû",
+    "colStatus": "Statut",
+    "colDue": "Date de remboursement",
+    "colNote": "Note",
+    "lent": "J'ai prêté",
+    "borrowed": "J'ai emprunté",
+    "reportTitle": "Mes fiches",
+    "generated": "Créé le {{date}}"
   }
 }

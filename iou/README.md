@@ -17,8 +17,11 @@ The work is delivered in phases, with a review after each one.
 | 2 | Loans CRUD, local cache and sync | **done** |
 | 3 | Share link + public confirmation web page | **done** |
 | 4 | Repayments, reminders, push notifications | **done** |
-| 5 | Dashboard, export, settings, polish | next |
-| 6 | Tests, EAS build config, store publishing guide | |
+| 5 | Dashboard, export, settings, polish | **done** |
+| 6 | Tests, CI, EAS build config, store publishing guide | **done** |
+
+Ready for full testing: see the step-by-step guide in Persian,
+[docs/testing-fa.md](docs/testing-fa.md).
 
 After launch: group trips ([design](docs/group-trips.md)), then a travel companion and
 more group-money features ([roadmap](docs/roadmap.md)).
@@ -34,13 +37,15 @@ more group-money features ([roadmap](docs/roadmap.md)).
 ## Project layout
 
 ```
-brand.json                 app name, scheme, bundle IDs (rename here)
+brand.json                 app name, scheme, bundle IDs, contact email (rename here)
 app.config.ts              Expo config (reads brand.json and the locale list)
+eas.json                   EAS build profiles (development, preview, production)
 src/
   app/                     screens (Expo Router: every file is a route)
     onboarding.tsx         language picker, then welcome
     sign-in.tsx, verify.tsx, auth-callback.tsx
-    (app)/                 signed-in area: dashboard, loans/, profile, settings
+    (app)/                 signed-in area: dashboard, loans/, person/, profile, settings
+    _layout.tsx            root providers, auth guards, crash screen (ErrorBoundary)
   components/              UI kit, calendar-aware date picker, currency list
   features/
     auth/, profile/        sign-in and profile data
@@ -49,27 +54,36 @@ src/
       syncEngine.ts        push/pull logic (pure, unit-tested)
       remote.ts            Supabase implementation of the sync "Remote"
       service.ts           hooks, sync scheduling, photos
-      LoanForm.tsx, components.tsx
+      LoanForm.tsx, components.tsx, summaryUI.tsx (totals, people)
+    notifications/         push permission, token, opening tapped notifications
+    export/                CSV and PDF export
+    account/               account deletion
   i18n/
     locales/*.json         one file per language  <- add languages here
     languages.ts           registry + device language matching
     direction.ts           RTL switching
   shared/                  pure TS (no React Native): money, currencies,
-                           calendars, digits, formatting, loan rules.
-                           Reused by the web page.
+                           calendars, digits, formatting, loan rules,
+                           balances, dashboard totals, export.
+                           Reused by the web page and the Edge Functions.
   stores/settings.ts       device preferences (persisted)
   theme/                   colors (light/dark), type scale, fonts
 supabase/
   migrations/              SQL schema + RLS policies
   tests/                   RLS tests (plain SQL), runnable without Docker
+  functions/               Edge Functions (Deno): push, delete-account
+  setup/push_cron.sql      one-time job that calls the push function every minute
   config.toml              local Supabase settings
 web/                       public confirmation page (static site, see below)
   src/main.ts, view.ts     page code (reuses src/shared and the app's locale files)
-  public/                  HTML, CSS, security headers
+  public/                  HTML (incl. privacy.html), CSS, security headers
   build.mjs                builds web/dist
 scripts/
   check-i18n.js            validates every locale against en.json
   test-db.sh               runs migrations + RLS tests
+  sync-functions.mjs       copies shared code + texts into supabase/functions
+docs/                      testing guide (Persian), future plans
+../.github/workflows/iou-ci.yml   CI: every check below on each push
 ```
 
 ## Run locally
@@ -86,6 +100,7 @@ npx expo start                  # press a for Android, i for iOS
 Useful scripts:
 
 ```bash
+npm run check         # everything below that needs no database or Deno, in one go
 npm run typecheck     # TypeScript
 npm run lint          # ESLint (also blocks left/right styles, see "RTL rules")
 npm test              # unit tests (money, calendars, formatting, languages, loan rules,
@@ -97,7 +112,8 @@ npm run functions:sync  # copy shared code + texts into supabase/functions (add 
 deno test supabase/functions   # Edge Function tests (needs Deno 2)
 ```
 
-**Expo Go vs. development build.** Everything in Phase 1 runs in Expo Go. Switching
+**Expo Go vs. development build.** Most of the app runs in Expo Go, but push
+notifications need a development build. Switching
 between LTR and RTL languages restarts the app; in Expo Go that uses the dev reload. A
 development build (`npx expo run:android` / `run:ios`, or `eas build --profile
 development`) behaves exactly like the store app.
@@ -138,8 +154,8 @@ On a physical phone, `127.0.0.1` is the phone itself. Use your computer's LAN IP
 6. **Google**: create an OAuth client (type *Web application*) in Google Cloud Console,
    with redirect URI `https://<project-ref>.supabase.co/auth/v1/callback`. Paste the
    client ID and secret into Authentication → Providers → Google.
-7. Copy *Project URL* and the *anon public* key into `.env.local` (and later into EAS
-   secrets for builds).
+7. Copy *Project URL* and the *anon public* key into `.env.local` (and into EAS
+   environment variables for builds, see "Building and publishing").
 
 ### Database tests
 
@@ -151,7 +167,7 @@ DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres npm run test:db
 
 # Against any plain PostgreSQL 15+, no Docker needed (CI): installs a minimal stand-in
 # for Supabase's auth/storage schemas into a scratch database, then migrates and tests.
-SHIM=1 DB_URL=postgresql://postgres@localhost:5432/postgres npm run test:db
+SHIM=1 DB_URL=postgresql://postgres:postgres@localhost:5432/postgres npm run test:db
 ```
 
 ## Internationalization
@@ -366,6 +382,36 @@ record is created, when the benefit is obvious.
 Push needs a development or store build: Expo Go can't receive remote notifications on
 Android.
 
+## Dashboard, people and export
+
+- **Totals** at the top of the home screen: what others owe you and what you owe, one
+  line per currency. Different currencies are never added together. Only what is still
+  open counts (amount minus confirmed repayments); cancelled and settled records don't.
+- **Records** tab (open / closed) and **People** tab: one row per person with the net
+  balance per currency ("Owes you $20", "You owe €5"). A person is matched by their
+  account when linked, otherwise by the phone number or name you typed. Tap a person to
+  see every record between you and add a new one with their details filled in.
+- **Export** (Settings → Your data): a CSV file for spreadsheets (UTF-8 with BOM so Excel
+  shows every script, plain decimals, ISO dates, formula injection neutralised) or a
+  printable PDF report in your language and direction. Both are built on the phone from
+  the local copy and opened in the share sheet.
+
+## Delete account
+
+Settings → **Delete my account** calls the `delete-account` Edge Function with the
+user's own access token. It removes their avatar and the receipt photos of every record
+they wrote from Storage, then deletes the auth user. The database cascade does the rest:
+profile, records they wrote and their history, push tokens, queued notifications.
+Records the other person wrote stay with them, with the link to the deleted account
+removed (`supabase/tests/005_delete_account.test.sql`). The phone then clears its local
+copy and returns to the sign-in screen.
+
+Deploy it once (the gateway checks the JWT, so keep JWT verification on):
+
+```bash
+npx supabase functions deploy delete-account
+```
+
 ## Privacy and security
 
 - Row Level Security on every table: a person can read and change only their own
@@ -389,8 +435,137 @@ Android.
 - Session tokens are stored in the iOS Keychain / Android Keystore (`expo-secure-store`),
   chunked because sessions are larger than one SecureStore item allows.
 - Sign-in uses PKCE. OTP codes and links are rate-limited by Supabase Auth.
+- People can export all their records and delete their account and data from Settings,
+  as both stores require. The privacy policy template is `web/public/privacy.html`
+  (served at `https://<site>/privacy.html`); have it reviewed before launch.
+
+## Continuous integration
+
+`.github/workflows/iou-ci.yml` (at the repository root) runs on every push and pull
+request that touches `iou/`:
+
+- **app**: `npm ci`, typecheck, lint, i18n check, unit tests, the Edge Function copy
+  check, the confirmation page build and an Android + iOS JavaScript bundle
+- **database**: all migrations and RLS tests on a PostgreSQL 16 service (`SHIM=1`)
+- **functions**: `deno test` for the Edge Functions
 
 ## Building and publishing
 
-EAS build profiles and the step-by-step Google Play and App Store guide are part of
-Phase 6.
+Builds run on [EAS](https://expo.dev/eas) (Expo's build service), so you don't need
+Android Studio or a Mac. Profiles in `eas.json`:
+
+| Profile | What you get | Use it for |
+| --- | --- | --- |
+| `development` | APK / iOS build with the dev client | daily development on a real phone, push testing |
+| `development-simulator` | iOS simulator build | development on a Mac |
+| `preview` | APK / ad-hoc iOS build, installed from a link | testers before a release |
+| `production` | AAB (Android) / App Store build, version auto-incremented | the stores |
+
+### One-time setup
+
+1. Create an account on [expo.dev](https://expo.dev), then:
+   ```bash
+   npx eas-cli login
+   npx eas-cli init                 # creates the EAS project; copy its id
+   ```
+   Put the project id in `.env.local` as `EAS_PROJECT_ID`, and add it to EAS too (below).
+2. Rename the app if you haven't (`brand.json`), replace the icons in `assets/`, and set
+   `webBaseUrl` to where the confirmation page and privacy policy are deployed.
+3. Give EAS builds the same settings as `.env.local`, once per environment
+   (`development`, `preview`, `production`):
+   ```bash
+   npx eas-cli env:create --environment production --name EXPO_PUBLIC_SUPABASE_URL --value https://<ref>.supabase.co --visibility plaintext
+   npx eas-cli env:create --environment production --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value <anon key> --visibility plaintext
+   npx eas-cli env:create --environment production --name EAS_PROJECT_ID --value <project id> --visibility plaintext
+   ```
+   (The anon key is public by design, so it's embedded in the app. Never put the
+   service-role key in the app or in `EXPO_PUBLIC_*` variables.)
+4. Production backend: hosted Supabase set up as in "Set up Supabase", both Edge
+   Functions deployed, the push cron job running, the web page deployed.
+
+### Development and test builds
+
+```bash
+npx eas-cli build --profile development --platform android   # install the APK from the link
+npx expo start --dev-client                                    # then open the app on the phone
+npx eas-cli device:create                                      # iOS: register test iPhones first
+npx eas-cli build --profile preview --platform all             # builds to hand to testers
+```
+
+### Google Play
+
+1. Create a [Play Console](https://play.google.com/console) developer account (one-time
+   fee). Personal accounts created after November 2023 must run a closed test with at
+   least 12 testers for 14 days before they can publish to production. Plan for it.
+2. **Create app**: name, default language, *App*, *Free*.
+3. **App content** (all required):
+   - *Privacy policy*: `https://<site>/privacy.html`
+   - *App access*: give reviewers a way in. The easiest is a test phone number with a
+     fixed code (Supabase → Authentication → Providers → Phone → test OTP, e.g.
+     `+15555550100` / `123456`).
+   - *Ads*: no ads. *Content rating*: fill the questionnaire (no objectionable content).
+   - *Target audience*: 18+ (it's about money between adults).
+   - *Data safety*: collected and linked to the user, not shared, not sold, encrypted in
+     transit, deletable in the app: **personal info** (name, email, phone number),
+     **photos** (optional receipt photos and avatar), **financial info → other**
+     (records the user types), **app activity → other user-generated content** (notes,
+     comments), **device IDs** (push token). Purpose: app functionality and account
+     management.
+   - *Account deletion*: in the app (Settings → Delete my account), and the web link
+     `https://<site>/privacy.html#delete`.
+   - *Financial features*: the app doesn't offer loans or move money; choose the option
+     that it provides none of the listed features.
+4. **Store listing**: short and full description, icon 512×512, feature graphic
+   1024×500, at least 2 phone screenshots. Add translations for your main languages.
+5. **First build**:
+   ```bash
+   npx eas-cli build --profile production --platform android
+   ```
+   Download the `.aab` and upload it by hand to *Testing → Internal testing* the first
+   time (Google requires one manual upload for a new app). Play App Signing is on by
+   default; EAS keeps your upload key.
+6. **Later builds** can be submitted from the command line. In Google Cloud, create a
+   service account, grant it access in Play Console → Users and permissions, download its
+   JSON key as `google-service-account.json` (git-ignored) and run:
+   ```bash
+   npx eas-cli submit --platform android --profile production   # uploads to the internal track as a draft
+   ```
+7. Promote internal → closed testing → production from Play Console when ready.
+
+### App Store
+
+1. Join the [Apple Developer Program](https://developer.apple.com/programs/) (yearly fee).
+2. In [App Store Connect](https://appstoreconnect.apple.com) → *Apps* → *+*: new iOS app
+   with the bundle ID from `brand.json` (`iosBundleIdentifier`). Put its *Apple ID*
+   (a number) in `eas.json` → `submit.production.ios.ascAppId`.
+3. Build and send to TestFlight. EAS creates the certificates and provisioning profiles
+   the first time (answer *yes* when it asks to log in to Apple):
+   ```bash
+   npx eas-cli build --profile production --platform ios
+   npx eas-cli submit --platform ios --profile production
+   ```
+4. **App Privacy** (App Store Connect → App Privacy): data linked to the user, not used
+   for tracking: *Contact info* (name, email, phone number), *User content* (photos,
+   other user content), *Identifiers* (user ID), *Financial info → other financial info*.
+   Purpose: app functionality.
+5. **Review information**: the same test phone number and code as for Google, plus a
+   short note: "Records informal loans between friends. The app never moves money."
+6. **Sign in with Apple**: App Review guideline 4.8 expects an equivalent
+   privacy-friendly login whenever Google sign-in is offered. Before submitting, either
+   enable Apple as a provider in Supabase and add the button (expo-apple-authentication),
+   or hide the Google button on iOS. This is the one open item for iOS.
+7. Account deletion (guideline 5.1.1(v)) is in the app. Encryption export compliance is
+   already answered in `app.config.ts` (`ITSAppUsesNonExemptEncryption: false`).
+8. Fill in the listing (description, keywords, support URL, privacy policy URL,
+   screenshots for 6.9" and 6.5" iPhones; iPad too, since `supportsTablet` is on), pick
+   the TestFlight build and *Submit for Review*.
+
+### Releasing an update
+
+1. Raise `version` in `app.config.ts` (for example `1.0.1`). Build numbers are
+   incremented by EAS automatically (`autoIncrement`, remote version source).
+2. Apply new migrations to production first (`npx supabase db push`) and redeploy
+   functions if they changed. Migrations must stay compatible with the app version
+   people already have.
+3. `npx eas-cli build --profile production --platform all`, then `eas submit` for each
+   platform.

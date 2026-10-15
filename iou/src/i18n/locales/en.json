@@ -102,12 +102,31 @@
     "version": "Version {{version}}",
     "restartTitle": "Restart needed",
     "restartBody": "The app will restart to switch the text direction.",
-    "restartNow": "Restart now"
+    "restartNow": "Restart now",
+    "notifications": "Notifications",
+    "notificationsOn": "On",
+    "notificationsOff": "Off",
+    "notificationsBlocked": "Turned off in the phone settings. Tap to open them.",
+    "notificationsUnavailable": "Needs the installed app",
+    "data": "Your data",
+    "privacy": "Privacy policy",
+    "deleteAccount": "Delete my account",
+    "deleteTitle": "Delete your account?",
+    "deleteBody": "Your profile, the records you wrote and their photos will be deleted for good. Records other people wrote stay with them, without your name linked. This can't be undone.",
+    "deleteConfirm": "Delete everything",
+    "deleteFailed": "Could not delete your account. Please check your connection and try again."
   },
   "dashboard": {
     "greeting": "Hi, {{name}}",
     "emptyTitle": "No records yet",
-    "emptyBody": "When you lend or borrow money, add it here. The other person gets a link to confirm it."
+    "emptyBody": "When you lend or borrow money, add it here. The other person gets a link to confirm it.",
+    "owedToYou": "Owed to you",
+    "youOweTotal": "You owe",
+    "people": "People",
+    "allSettled": "All settled",
+    "owesYou": "Owes you {{amount}}",
+    "youOweThem": "You owe {{amount}}",
+    "openCount": "Open records: {{n}}"
   },
   "currency": {
     "title": "Currency",
@@ -257,7 +276,9 @@
     "amountInvalid": "Please enter an amount, like 50 or 12.50.",
     "phoneInvalid": "That number doesn't look right. Please include the country code.",
     "dueBeforeLoan": "The pay-back date can't be before the loan date.",
-    "noteTooLong": "Please keep the note under 500 characters."
+    "noteTooLong": "Please keep the note under 500 characters.",
+    "crashTitle": "Something went wrong",
+    "crashBody": "Your records are safe. Please try again."
   },
   "sync": {
     "pending": "Some changes are waiting to be sent.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "Due today",
     "due_todayBody": "{{name}} is due to pay back {{remaining}} today.",
     "due_todayBodyNoApp": "{{name}} is due to pay back {{remaining}} today. You can send them a reminder."
+  },
+  "person": {
+    "title": "Person"
+  },
+  "export": {
+    "title": "Export",
+    "csv": "Export as spreadsheet (CSV)",
+    "pdf": "Export as PDF report",
+    "colDate": "Date",
+    "colDirection": "Direction",
+    "colPerson": "Person",
+    "colAmount": "Amount",
+    "colCurrency": "Currency",
+    "colRepaid": "Paid back",
+    "colRemaining": "Still open",
+    "colStatus": "Status",
+    "colDue": "Pay-back date",
+    "colNote": "Note",
+    "lent": "I lent",
+    "borrowed": "I borrowed",
+    "reportTitle": "My records",
+    "generated": "Created on {{date}}"
   }
 }

@@ -102,12 +102,31 @@
     "version": "版本 {{version}}",
     "restartTitle": "需要重启",
     "restartBody": "应用将重启以切换文字方向。",
-    "restartNow": "立即重启"
+    "restartNow": "立即重启",
+    "notifications": "通知",
+    "notificationsOn": "已开启",
+    "notificationsOff": "已关闭",
+    "notificationsBlocked": "已在手机设置中关闭。点按打开设置。",
+    "notificationsUnavailable": "需要安装的 App",
+    "data": "你的数据",
+    "privacy": "隐私政策",
+    "deleteAccount": "删除我的账户",
+    "deleteTitle": "删除账户？",
+    "deleteBody": "你的个人资料、你写的记录及其照片将被永久删除。别人写的记录会保留在他们那里，但不再关联你的名字。此操作无法撤销。",
+    "deleteConfirm": "全部删除",
+    "deleteFailed": "无法删除账户。请检查网络后重试。"
   },
   "dashboard": {
     "greeting": "你好，{{name}}",
     "emptyTitle": "还没有记录",
-    "emptyBody": "借出或借入钱时，在这里添加一条记录。对方会收到一个确认链接。"
+    "emptyBody": "借出或借入钱时，在这里添加一条记录。对方会收到一个确认链接。",
+    "owedToYou": "别人欠你",
+    "youOweTotal": "你欠别人",
+    "people": "联系人",
+    "allSettled": "全部结清",
+    "owesYou": "欠你 {{amount}}",
+    "youOweThem": "你欠 {{amount}}",
+    "openCount": "未结记录：{{n}}"
   },
   "currency": {
     "title": "货币",
@@ -257,7 +276,9 @@
     "amountInvalid": "请输入金额，例如 50 或 12.50。",
     "phoneInvalid": "号码似乎不正确，请包含国家代码。",
     "dueBeforeLoan": "还款日期不能早于借款日期。",
-    "noteTooLong": "备注请少于 500 个字符。"
+    "noteTooLong": "备注请少于 500 个字符。",
+    "crashTitle": "出了点问题",
+    "crashBody": "你的记录是安全的。请重试。"
   },
   "sync": {
     "pending": "有更改正在等待发送。",
@@ -383,5 +404,27 @@
     "due_todayTitle": "今天到期",
     "due_todayBody": "{{name}} 今天应还 {{remaining}}。",
     "due_todayBodyNoApp": "{{name}} 今天应还 {{remaining}}。你可以给对方发个提醒。"
+  },
+  "person": {
+    "title": "联系人"
+  },
+  "export": {
+    "title": "导出",
+    "csv": "导出为表格 (CSV)",
+    "pdf": "导出为 PDF 报告",
+    "colDate": "日期",
+    "colDirection": "类型",
+    "colPerson": "联系人",
+    "colAmount": "金额",
+    "colCurrency": "货币",
+    "colRepaid": "已还",
+    "colRemaining": "未还",
+    "colStatus": "状态",
+    "colDue": "还款日期",
+    "colNote": "备注",
+    "lent": "我借出",
+    "borrowed": "我借入",
+    "reportTitle": "我的记录",
+    "generated": "生成于 {{date}}"
   }
 }

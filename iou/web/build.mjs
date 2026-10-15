@@ -70,16 +70,23 @@ await build({
   },
 });
 
+// Change when the privacy policy text changes.
+const PRIVACY_UPDATED = '2026-10-15';
+
 const fill = (html) =>
   html
     .replaceAll('__APP_NAME__', brand.name)
     .replaceAll('__SUPABASE_ORIGIN__', new URL(supabaseUrl).origin)
     .replaceAll('__PLAY_URL__', brand.playStoreUrl)
-    .replaceAll('__APPSTORE_URL__', brand.appStoreUrl);
+    .replaceAll('__APPSTORE_URL__', brand.appStoreUrl)
+    .replaceAll('__CONTACT_EMAIL__', brand.contactEmail)
+    .replaceAll('__UPDATED__', PRIVACY_UPDATED);
 
 fs.mkdirSync(path.join(dist, 'c'), { recursive: true });
 fs.writeFileSync(path.join(dist, 'c', 'index.html'), fill(fs.readFileSync(path.join(here, 'public', 'c', 'index.html'), 'utf8')));
-fs.writeFileSync(path.join(dist, 'index.html'), fill(fs.readFileSync(path.join(here, 'public', 'index.html'), 'utf8')));
+for (const page of ['index.html', 'privacy.html']) {
+  fs.writeFileSync(path.join(dist, page), fill(fs.readFileSync(path.join(here, 'public', page), 'utf8')));
+}
 for (const file of ['style.css', '_headers']) fs.copyFileSync(path.join(here, 'public', file), path.join(dist, file));
 
 const size = fs.statSync(path.join(dist, 'confirm.js')).size;

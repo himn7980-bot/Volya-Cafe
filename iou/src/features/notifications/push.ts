@@ -9,8 +9,8 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
-import { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { AppState, Linking, Platform } from 'react-native';
 
 import { requestSync } from '@/features/loans/service';
 import { supabase } from '@/lib/supabase';
@@ -53,10 +53,11 @@ async function registerToken(): Promise<void> {
  * Ask for permission at a moment that makes sense to the person (after their
  * first record), then register. Never asks twice if they said no.
  */
-export async function askForPushPermission(): Promise<void> {
+export async function askForPushPermission(fromSettings = false): Promise<void> {
   try {
     const current = await Notifications.getPermissionsAsync();
-    if (current.status === 'denied') return;
+    // Asked from Settings, the person wants it: ask again when the system still allows it.
+    if (current.status === 'denied' && !(fromSettings && current.canAskAgain)) return;
     const result = current.granted ? current : await Notifications.requestPermissionsAsync();
     if (result.granted) await registerToken();
   } catch (e) {
@@ -70,6 +71,41 @@ export async function unregisterPush(): Promise<void> {
   if (!token) return;
   await supabase.rpc('unregister_push_token', { p_token: token });
   await AsyncStorage.removeItem(TOKEN_KEY);
+}
+
+/** After the account was deleted on the server (its tokens went with it). */
+export async function forgetPushToken(): Promise<void> {
+  await AsyncStorage.removeItem(TOKEN_KEY);
+}
+
+export type PushState = 'on' | 'off' | 'blocked' | 'unavailable';
+
+/**
+ * Notification permission for the Settings screen. Re-read when the app comes
+ * back from the system settings. 'blocked': the person said no, only the
+ * system settings can turn it on.
+ */
+async function readPushState(): Promise<PushState> {
+  if (!Device.isDevice || Platform.OS === 'web') return 'unavailable';
+  const p = await Notifications.getPermissionsAsync();
+  return p.granted ? 'on' : p.canAskAgain ? 'off' : 'blocked';
+}
+
+export function usePushState() {
+  const [state, setState] = useState<PushState | null>(null);
+  useEffect(() => {
+    void readPushState().then(setState);
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'active') void readPushState().then(setState);
+    });
+    return () => sub.remove();
+  }, []);
+  const turnOn = useCallback(async () => {
+    if (state === 'blocked' || state === 'on') await Linking.openSettings();
+    else await askForPushPermission(true);
+    setState(await readPushState());
+  }, [state]);
+  return { state, turnOn };
 }
 
 function openFrom(response: Notifications.NotificationResponse | null) {

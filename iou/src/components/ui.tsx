@@ -264,6 +264,7 @@ export function Row({
   selected,
   subtitle,
   last,
+  danger,
 }: {
   title: string;
   value?: string;
@@ -273,6 +274,8 @@ export function Row({
   /** Shows a check mark and marks the row as the selected radio option. */
   selected?: boolean;
   last?: boolean;
+  /** Destructive action (delete account). */
+  danger?: boolean;
 }) {
   const c = useColors();
   return (
@@ -287,9 +290,11 @@ export function Row({
         pressed && { backgroundColor: c.surfaceAlt },
       ]}
     >
-      {icon ? <Icon name={icon} color={c.primary} /> : null}
+      {icon ? <Icon name={icon} color={danger ? c.danger : c.primary} /> : null}
       <View style={{ flex: 1 }}>
-        <AppText variant="label">{title}</AppText>
+        <AppText variant="label" color={danger ? c.danger : undefined}>
+          {title}
+        </AppText>
         {subtitle ? (
           <AppText variant="caption" muted>
             {subtitle}

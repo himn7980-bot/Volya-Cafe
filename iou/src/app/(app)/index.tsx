@@ -7,13 +7,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText, Banner, Button, Icon } from '@/components/ui';
 import { useSession } from '@/features/auth/auth';
 import { LoanCard } from '@/features/loans/components';
+import { PersonRow, TotalsCard } from '@/features/loans/summaryUI';
 import { otherPartyName, syncNow, useLoans, usePeople, useSyncStatus } from '@/features/loans/service';
 import { useProfile } from '@/features/profile/api';
 import { brand } from '@/lib/brand';
 import { isClosed } from '@/shared/loans';
+import { groupByPerson, totals, type PersonSummary } from '@/shared/people';
 import { minTapSize, radius, space, useColors } from '@/theme';
 
-/** Home: the person's records. Totals per currency arrive in phase 5. */
+/** Home: totals per currency, then records (open / closed) or people. */
 export default function Dashboard() {
   const { t } = useTranslation();
   const c = useColors();
@@ -22,10 +24,12 @@ export default function Dashboard() {
   const { data: loans = [] } = useLoans();
   const { data: people } = usePeople();
   const { online, pending, rejected, dismissRejected } = useSyncStatus();
-  const [tab, setTab] = useState<'open' | 'closed'>('open');
+  const [tab, setTab] = useState<'open' | 'closed' | 'people'>('open');
   const [refreshing, setRefreshing] = useState(false);
 
   const shown = useMemo(() => loans.filter((l) => isClosed(l.status) === (tab === 'closed')), [loans, tab]);
+  const sums = useMemo(() => totals(loans, uid), [loans, uid]);
+  const persons = useMemo(() => groupByPerson(loans, uid, people), [loans, uid, people]);
 
   async function refresh() {
     setRefreshing(true);
@@ -42,9 +46,10 @@ export default function Dashboard() {
         </Pressable>
       ) : null}
       {!online && pending > 0 ? <Banner text={t('common.offline')} /> : null}
+      {loans.length > 0 ? <TotalsCard totals={sums} /> : null}
       {loans.length > 0 ? (
         <View accessibilityRole="tablist" style={[styles.tabs, { backgroundColor: c.surfaceAlt }]}>
-          {(['open', 'closed'] as const).map((key) => (
+          {(['open', 'closed', 'people'] as const).map((key) => (
             <Pressable
               key={key}
               accessibilityRole="tab"
@@ -53,7 +58,7 @@ export default function Dashboard() {
               style={[styles.tab, tab === key && { backgroundColor: c.surface, borderColor: c.border }]}
             >
               <AppText variant="label" bold={tab === key} color={tab === key ? c.text : c.textMuted}>
-                {t(`loans.${key}`)}
+                {key === 'people' ? t('dashboard.people') : t(`loans.${key}`)}
               </AppText>
             </Pressable>
           ))}
@@ -75,7 +80,7 @@ export default function Dashboard() {
       </View>
     ) : (
       <AppText muted center>
-        {tab === 'closed' ? t('loans.emptyClosed') : t('dashboard.emptyTitle')}
+        {tab === 'closed' ? t('loans.emptyClosed') : t('dashboard.allSettled')}
       </AppText>
     );
 
@@ -99,17 +104,31 @@ export default function Dashboard() {
         }}
       />
       <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: c.background }}>
-        <FlatList
-          data={shown}
-          keyExtractor={(l) => l.id}
-          contentContainerStyle={{ padding: space.md, gap: space.sm, flexGrow: 1 }}
-          ListHeaderComponent={header}
-          ListEmptyComponent={empty}
-          renderItem={({ item }) => (
-            <LoanCard loan={item} userId={uid} name={otherPartyName(item, uid, people)} onPress={() => router.push({ pathname: '/loans/[id]', params: { id: item.id } })} />
-          )}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={c.primary} />}
-        />
+        {tab === 'people' ? (
+          <FlatList<PersonSummary>
+            data={persons}
+            keyExtractor={(p) => p.key}
+            contentContainerStyle={{ padding: space.md, gap: space.sm, flexGrow: 1 }}
+            ListHeaderComponent={header}
+            ListEmptyComponent={empty}
+            renderItem={({ item }) => (
+              <PersonRow person={item} onPress={() => router.push({ pathname: '/person/[key]', params: { key: item.key } })} />
+            )}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={c.primary} />}
+          />
+        ) : (
+          <FlatList
+            data={shown}
+            keyExtractor={(l) => l.id}
+            contentContainerStyle={{ padding: space.md, gap: space.sm, flexGrow: 1 }}
+            ListHeaderComponent={header}
+            ListEmptyComponent={empty}
+            renderItem={({ item }) => (
+              <LoanCard loan={item} userId={uid} name={otherPartyName(item, uid, people)} onPress={() => router.push({ pathname: '/loans/[id]', params: { id: item.id } })} />
+            )}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={c.primary} />}
+          />
+        )}
         <View style={{ paddingHorizontal: space.md, paddingBottom: space.md }}>
           <Button title={t('loans.newRecord')} icon="add-circle-outline" onPress={() => router.push('/loans/new')} />
         </View>

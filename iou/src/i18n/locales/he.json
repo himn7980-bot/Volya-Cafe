@@ -102,12 +102,31 @@
     "version": "גרסה {{version}}",
     "restartTitle": "נדרשת הפעלה מחדש",
     "restartBody": "האפליקציה תופעל מחדש כדי לשנות את כיוון הטקסט.",
-    "restartNow": "הפעלה מחדש"
+    "restartNow": "הפעלה מחדש",
+    "notifications": "התראות",
+    "notificationsOn": "פועלות",
+    "notificationsOff": "כבויות",
+    "notificationsBlocked": "כבויות בהגדרות הטלפון. הקש כדי לפתוח אותן.",
+    "notificationsUnavailable": "דורש את האפליקציה המותקנת",
+    "data": "הנתונים שלך",
+    "privacy": "מדיניות פרטיות",
+    "deleteAccount": "מחיקת החשבון שלי",
+    "deleteTitle": "למחוק את החשבון?",
+    "deleteBody": "הפרופיל שלך, הרשומות שכתבת והתמונות שלהן יימחקו לצמיתות. רשומות שאחרים כתבו נשארות אצלם, בלי קישור לשמך. אי אפשר לבטל זאת.",
+    "deleteConfirm": "מחק הכול",
+    "deleteFailed": "לא ניתן היה למחוק את החשבון. בדוק את החיבור ונסה שוב."
   },
   "dashboard": {
     "greeting": "שלום {{name}}",
     "emptyTitle": "עדיין אין רישומים",
-    "emptyBody": "כשאתם מלווים או לווים כסף, הוסיפו את זה כאן. הצד השני יקבל קישור לאישור."
+    "emptyBody": "כשאתם מלווים או לווים כסף, הוסיפו את זה כאן. הצד השני יקבל קישור לאישור.",
+    "owedToYou": "חייבים לך",
+    "youOweTotal": "אתה חייב",
+    "people": "אנשים",
+    "allSettled": "הכול מסודר",
+    "owesYou": "חייב לך {{amount}}",
+    "youOweThem": "אתה חייב {{amount}}",
+    "openCount": "רשומות פתוחות: {{n}}"
   },
   "currency": {
     "title": "מטבע",
@@ -257,7 +276,9 @@
     "amountInvalid": "נא להזין סכום, למשל 50 או 12.50.",
     "phoneInvalid": "המספר לא נראה תקין. נא לכלול קידומת מדינה.",
     "dueBeforeLoan": "תאריך ההחזרה לא יכול להיות לפני תאריך ההלוואה.",
-    "noteTooLong": "נא לקצר את ההערה לפחות מ-500 תווים."
+    "noteTooLong": "נא לקצר את ההערה לפחות מ-500 תווים.",
+    "crashTitle": "משהו השתבש",
+    "crashBody": "הרשומות שלך בטוחות. נסה שוב."
   },
   "sync": {
     "pending": "כמה שינויים ממתינים לשליחה.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "היום מועד ההחזרה",
     "due_todayBody": "{{name}} צריך/ה להחזיר היום {{remaining}}.",
     "due_todayBodyNoApp": "{{name}} צריך/ה להחזיר היום {{remaining}}. אפשר לשלוח תזכורת."
+  },
+  "person": {
+    "title": "אדם"
+  },
+  "export": {
+    "title": "ייצוא",
+    "csv": "ייצוא כגיליון (CSV)",
+    "pdf": "ייצוא כדוח PDF",
+    "colDate": "תאריך",
+    "colDirection": "כיוון",
+    "colPerson": "אדם",
+    "colAmount": "סכום",
+    "colCurrency": "מטבע",
+    "colRepaid": "הוחזר",
+    "colRemaining": "נותר",
+    "colStatus": "סטטוס",
+    "colDue": "תאריך החזרה",
+    "colNote": "הערה",
+    "lent": "הלוויתי",
+    "borrowed": "לוויתי",
+    "reportTitle": "הרשומות שלי",
+    "generated": "נוצר ב-{{date}}"
   }
 }

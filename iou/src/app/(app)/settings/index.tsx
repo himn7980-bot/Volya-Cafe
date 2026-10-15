@@ -1,9 +1,15 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Switch, View } from 'react-native';
+import { ActivityIndicator, Alert, Switch, View } from 'react-native';
 
 import { AppText, Avatar, Row, Screen, Section } from '@/components/ui';
+import { deleteMyAccount } from '@/features/account/deleteAccount';
+import { useSession } from '@/features/auth/auth';
+import { exportCsv, exportPdf } from '@/features/export/exportFiles';
+import { usePushState } from '@/features/notifications/push';
 import { useAvatarUrl, useProfile } from '@/features/profile/api';
 import { useSavePrefs } from '@/features/profile/prefs';
 import { currencyName, useFormat, usePrefs } from '@/i18n';
@@ -23,6 +29,45 @@ export default function Settings() {
   const setTheme = useSettings((s) => s.setTheme);
   const { data: profile } = useProfile();
   const avatarUrl = useAvatarUrl(profile?.avatar_path);
+  const uid = useSession((s) => s.session?.user.id)!;
+  const push = usePushState();
+  const [busy, setBusy] = useState<'csv' | 'pdf' | 'delete' | null>(null);
+
+  async function run(kind: 'csv' | 'pdf') {
+    setBusy(kind);
+    try {
+      if (kind === 'csv') await exportCsv(uid, t);
+      else await exportPdf(uid, t, fmt, prefs.language.meta.dir);
+    } catch (e) {
+      if (__DEV__) console.warn('export failed', e);
+      Alert.alert(t('export.title'), t('common.somethingWrong'));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function confirmDelete() {
+    Alert.alert(t('settings.deleteTitle'), t('settings.deleteBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('settings.deleteConfirm'),
+        style: 'destructive',
+        onPress: async () => {
+          setBusy('delete');
+          try {
+            // Signed out afterwards: the auth guard takes the person back to sign-in.
+            await deleteMyAccount();
+          } catch {
+            setBusy(null);
+            Alert.alert(t('settings.deleteTitle'), t('settings.deleteFailed'));
+          }
+        },
+      },
+    ]);
+  }
+
+  const pushValue =
+    push.state === 'on' ? t('settings.notificationsOn') : push.state === 'unavailable' ? t('settings.notificationsUnavailable') : t('settings.notificationsOff');
 
   const hasNativeDigits = prefs.language.meta.nativeDigits !== 'latn';
   const showToman = prefs.defaultCurrency === 'IRR' || prefs.language.code === 'fa';
@@ -127,6 +172,33 @@ export default function Settings() {
             last={i === themes.length - 1}
           />
         ))}
+      </Section>
+
+      <Section title={t('settings.notifications')}>
+        <Row
+          icon="notifications-outline"
+          title={t('settings.notifications')}
+          value={pushValue}
+          subtitle={push.state === 'blocked' ? t('settings.notificationsBlocked') : undefined}
+          onPress={push.state && push.state !== 'unavailable' ? () => void push.turnOn() : undefined}
+          last
+        />
+      </Section>
+
+      <Section title={t('settings.data')}>
+        <Row icon="document-text-outline" title={t('export.csv')} onPress={busy ? undefined : () => void run('csv')} />
+        <Row icon="print-outline" title={t('export.pdf')} onPress={busy ? undefined : () => void run('pdf')} />
+        <Row
+          icon="shield-checkmark-outline"
+          title={t('settings.privacy')}
+          onPress={() => void WebBrowser.openBrowserAsync(`${brand.webBaseUrl.replace(/\/$/, '')}/privacy.html`)}
+          last
+        />
+      </Section>
+      {busy ? <ActivityIndicator color={c.primary} accessibilityLabel={t('common.loading')} /> : null}
+
+      <Section>
+        <Row icon="trash-outline" title={t('settings.deleteAccount')} onPress={busy ? undefined : confirmDelete} danger last />
       </Section>
 
       <AppText variant="caption" muted center>

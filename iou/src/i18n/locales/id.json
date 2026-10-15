@@ -102,12 +102,31 @@
     "version": "Versi {{version}}",
     "restartTitle": "Perlu memulai ulang",
     "restartBody": "Aplikasi akan dimulai ulang untuk mengubah arah teks.",
-    "restartNow": "Mulai ulang sekarang"
+    "restartNow": "Mulai ulang sekarang",
+    "notifications": "Notifikasi",
+    "notificationsOn": "Aktif",
+    "notificationsOff": "Nonaktif",
+    "notificationsBlocked": "Dinonaktifkan di pengaturan ponsel. Ketuk untuk membukanya.",
+    "notificationsUnavailable": "Perlu aplikasi yang terpasang",
+    "data": "Datamu",
+    "privacy": "Kebijakan privasi",
+    "deleteAccount": "Hapus akun saya",
+    "deleteTitle": "Hapus akunmu?",
+    "deleteBody": "Profilmu, catatan yang kamu tulis, dan fotonya akan dihapus selamanya. Catatan yang ditulis orang lain tetap ada pada mereka, tanpa tautan ke namamu. Ini tidak bisa dibatalkan.",
+    "deleteConfirm": "Hapus semua",
+    "deleteFailed": "Akun tidak dapat dihapus. Periksa koneksi lalu coba lagi."
   },
   "dashboard": {
     "greeting": "Halo, {{name}}",
     "emptyTitle": "Belum ada catatan",
-    "emptyBody": "Saat kamu meminjamkan atau meminjam uang, tambahkan di sini. Pihak lain akan menerima tautan untuk mengonfirmasi."
+    "emptyBody": "Saat kamu meminjamkan atau meminjam uang, tambahkan di sini. Pihak lain akan menerima tautan untuk mengonfirmasi.",
+    "owedToYou": "Piutangmu",
+    "youOweTotal": "Utangmu",
+    "people": "Orang",
+    "allSettled": "Semua lunas",
+    "owesYou": "Berutang {{amount}} padamu",
+    "youOweThem": "Kamu berutang {{amount}}",
+    "openCount": "Catatan terbuka: {{n}}"
   },
   "currency": {
     "title": "Mata uang",
@@ -257,7 +276,9 @@
     "amountInvalid": "Silakan isi jumlah, misalnya 50 atau 12,50.",
     "phoneInvalid": "Nomor ini sepertinya salah. Sertakan kode negara.",
     "dueBeforeLoan": "Tanggal pengembalian tidak boleh sebelum tanggal pinjaman.",
-    "noteTooLong": "Catatan harus kurang dari 500 karakter."
+    "noteTooLong": "Catatan harus kurang dari 500 karakter.",
+    "crashTitle": "Terjadi kesalahan",
+    "crashBody": "Catatanmu aman. Silakan coba lagi."
   },
   "sync": {
     "pending": "Beberapa perubahan menunggu untuk dikirim.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "Jatuh tempo hari ini",
     "due_todayBody": "{{name}} harus mengembalikan {{remaining}} hari ini.",
     "due_todayBodyNoApp": "{{name}} harus mengembalikan {{remaining}} hari ini. Kamu bisa mengirim pengingat."
+  },
+  "person": {
+    "title": "Orang"
+  },
+  "export": {
+    "title": "Ekspor",
+    "csv": "Ekspor sebagai spreadsheet (CSV)",
+    "pdf": "Ekspor sebagai laporan PDF",
+    "colDate": "Tanggal",
+    "colDirection": "Jenis",
+    "colPerson": "Orang",
+    "colAmount": "Jumlah",
+    "colCurrency": "Mata uang",
+    "colRepaid": "Sudah dibayar",
+    "colRemaining": "Sisa",
+    "colStatus": "Status",
+    "colDue": "Tanggal pelunasan",
+    "colNote": "Catatan",
+    "lent": "Saya meminjamkan",
+    "borrowed": "Saya meminjam",
+    "reportTitle": "Catatan saya",
+    "generated": "Dibuat pada {{date}}"
   }
 }

@@ -102,12 +102,31 @@
     "version": "Version {{version}}",
     "restartTitle": "Neustart erforderlich",
     "restartBody": "Die App startet neu, um die Schreibrichtung zu ändern.",
-    "restartNow": "Jetzt neu starten"
+    "restartNow": "Jetzt neu starten",
+    "notifications": "Benachrichtigungen",
+    "notificationsOn": "An",
+    "notificationsOff": "Aus",
+    "notificationsBlocked": "In den Telefoneinstellungen ausgeschaltet. Tippe, um sie zu öffnen.",
+    "notificationsUnavailable": "Nur in der installierten App",
+    "data": "Deine Daten",
+    "privacy": "Datenschutzerklärung",
+    "deleteAccount": "Mein Konto löschen",
+    "deleteTitle": "Konto löschen?",
+    "deleteBody": "Dein Profil, die Einträge, die du geschrieben hast, und ihre Fotos werden endgültig gelöscht. Einträge, die andere geschrieben haben, bleiben bei ihnen, ohne Verknüpfung zu deinem Namen. Das kann nicht rückgängig gemacht werden.",
+    "deleteConfirm": "Alles löschen",
+    "deleteFailed": "Dein Konto konnte nicht gelöscht werden. Bitte prüfe deine Verbindung und versuche es erneut."
   },
   "dashboard": {
     "greeting": "Hallo {{name}}",
     "emptyTitle": "Noch keine Einträge",
-    "emptyBody": "Wenn du Geld verleihst oder leihst, trag es hier ein. Die andere Person bekommt einen Link zum Bestätigen."
+    "emptyBody": "Wenn du Geld verleihst oder leihst, trag es hier ein. Die andere Person bekommt einen Link zum Bestätigen.",
+    "owedToYou": "Dir geschuldet",
+    "youOweTotal": "Du schuldest",
+    "people": "Personen",
+    "allSettled": "Alles beglichen",
+    "owesYou": "Schuldet dir {{amount}}",
+    "youOweThem": "Du schuldest {{amount}}",
+    "openCount": "Offene Einträge: {{n}}"
   },
   "currency": {
     "title": "Währung",
@@ -257,7 +276,9 @@
     "amountInvalid": "Bitte gib einen Betrag ein, z. B. 50 oder 12,50.",
     "phoneInvalid": "Die Nummer sieht nicht richtig aus. Bitte mit Ländervorwahl eingeben.",
     "dueBeforeLoan": "Das Rückzahlungsdatum darf nicht vor dem Leihdatum liegen.",
-    "noteTooLong": "Die Notiz muss kürzer als 500 Zeichen sein."
+    "noteTooLong": "Die Notiz muss kürzer als 500 Zeichen sein.",
+    "crashTitle": "Etwas ist schiefgelaufen",
+    "crashBody": "Deine Einträge sind sicher. Bitte versuche es erneut."
   },
   "sync": {
     "pending": "Einige Änderungen warten auf das Senden.",
@@ -383,5 +404,27 @@
     "due_todayTitle": "Heute fällig",
     "due_todayBody": "{{name}} soll heute {{remaining}} zurückzahlen.",
     "due_todayBodyNoApp": "{{name}} soll heute {{remaining}} zurückzahlen. Du kannst eine Erinnerung senden."
+  },
+  "person": {
+    "title": "Person"
+  },
+  "export": {
+    "title": "Exportieren",
+    "csv": "Als Tabelle exportieren (CSV)",
+    "pdf": "Als PDF-Bericht exportieren",
+    "colDate": "Datum",
+    "colDirection": "Richtung",
+    "colPerson": "Person",
+    "colAmount": "Betrag",
+    "colCurrency": "Währung",
+    "colRepaid": "Zurückgezahlt",
+    "colRemaining": "Noch offen",
+    "colStatus": "Status",
+    "colDue": "Rückzahlungsdatum",
+    "colNote": "Notiz",
+    "lent": "Ich habe verliehen",
+    "borrowed": "Ich habe geliehen",
+    "reportTitle": "Meine Einträge",
+    "generated": "Erstellt am {{date}}"
   }
 }
