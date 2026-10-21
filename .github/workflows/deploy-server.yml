@@ -1,0 +1,72 @@
+# One-click server deploy: leaderboard, team war, World Boss, Stars shop, bot webhook.
+# Add these repository secrets first (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   — Cloudflare token from the "Edit Cloudflare Workers" template (+ D1 edit)
+#   CLOUDFLARE_ACCOUNT_ID  — your Cloudflare account id
+#   TELEGRAM_BOT_TOKEN     — from @BotFather
+# Then: Actions → "Deploy server" → Run workflow.
+name: Deploy server
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: deploy-server
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          missing=""
+          [ -n "$CLOUDFLARE_API_TOKEN" ] || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          [ -n "$TELEGRAM_BOT_TOKEN" ] || missing="$missing TELEGRAM_BOT_TOKEN"
+          if [ -n "$missing" ]; then echo "::error::Add these repository secrets first:$missing"; exit 1; fi
+
+      - name: Server tests
+        run: node server/test.mjs
+
+      - name: Deploy Worker, database and bot
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          WEBHOOK_SECRET=$(openssl rand -hex 24)
+          echo "::add-mask::$WEBHOOK_SECRET"
+          export WEBHOOK_SECRET CI=1
+          cd server
+          ./deploy.sh 2>&1 | tee deploy.log
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          if [ -z "$URL" ]; then echo "::error::Could not find the workers.dev URL. Open Cloudflare → Workers once to pick a workers.dev subdomain, then run again."; exit 1; fi
+          ./setup-bot.sh "$URL" > /dev/null
+          curl -fsS "$URL/teams" > /dev/null
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "### Server is live: $URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Point the game at the server
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          sed -i "s#^  const LEADERBOARD_API = \".*\";#  const LEADERBOARD_API = \"$URL\";#" game.html
+          ./build.sh
+          if git diff --quiet -- game.html index.html; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.html index.html
+          git commit -m "Connect the game to the leaderboard server"
+          git push

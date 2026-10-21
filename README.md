@@ -158,6 +158,19 @@ Command-line alternative: `cd server && npx wrangler d1 create volya-leaderboard
 
 Until `LEADERBOARD_API` is set, the leaderboard screen explains that it works inside Telegram and the game-over screen shows no rank.
 
+## One-click deploy from GitHub (no terminal needed)
+
+1. In the repository: **Settings → Secrets and variables → Actions → New repository secret**, add `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and `TELEGRAM_BOT_TOKEN`. Secrets stay encrypted in GitHub and never appear in the code or logs.
+2. **Actions → Deploy server → Run workflow.**
+
+The workflow runs the server tests, creates the D1 database, deploys the Worker (game + API), stores the bot token as a Worker secret, connects the bot (menu button, payments webhook), then writes the server URL into `LEADERBOARD_API` and rebuilds `index.html`, so the GitHub Pages copy goes online too. Run it again after server changes.
+
+### Leaderboard features
+
+- Tabs: best Endless score, team war, **levels** (levels cleared, then stars) and the daily challenge.
+- Tap any player to open a **compare card**: levels, stars, best score, best wave, best combo, monsters, bosses and heroes, yours next to theirs with bars and a "you're ahead in X/8" summary. Tapping your own row compares you with #1.
+- Each player's card is sent with the existing `/ping` (on start, after a win and after a run) and stored in the `profiles` table under an opaque id, so Telegram ids are never exposed. Scores on the card come from the verified `scores` table.
+
 ## One-command deploy (game + leaderboard on Cloudflare)
 
 The Worker in `server/` can host the game itself, so GitHub Pages is optional. With `CLOUDFLARE_API_TOKEN` (permissions: Workers Scripts Edit, D1 Edit, Account Settings Read), `CLOUDFLARE_ACCOUNT_ID` and `TELEGRAM_BOT_TOKEN` in the environment:

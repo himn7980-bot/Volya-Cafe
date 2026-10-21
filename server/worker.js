@@ -65,6 +65,7 @@ export default {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (url.pathname === "/.well-known/assetlinks.json") return assetLinks(env);
     try {
+      if (url.pathname === "/player" && req.method === "GET") return json(await player(env, url), cors);
       if (url.pathname === "/top" && req.method === "GET") return json(await top(env, url), cors);
       if (url.pathname === "/score" && req.method === "POST") return json(await submit(env, await readJson(req)), cors);
       if (url.pathname === "/teams" && req.method === "GET") return json(await teams(env), cors);
@@ -228,8 +229,11 @@ async function topDaily(env, url) {
   const day = int(url.searchParams.get("day"));
   if (!Number.isInteger(day)) throw new HttpError(400, "bad_day");
   const uid = int(url.searchParams.get("uid"));
-  const rows = await env.DB.prepare("SELECT user_id, name, hero, best FROM daily_scores WHERE day = ? ORDER BY best DESC, updated_at ASC LIMIT 50").bind(day).all();
-  const list = (rows.results || []).map((r, i) => ({ rank: i + 1, name: r.name, hero: r.hero, best: r.best, you: r.user_id === uid || undefined }));
+  const rows = await env.DB.prepare(
+    `SELECT d.user_id, d.name, d.hero, d.best, p.pid FROM daily_scores d LEFT JOIN profiles p ON p.user_id = d.user_id
+     WHERE d.day = ? ORDER BY d.best DESC, d.updated_at ASC LIMIT 50`
+  ).bind(day).all();
+  const list = (rows.results || []).map((r, i) => ({ rank: i + 1, name: r.name, hero: r.hero, best: r.best, pid: r.pid || undefined, you: r.user_id === uid || undefined }));
   const cnt = await env.DB.prepare("SELECT COUNT(*) AS c FROM daily_scores WHERE day = ?").bind(day).first();
   let me = null;
   if (Number.isSafeInteger(uid)) {
@@ -321,13 +325,15 @@ async function webhook(env, req) {
 async function top(env, url) {
   const limit = Math.min(100, Math.max(1, int(url.searchParams.get("limit")) || 50));
   const uid = int(url.searchParams.get("uid"));
+  if (url.searchParams.get("board") === "levels") return topLevels(env, limit, uid);
   const rows = await env.DB.prepare(
-    "SELECT user_id, name, best, wave FROM scores ORDER BY best DESC, best_at ASC LIMIT ?"
+    `SELECT s.user_id, s.name, s.best, s.wave, p.pid, p.hero FROM scores s LEFT JOIN profiles p ON p.user_id = s.user_id
+     ORDER BY s.best DESC, s.best_at ASC LIMIT ?`
   ).bind(limit).all();
   let rank = 0, prevBest = null;
   const list = (rows.results || []).map((r, i) => {
     if (r.best !== prevBest) { rank = i + 1; prevBest = r.best; }
-    return { rank, name: r.name, best: r.best, wave: r.wave, you: r.user_id === uid || undefined };
+    return { rank, name: r.name, best: r.best, wave: r.wave, pid: r.pid || undefined, hero: r.hero || undefined, you: r.user_id === uid || undefined };
   });
   let me = null;
   if (Number.isSafeInteger(uid)) {
@@ -337,6 +343,66 @@ async function top(env, url) {
   return { top: list, total: await total(env), me };
 }
 
+// ---- Player cards (compare yourself with anyone on a board) ---------------
+const PROFILE_MAX = { lvl: 1000, stars: 3000, combo: 999, kills: 100_000_000, bosses: 1_000_000, heroes: HEROES.length, hlv: 3, games: 10_000_000 };
+async function publicId(env, userId) {
+  const data = new TextEncoder().encode(`pid:${userId}:${env.BOT_TOKEN || ""}`);
+  const h = new Uint8Array(await crypto.subtle.digest("SHA-256", data));
+  return [...h.slice(0, 8)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function cleanProfile(p) {
+  const out = {};
+  for (const k in PROFILE_MAX) { const v = int(p[k]); out[k] = Number.isInteger(v) ? Math.max(0, Math.min(PROFILE_MAX[k], v)) : 0; }
+  out.hero = HEROES.includes(p.hero) ? p.hero : "volya";
+  return out;
+}
+async function saveProfile(env, user, raw) {
+  const p = cleanProfile(raw), { lvl, stars, hero, ...rest } = p;
+  await env.DB.prepare(
+    `INSERT INTO profiles (user_id, pid, name, hero, lvl, stars, data, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(user_id) DO UPDATE SET name = excluded.name, hero = excluded.hero, data = excluded.data,
+       updated_at = CASE WHEN excluded.lvl > profiles.lvl OR excluded.stars > profiles.stars THEN excluded.updated_at ELSE profiles.updated_at END,
+       lvl = MAX(profiles.lvl, excluded.lvl), stars = MAX(profiles.stars, excluded.stars)`
+  ).bind(user.id, await publicId(env, user.id), displayName(user), hero, lvl, stars, JSON.stringify(rest), nowSec()).run();
+}
+async function levelRankOf(env, lvl, stars) {
+  const r = await env.DB.prepare("SELECT COUNT(*) AS c FROM profiles WHERE lvl > ? OR (lvl = ? AND stars > ?)").bind(lvl, lvl, stars).first();
+  return (r ? r.c : 0) + 1;
+}
+async function topLevels(env, limit, uid) {
+  const rows = await env.DB.prepare(
+    "SELECT user_id, pid, name, hero, lvl, stars FROM profiles WHERE lvl > 0 ORDER BY lvl DESC, stars DESC, updated_at ASC LIMIT ?"
+  ).bind(limit).all();
+  let rank = 0, prev = null;
+  const list = (rows.results || []).map((r, i) => {
+    const key = r.lvl * 10000 + r.stars;
+    if (key !== prev) { rank = i + 1; prev = key; }
+    return { rank, name: r.name, best: r.lvl, stars: r.stars, pid: r.pid, hero: r.hero, you: r.user_id === uid || undefined };
+  });
+  const cnt = await env.DB.prepare("SELECT COUNT(*) AS c FROM profiles WHERE lvl > 0").first();
+  let me = null;
+  if (Number.isSafeInteger(uid)) {
+    const row = await env.DB.prepare("SELECT lvl, stars FROM profiles WHERE user_id = ? AND lvl > 0").bind(uid).first();
+    if (row) me = { best: row.lvl, stars: row.stars, rank: await levelRankOf(env, row.lvl, row.stars) };
+  }
+  return { board: "levels", top: list, total: cnt ? cnt.c : 0, me };
+}
+async function player(env, url) {
+  const pid = String(url.searchParams.get("pid") || "");
+  if (!/^[0-9a-f]{16}$/.test(pid)) throw new HttpError(400, "bad_pid");
+  const p = await env.DB.prepare("SELECT user_id, name, hero, lvl, stars, data FROM profiles WHERE pid = ?").bind(pid).first();
+  if (!p) throw new HttpError(404, "not_found");
+  let data = {};
+  try { data = JSON.parse(p.data) || {}; } catch {}
+  const s = await env.DB.prepare("SELECT best, wave FROM scores WHERE user_id = ?").bind(p.user_id).first();
+  return {
+    pid, name: p.name, hero: p.hero, lvl: p.lvl, stars: p.stars,
+    combo: data.combo || 0, kills: data.kills || 0, bosses: data.bosses || 0, heroes: data.heroes || 1, hlv: data.hlv || 1, games: data.games || 0,
+    best: s ? s.best : 0, wave: s ? s.wave : 0,
+    rank: s && s.best > 0 ? await rankOf(env, s.best) : null,
+    lvlRank: p.lvl > 0 ? await levelRankOf(env, p.lvl, p.stars) : null
+  };
+}
 
 // ---- Players, invites, World Boss, reminders ------------------------------
 async function touchUser(env, user, write) {
@@ -351,6 +417,7 @@ async function touchUser(env, user, write) {
 async function ping(env, body) {
   const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
   await touchUser(env, user, !!(body && body.write));
+  if (body && body.profile && typeof body.profile === "object") await saveProfile(env, user, body.profile);
   const row = await env.DB.prepare("SELECT refs FROM users WHERE user_id = ?").bind(user.id).first();
   return { refs: row ? row.refs : 0 };
 }

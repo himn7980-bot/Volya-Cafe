@@ -539,6 +539,31 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .lb-name small { color: var(--gold); font-size: 12px; margin-inline-start: 6px; }
 .lb-score { font-weight: 800; font-size: 17px; color: var(--gold); font-variant-numeric: tabular-nums; text-align: end; line-height: 1.1; }
 .lb-score small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
+#lbTabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+#lbTabs button { font-size: 12px; }
+.lb-row[data-pid] { cursor: pointer; }
+.lb-row[data-pid]:active { transform: scale(.98); }
+.lb-tap { text-align: center; color: var(--muted); font-size: 12px; font-weight: 700; margin: -4px 0 0; }
+.cmp-head { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
+.cmp-who { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.cmp-who .avatar { width: 52px; height: 52px; font-size: 24px; box-shadow: 0 0 0 3px #ff7a7a, inset 0 -3px 0 rgba(0,0,0,.25); }
+.cmp-who.me .avatar { box-shadow: 0 0 0 3px var(--gold), inset 0 -3px 0 rgba(0,0,0,.25); }
+.cmp-who span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; font-size: 15px; }
+.cmp-who small { color: var(--muted); font-weight: 700; font-size: 12px; }
+.cmp-vs { font-size: 22px; color: var(--gold); text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+.cmp-list { display: flex; flex-direction: column; gap: 7px; }
+.cmp-list { gap: 5px; }
+.cmp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 3px 8px; align-items: center; padding: 5px 10px 6px; border-radius: 12px; background: rgba(0,0,0,.22); }
+.cmp-row small { text-align: center; color: var(--muted); font-weight: 700; font-size: 12px; white-space: nowrap; }
+.cmp-row b { font-variant-numeric: tabular-nums; font-size: 16px; }
+.cmp-row b:first-of-type { text-align: start; } .cmp-row b:last-of-type { text-align: end; }
+.cmp-row b.win { color: var(--gold); }
+.cmp-row b.win::after { content: " ▲"; font-size: 11px; }
+.cmp-bar { grid-column: 1 / -1; display: flex; height: 6px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.08); }
+.cmp-bar i { display: block; height: 100%; }
+.cmp-bar i.t { background: linear-gradient(90deg, #ff9a9a, #e0405a); }
+.cmp-bar i.m { background: linear-gradient(90deg, #ffe98a, #ffbf1f); margin-inline-start: auto; }
+.cmp-lead { text-align: center; font-weight: 800; font-size: 16px; color: var(--gold); margin: 2px 0; }
 .lb-gap { text-align: center; color: var(--muted); font-weight: 800; letter-spacing: .2em; line-height: 1; }
 .lb-note { text-align: center; color: var(--muted); font-weight: 700; font-size: 15px; padding: 18px 8px; line-height: 1.4; }
 
@@ -672,12 +697,28 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <div class="tabs" id="lbTabs">
         <button type="button" data-tab="players" class="on"><span data-i18n="leaderboard"></span></button>
         <button type="button" data-tab="teams"><span data-i18n="teamWar"></span></button>
+        <button type="button" data-tab="levels"><span data-i18n="levels"></span></button>
         <button type="button" data-tab="daily"><span data-i18n="dailyChallenge"></span></button>
       </div>
       <p class="lb-sub" id="lbSub"></p>
       <div class="lb-list" id="lbList"></div>
       <div id="lbMe"></div>
       <button class="btn primary" id="lbDone" type="button"><span data-i18n="done"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="cmpScreen" hidden>
+    <div class="card">
+      <h2 class="lb-title"><span data-i18n="compare"></span></h2>
+      <div class="cmp-head">
+        <div class="cmp-who" id="cmpThem"></div>
+        <b class="cmp-vs">VS</b>
+        <div class="cmp-who me" id="cmpMe"></div>
+      </div>
+      <div class="cmp-list" id="cmpList"></div>
+      <p class="cmp-lead" id="cmpLead"></p>
+      <button class="btn share" id="cmpShare" type="button"><span data-i18n="inviteFriends"></span></button>
+      <button class="btn ghost" id="cmpBack" type="button"><span data-i18n="done"></span></button>
     </div>
   </section>
 
@@ -1558,6 +1599,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   for (const k in STR_META) STR_META[k].forEach((v, i) => { STR[k][META_KEYS[i]] = v; });
   const STR_PWA = {"en": "Install app", "fa": "نصب برنامه", "ar": "ثبّت التطبيق", "ru": "Установить приложение", "uk": "Встановити застосунок", "tr": "Uygulamayı yükle", "az": "Tətbiqi quraşdır", "uz": "Ilovani o'rnatish", "kk": "Қолданбаны орнату", "es": "Instalar app", "pt": "Instalar app", "fr": "Installer l'app", "de": "App installieren", "it": "Installa app", "nl": "App installeren", "pl": "Zainstaluj aplikację", "id": "Pasang aplikasi", "hi": "ऐप इंस्टॉल करो", "zh": "安装应用", "ja": "アプリをインストール", "ko": "앱 설치", "vi": "Cài ứng dụng"};
   for (const k in STR_PWA) STR[k].installApp = STR_PWA[k];
+  const CMP_KEYS = ["compare", "c_level", "c_stars", "c_kills", "c_bosses", "c_lead", "c_tap", "c_them", "c_beat"];
+  const STR_CMP = {"en": ["Compare", "Levels cleared", "Stars", "Monsters defeated", "Bosses defeated", "You're ahead in {n}", "Tap a player to compare", "Player", "Can you beat my stats in Volya Gem Defense? 💎"], "fa": ["مقایسه", "مراحل رد شده", "ستاره‌ها", "هیولاهای کشته‌شده", "غول‌های شکست‌خورده", "در {n} مورد جلوتری", "روی هر بازیکن بزن تا مقایسه کنی", "بازیکن", "می‌تونی آمار من رو توی Volya Gem Defense بشکنی؟ 💎"], "ar": ["مقارنة", "المراحل المجتازة", "النجوم", "الوحوش المهزومة", "الزعماء المهزومون", "أنت متقدم في {n}", "اضغط على لاعب للمقارنة", "اللاعب", "هل يمكنك التفوق على إحصائياتي في Volya Gem Defense؟ 💎"], "ru": ["Сравнить", "Пройдено уровней", "Звёзды", "Побеждено монстров", "Побеждено боссов", "Ты впереди в {n}", "Нажми на игрока, чтобы сравнить", "Игрок", "Сможешь побить мою статистику в Volya Gem Defense? 💎"], "uk": ["Порівняти", "Пройдено рівнів", "Зірки", "Переможено монстрів", "Переможено босів", "Ти попереду в {n}", "Натисни на гравця, щоб порівняти", "Гравець", "Зможеш побити мою статистику у Volya Gem Defense? 💎"], "tr": ["Karşılaştır", "Geçilen bölüm", "Yıldız", "Yenilen canavar", "Yenilen boss", "{n} alanda öndesin", "Karşılaştırmak için bir oyuncuya dokun", "Oyuncu", "Volya Gem Defense'te istatistiklerimi geçebilir misin? 💎"], "az": ["Müqayisə et", "Keçilən mərhələ", "Ulduzlar", "Məğlub edilən canavar", "Məğlub edilən boss", "{n} sahədə öndəsən", "Müqayisə üçün oyunçuya toxun", "Oyunçu", "Volya Gem Defense-də statistikamı keçə bilərsən? 💎"], "uz": ["Solishtirish", "O'tilgan bosqichlar", "Yulduzlar", "Yengilgan maxluqlar", "Yengilgan bosslar", "{n} tasida oldindasan", "Solishtirish uchun o'yinchiga bos", "O'yinchi", "Volya Gem Defense'da natijalarimni yenga olasanmi? 💎"], "kk": ["Салыстыру", "Өткен деңгейлер", "Жұлдыздар", "Жеңілген құбыжықтар", "Жеңілген бос", "{n} көрсеткіште алдасың", "Салыстыру үшін ойыншыны бас", "Ойыншы", "Volya Gem Defense-те менің нәтижемді жеңе аласың ба? 💎"], "es": ["Comparar", "Niveles superados", "Estrellas", "Monstruos derrotados", "Jefes derrotados", "Vas por delante en {n}", "Toca a un jugador para comparar", "Jugador", "¿Puedes superar mis estadísticas en Volya Gem Defense? 💎"], "pt": ["Comparar", "Níveis concluídos", "Estrelas", "Monstros derrotados", "Chefes derrotados", "Você está à frente em {n}", "Toque num jogador para comparar", "Jogador", "Consegue superar minhas estatísticas no Volya Gem Defense? 💎"], "fr": ["Comparer", "Niveaux réussis", "Étoiles", "Monstres vaincus", "Boss vaincus", "Tu mènes dans {n}", "Touche un joueur pour comparer", "Joueur", "Tu peux battre mes stats dans Volya Gem Defense ? 💎"], "de": ["Vergleichen", "Geschaffte Level", "Sterne", "Besiegte Monster", "Besiegte Bosse", "Du führst in {n}", "Tippe auf einen Spieler zum Vergleichen", "Spieler", "Schlägst du meine Werte in Volya Gem Defense? 💎"], "it": ["Confronta", "Livelli superati", "Stelle", "Mostri sconfitti", "Boss sconfitti", "Sei avanti in {n}", "Tocca un giocatore per confrontare", "Giocatore", "Riesci a battere le mie statistiche in Volya Gem Defense? 💎"], "nl": ["Vergelijken", "Levels gehaald", "Sterren", "Monsters verslagen", "Bazen verslagen", "Je staat voor in {n}", "Tik op een speler om te vergelijken", "Speler", "Kun jij mijn scores in Volya Gem Defense verslaan? 💎"], "pl": ["Porównaj", "Ukończone poziomy", "Gwiazdki", "Pokonane potwory", "Pokonani bossowie", "Prowadzisz w {n}", "Dotknij gracza, aby porównać", "Gracz", "Pobijesz moje statystyki w Volya Gem Defense? 💎"], "id": ["Bandingkan", "Level selesai", "Bintang", "Monster dikalahkan", "Bos dikalahkan", "Kamu unggul di {n}", "Ketuk pemain untuk membandingkan", "Pemain", "Bisa kalahkan statistikku di Volya Gem Defense? 💎"], "hi": ["तुलना करो", "पार किए लेवल", "सितारे", "हराए गए राक्षस", "हराए गए बॉस", "तुम {n} में आगे हो", "तुलना के लिए किसी खिलाड़ी पर टैप करो", "खिलाड़ी", "क्या तुम Volya Gem Defense में मेरे आँकड़े हरा सकते हो? 💎"], "zh": ["对比", "已通关卡", "星星", "击败怪物", "击败首领", "你领先 {n} 项", "点击玩家进行对比", "玩家", "你能在 Volya Gem Defense 里超过我的数据吗？💎"], "ja": ["比較", "クリアしたレベル", "スター", "倒したモンスター", "倒したボス", "{n} 項目でリード", "プレイヤーをタップして比較", "プレイヤー", "Volya Gem Defense で私の記録を超えられる？💎"], "ko": ["비교", "클리어한 레벨", "별", "처치한 몬스터", "처치한 보스", "{n}개 항목에서 앞서요", "플레이어를 눌러 비교하세요", "플레이어", "Volya Gem Defense에서 내 기록을 넘을 수 있어? 💎"], "vi": ["So sánh", "Màn đã qua", "Sao", "Quái vật đã hạ", "Trùm đã hạ", "Bạn dẫn trước ở {n} mục", "Chạm vào người chơi để so sánh", "Người chơi", "Bạn có vượt được thành tích của mình trong Volya Gem Defense không? 💎"]};
+  for (const k in STR_CMP) STR_CMP[k].forEach((v, i) => { STR[k][CMP_KEYS[i]] = v; });
   const WHEEL_KEYS = ["luckyWheel", "freeSpin", "spin"];
   const STR_WHEEL = {"en": ["Lucky wheel", "Free spin!", "Spin"], "fa": ["چرخ شانس", "چرخش رایگان!", "بچرخان"], "ar": ["عجلة الحظ", "دورة مجانية!", "أدر"], "ru": ["Колесо удачи", "Бесплатное вращение!", "Крутить"], "uk": ["Колесо удачі", "Безкоштовне обертання!", "Крутити"], "tr": ["Şans çarkı", "Ücretsiz çevirme!", "Çevir"], "az": ["Şans çarxı", "Pulsuz fırlatma!", "Fırlat"], "uz": ["Omad g'ildiragi", "Bepul aylantirish!", "Aylantirish"], "kk": ["Сәттілік дөңгелегі", "Тегін айналдыру!", "Айналдыру"], "es": ["Ruleta de la suerte", "¡Giro gratis!", "Girar"], "pt": ["Roda da sorte", "Giro grátis!", "Girar"], "fr": ["Roue de la chance", "Tour gratuit !", "Tourner"], "de": ["Glücksrad", "Gratis-Dreh!", "Drehen"], "it": ["Ruota della fortuna", "Giro gratis!", "Gira"], "nl": ["Geluksrad", "Gratis draai!", "Draaien"], "pl": ["Koło fortuny", "Darmowy obrót!", "Zakręć"], "id": ["Roda keberuntungan", "Putaran gratis!", "Putar"], "hi": ["किस्मत का पहिया", "मुफ़्त स्पिन!", "घुमाओ"], "zh": ["幸运转盘", "免费转一次！", "转动"], "ja": ["ラッキールーレット", "無料スピン！", "回す"], "ko": ["행운의 룰렛", "무료 스핀!", "돌리기"], "vi": ["Vòng quay may mắn", "Quay miễn phí!", "Quay"]};
   for (const k in STR_WHEEL) STR_WHEEL[k].forEach((v, i) => { STR[k][WHEEL_KEYS[i]] = v; });
@@ -3741,7 +3785,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function triggerRage(el) {
     const rt = RAGE_TIME + (perk("babyshark") ? 2 * pk() : 0);
-    rage = { t: rt, max: rt, el: EL[el] && !EL[el].special ? el : "fire", sec: Math.ceil(rt), pop: 1 };
+    rage = { t: rt, max: rt, el: EL[el] && !EL[el].special ? el : "fire", sec: Math.ceil(rt), pop: 1, hint: 1, swiped: 0 };
     texts = []; banner = null; praise = null; hintMove = null;
     track("rage");
     rageMeter = 0;
@@ -3756,7 +3800,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen", "passScreen", "albumScreen", "raidScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen", "passScreen", "albumScreen", "raidScreen", "cmpScreen"]) $(s).hidden = s !== id;
     if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
@@ -3780,6 +3824,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     try { if (state === "title" && !$("titleScreen").hidden) bb.hide(); else bb.show(); } catch (e) {}
   }
   function onBack() {
+    if (!$("cmpScreen").hidden) { showScreen(cmpReturn); return; }
     if (!$("passScreen").hidden || !$("albumScreen").hidden || !$("raidScreen").hidden) showScreen("titleScreen");
     else if (!$("wheelScreen").hidden) { if (!spinning) showScreen("titleScreen"); }
     else if (!$("shopScreen").hidden) showScreen("titleScreen");
@@ -3853,6 +3898,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function gameOver() {
     if (LV && !contUsed && state === "play") { offerContinue(); return; }
     state = "over"; stateT = 0; rage = null;
+    setTimeout(syncProfile, 4000);
     exitGuard(false);
     emit("glow", cx, cy, { n: 20, spd: [60, 400], life: [0.6, 1.2], size: [20, 40], colors: ["#3d7bff", "#ff4a3d", "#ffffff", "#3fd0ff"], drag: 0.9, grow: 0.4 });
     emit("star", cx, cy, { n: 16, spd: [150, 420], life: [0.9, 1.4], size: [7, 12], colors: ["#ffd84d"], g: 300, vy: -200, vr: 8 });
@@ -4070,6 +4116,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function levelWin() {
     state = "won"; stateT = 0; rage = null; blade = [];
+    setTimeout(syncProfile, 1500);
     exitGuard(false);
     for (const e of enemies) if (!e.dead) { e.dead = true; poof(e); }
     emit("star", cx, cy, { n: 40, spd: [200, 520], life: [1, 1.6], size: [7, 12], colors: ["#ffd84d"], g: 260, vy: -260, vr: 8 });
@@ -4163,7 +4210,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
   function openRecords(from) { recReturn = from; renderRecords(); showScreen("recScreen"); }
-  function closeRecords() { showScreen(recReturn === "over" ? "overScreen" : "titleScreen"); }
+  function closeRecords() { showScreen(recReturn === "over" ? "overScreen" : recReturn === "lb" ? "lbScreen" : "titleScreen"); }
 
   // ---- Global leaderboard ----------------------------------------------
   const tgInitData = () => (tg && tg.initData) || "";
@@ -4819,7 +4866,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   async function ping(write) {
     if (!canSubmit()) return;
     try {
-      const r = await post("/ping", { write: !!write });
+      const r = await post("/ping", { write: !!write, profile: myProfile() });
       if (r && r.refs) $("inviteNote").textContent = tr("inviteReward") + " · " + tr("friendsJoined", r.refs);
     } catch (e) {}
   }
@@ -5020,6 +5067,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   function lbRow(entry, isMe) {
     const row = document.createElement("div");
     row.className = "lb-row" + (isMe ? " me" : "");
+    if (entry.pid || (isMe && !entry.team)) {
+      row.dataset.pid = entry.pid || "me";
+      row.addEventListener("click", clickSfx(() => openCompare(isMe ? null : entry)));
+    }
     const medal = document.createElement("div");
     medal.className = "medal" + (entry.rank <= 3 ? " m" + entry.rank : "");
     medal.textContent = fmt(entry.rank);
@@ -5027,6 +5078,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     av.className = "avatar";
     av.style.background = avatarColor(entry.name);
     av.textContent = Array.from(String(entry.name || "?").trim())[0] || "?";
+    if (entry.hero) { const h = heroById(entry.hero); if (h) { av.textContent = ""; const im = document.createElement("img"); im.src = heroFace(h); im.alt = ""; av.appendChild(im); } }
     const name = document.createElement("div");
     name.className = "lb-name";
     const nm = document.createElement("span"); nm.dir = "auto"; nm.textContent = entry.name; name.appendChild(nm);
@@ -5034,6 +5086,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const sc = document.createElement("div");
     sc.className = "lb-score";
     sc.textContent = fmt(entry.best);
+    if (entry.lvl) sc.textContent = tr("level", entry.best);
+    if (entry.stars != null) { const w = document.createElement("small"); w.textContent = "★ " + fmt(entry.stars); sc.appendChild(w); }
     if (entry.wave) { const w = document.createElement("small"); w.textContent = tr("wave", entry.wave); sc.appendChild(w); }
     row.append(medal, av, name, sc);
     return row;
@@ -5054,7 +5108,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   let lbTab = "players";
   function lbTeamRow(t, rank) {
     const h = heroById(t.hero);
-    const row = lbRow({ rank, name: h.name, best: t.total }, h === HERO);
+    const row = lbRow({ rank, name: h.name, best: t.total, team: true }, h === HERO);
     const av = row.querySelector(".avatar"); av.textContent = ""; av.style.background = "#13206b";
     const im = document.createElement("img"); im.src = heroFace(h); im.alt = ""; av.appendChild(im);
     const sm = document.createElement("small"); sm.textContent = tr("players", t.players); row.querySelector(".lb-name").appendChild(sm);
@@ -5075,13 +5129,97 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const list = $("lbList"); list.textContent = ""; $("lbMe").textContent = "";
     $("lbSub").textContent = tr("todayBest") + " · " + tr("players", data.total || 0);
     if (!data.top || !data.top.length) { lbNote(tr("noScores")); return; }
+    lbFirst = data.top[0];
     for (const e of data.top) list.appendChild(lbRow(e, !!e.you));
     if (data.me && !data.top.some((e) => e.you)) $("lbMe").append(lbRow({ rank: data.me.rank, name: tr("you"), best: data.me.best }, true));
   }
+  // ---- Compare: any player's card next to yours ----
+  let lbFirst = null, cmpReturn = "lbScreen";
+  function myProfile() {
+    const st = meta.st || {};
+    return {
+      name: tr("you"), hero: HERO.id, hlv: heroLevel(HERO.id),
+      lvl: Math.max(0, progress.unlocked - 1), stars: achValue("stars"), best, wave: stats.bestWave || 0,
+      combo: Math.max(stats.bestCombo || 0, st.combo || 0), kills: Math.max(st.kills || 0, stats.kills || 0), bosses: st.bosses || 0,
+      heroes: achValue("heroes"), games: stats.games || 0
+    };
+  }
+  const CMP_ROWS = [["lvl", "c_level"], ["stars", "c_stars"], ["best", "best"], ["wave", "bestWave"], ["combo", "bestCombo"], ["kills", "c_kills"], ["bosses", "c_bosses"], ["heroes", "heroes"]];
+  function cmpWho(el, p, sub) {
+    el.textContent = "";
+    const av = document.createElement("div"); av.className = "avatar";
+    const h = heroById(p.hero) || HERO; const im = document.createElement("img"); im.src = heroFace(h); im.alt = ""; av.appendChild(im);
+    const nm = document.createElement("span"); nm.dir = "auto"; nm.textContent = p.name;
+    const sm = document.createElement("small"); sm.textContent = sub;
+    el.append(av, nm, sm);
+  }
+  function renderCompare(them) {
+    const me = myProfile();
+    cmpWho($("cmpThem"), them, them.rank ? "#" + fmt(them.rank) : them.lvlRank ? "#" + fmt(them.lvlRank) : tr("c_them"));
+    cmpWho($("cmpMe"), me, (heroById(me.hero) || HERO).name);
+    const list = $("cmpList"); list.textContent = "";
+    let lead = 0;
+    for (const [k, label] of CMP_ROWS) {
+      const a = +them[k] || 0, b = +me[k] || 0, sum = a + b;
+      const row = document.createElement("div"); row.className = "cmp-row";
+      const sm = document.createElement("small"); sm.textContent = tr(label);
+      const ta = document.createElement("b"); ta.textContent = fmt(a); if (a > b) ta.className = "win";
+      const tb = document.createElement("b"); tb.textContent = fmt(b); if (b > a) { tb.className = "win"; lead++; }
+      const bar = document.createElement("div"); bar.className = "cmp-bar";
+      const ia = document.createElement("i"); ia.className = "t"; ia.style.width = (sum ? (a / sum) * 100 : 50) + "%";
+      const ib = document.createElement("i"); ib.className = "m"; ib.style.width = (sum ? (b / sum) * 100 : 50) + "%";
+      bar.append(ia, ib);
+      row.append(ta, sm, tb, bar);
+      list.appendChild(row);
+    }
+    $("cmpLead").textContent = tr("c_lead").replace("{n}", "\u2066" + fmt(lead) + "/" + fmt(CMP_ROWS.length) + "\u2069");
+  }
+  async function openCompare(entry) {
+    // tapping yourself compares you with the leader of the board
+    if (!entry) entry = lbFirst && !lbFirst.you ? lbFirst : null;
+    if (!entry || !entry.pid) { openRecords("lb"); return; }
+    cmpReturn = "lbScreen";
+    $("cmpList").textContent = ""; $("cmpLead").textContent = tr("loading");
+    cmpWho($("cmpThem"), { name: entry.name, hero: entry.hero }, "#" + fmt(entry.rank));
+    cmpWho($("cmpMe"), myProfile(), HERO.name);
+    showScreen("cmpScreen");
+    try {
+      const p = await api("/player?pid=" + encodeURIComponent(entry.pid));
+      if (!$("cmpScreen").hidden) renderCompare(Object.assign(p, { rank: entry.rank }));
+    } catch (e) { if (!$("cmpScreen").hidden) $("cmpLead").textContent = tr("lbError"); }
+  }
+  let profileSent = 0;
+  function syncProfile() {
+    // keep this player's card fresh for others; at most once every 20 s
+    if (!API_BASE || !canSubmit() || Date.now() - profileSent < 20000) return;
+    profileSent = Date.now();
+    ping(false);
+  }
+
   async function loadLeaderboard() {
     $("lbSub").textContent = "";
+    lbFirst = null;
     document.querySelectorAll("#lbTabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === lbTab));
     if (!API_BASE) { lbNote(tr("lbOffline")); return; }
+    if (lbTab === "levels") {
+      lbNote(tr("loading"));
+      try {
+        const uid = tgUid();
+        const data = await api("/top?board=levels&limit=50" + (uid ? "&uid=" + encodeURIComponent(uid) : ""));
+        if ($("lbScreen").hidden || lbTab !== "levels") return;
+        const list = $("lbList"); list.textContent = ""; $("lbMe").textContent = "";
+        $("lbSub").textContent = tr("players", data.total || 0) + " · " + tr("c_tap");
+        if (!data.top || !data.top.length) { lbNote(tr("noScores")); return; }
+        lbFirst = data.top[0];
+        for (const e of data.top) list.appendChild(lbRow(Object.assign({ lvl: true }, e), !!e.you));
+        if (data.me && !data.top.some((e) => e.you)) {
+          const gap = document.createElement("div"); gap.className = "lb-gap"; gap.textContent = "• • •";
+          $("lbMe").append(gap, lbRow({ lvl: true, rank: data.me.rank, name: tr("you"), best: data.me.best, stars: data.me.stars }, true));
+        }
+        const mine = list.querySelector(".me"); if (mine) mine.scrollIntoView({ block: "nearest" });
+      } catch (e) { if (!$("lbScreen").hidden) lbNote(tr("lbError"), true); }
+      return;
+    }
     if (lbTab !== "players") {
       lbNote(tr("loading"));
       try { await (lbTab === "teams" ? loadTeams() : loadDailyBoard()); }
@@ -5095,8 +5233,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       if ($("lbScreen").hidden) return;
       const list = $("lbList");
       list.textContent = "";
-      $("lbSub").textContent = tr("players", data.total || 0);
+      $("lbSub").textContent = tr("players", data.total || 0) + " · " + tr("c_tap");
       if (!data.top || !data.top.length) { lbNote(tr("noScores")); return; }
+      lbFirst = data.top[0];
       let meShown = false;
       for (const e of data.top) { list.appendChild(lbRow(e, !!e.you)); if (e.you) meShown = true; }
       const meBox = $("lbMe");
@@ -5133,6 +5272,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         rage.t -= dt;
         shake = Math.max(shake, reduceMotion ? 1.5 : 3);
         rage.pop = Math.max(0, rage.pop - dt * 4);
+        // the "swipe!" prompt stays until the player has actually swiped, then fades away
+        if (rage.swiped > 90) rage.hint = Math.max(0, rage.hint - dt * 5);
         const sec = Math.ceil(rage.t);
         if (sec !== rage.sec && sec > 0) { rage.sec = sec; rage.pop = 1; tone(sec <= 2 ? 1320 : 880, null, 0.08, "triangle", 0.07); if (sec <= 2) haptic("light"); }
         if (rage.t <= 0) { const c = EL[rage.el].c; rage = null; blade = []; doFlash("#ffffff", 0.25); ring(cx, cy, Math.max(W, H) * 0.6, c, 0.6, 10); }
@@ -6397,6 +6538,34 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
   }
 
+  // Big "swipe to slice" prompt with an animated finger, shown until the first real swipe.
+  function drawSwipeHint(col, intro) {
+    const a = rage.hint * intro, top = clamp(W * 0.12, 34, 48) * 2 + 110;
+    const y = Math.max(top, boardY - 42), span = Math.min(W * 0.32, 150), fy0 = y - 78;
+    const k = (now * 0.9) % 1, t = ease(clamp(k / 0.75, 0, 1)), fade = k < 0.75 ? 1 : 1 - (k - 0.75) / 0.25;
+    const fx = cx - span + span * 2 * t, fy = fy0 + Math.sin(t * Math.PI) * -22;
+    ctx.save();
+    ctx.globalAlpha = a;
+    const tw = Math.min(W - 32, 340);
+    rrPath(ctx, cx - tw / 2, y - 30, tw, 52, 26); ctx.fillStyle = "rgba(10,8,30,0.62)"; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = rgba(col.c, 0.9); ctx.stroke();
+    const size = clamp(W * 0.065, 20, 28) * (1 + Math.sin(now * 8) * 0.04);
+    chunkyText(tr("swipe"), cx, y - 4, size, "#ffffff", col.dark);
+    // trail + glowing fingertip sweeping across
+    ctx.globalCompositeOperation = "lighter";
+    ctx.lineCap = "round";
+    for (let i = 1; i <= 10; i++) {
+      const t0 = Math.max(0, t - i * 0.035), x0 = cx - span + span * 2 * t0, y0 = fy0 + Math.sin(t0 * Math.PI) * -22;
+      ctx.globalAlpha = a * fade * (1 - i / 11) * 0.8;
+      ctx.drawImage(glow(col.c), x0 - 14, y0 - 14, 28, 28);
+    }
+    ctx.globalAlpha = a * fade;
+    ctx.drawImage(glow("#ffffff"), fx - 18, fy - 18, 36, 36);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.font = `${Math.round(size * 1.5)}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    ctx.fillText("\u{1F446}", fx + 4, fy - 4);
+    ctx.restore();
+  }
   function drawRage() {
     const col = EL[rage.el];
     const pulse = 0.5 + Math.sin(now * 12) * 0.5;
@@ -6448,6 +6617,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     }
     chunkyText(fmt(Math.max(1, rage.sec)), 0, 2, R * (0.95 + rage.pop * 0.35), "#ffffff", col.dark);
     ctx.restore();
+    if (rage.hint > 0) drawSwipeHint(col, intro);
 
     if (blade.length > 1) {
       ctx.globalCompositeOperation = "lighter";
@@ -6489,6 +6659,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (rage) {
       slice(ptr.lx, ptr.ly, p.x, p.y);
       const sp = Math.hypot(p.x - ptr.lx, p.y - ptr.ly);
+      rage.swiped += sp;
       if (sp > 28 && now - (ptr.whoosh || 0) > 0.14) { ptr.whoosh = now; tone(700, 220, 0.12, "sine", 0.05); }
     }
     else if (ptr.cell && !ptr.swiped) {
@@ -6553,6 +6724,8 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("albumBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   $("raidBtn").addEventListener("click", clickSfx(() => openRaid()));
   $("raidFight").addEventListener("click", clickSfx(startRaid));
+  $("cmpBack").addEventListener("click", clickSfx(() => showScreen(cmpReturn)));
+  $("cmpShare").addEventListener("click", clickSfx(() => share(tr("c_beat"))));
   $("raidBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   document.querySelectorAll("#misTabs button").forEach((b) => b.addEventListener("click", () => { sfx("click"); misTab = b.dataset.tab; openMissions(); }));
   $("wheelSpin").addEventListener("click", spinWheel);

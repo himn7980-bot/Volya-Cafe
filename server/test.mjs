@@ -224,6 +224,31 @@ sqlite.prepare("UPDATE users SET last_remind = last_remind - 86400").run();
 await remind(env);
 assert.equal(sqlite.prepare("SELECT can_write FROM users WHERE user_id = 555").get().can_write, 0, "blocked bots stop getting messages");
 
+// player cards: profiles ride along with /ping, boards carry an opaque pid, /player compares
+await call("POST", "/ping", { initData: sign(ali), profile: { lvl: 42, stars: 110, combo: 18, kills: 5000, bosses: 7, heroes: 5, hlv: 2, games: 30, hero: "pengu", evil: "x" } });
+await call("POST", "/ping", { initData: sign(sara), profile: { lvl: 42, stars: 120, combo: 9, kills: 99999999999, hero: "nope" } });
+await call("POST", "/ping", { initData: sign(kim), profile: { lvl: 7, stars: 15 } });
+r = await call("GET", "/top?board=levels&uid=111");
+assert.deepEqual(r.data.top.map((e) => [e.rank, e.name, e.best, e.stars]), [[1, "Sara", 42, 120], [2, "Ali Rezaei", 42, 110], [3, "Kim", 7, 15]]);
+assert.equal(r.data.me.rank, 2); assert.equal(r.data.total, 3);
+assert.ok(r.data.top.every((e) => /^[0-9a-f]{16}$/.test(e.pid) && !("user_id" in e)), "public ids only");
+const aliPid = r.data.top[1].pid;
+r = await call("GET", "/top?limit=10");
+assert.equal(r.data.top.find((e) => e.name === "Ali Rezaei").pid, aliPid, "score board links the same card");
+assert.equal(r.data.top.find((e) => e.name === "Ali Rezaei").hero, "pengu");
+r = await call("GET", "/player?pid=" + aliPid);
+assert.equal(r.status, 200);
+assert.equal(r.data.lvl, 42); assert.equal(r.data.combo, 18); assert.equal(r.data.hero, "pengu"); assert.equal(r.data.lvlRank, 2);
+assert.ok(r.data.best > 0 && r.data.rank >= 1, "score comes from the verified scores table");
+assert.equal(r.data.evil, undefined);
+r = await call("GET", "/player?pid=" + (await call("GET", "/top?board=levels")).data.top[0].pid);
+assert.equal(r.data.kills, 100_000_000, "values are capped"); assert.equal(r.data.hero, "volya");
+// progress never goes backwards (e.g. a fresh device)
+await call("POST", "/ping", { initData: sign(kim), profile: { lvl: 2, stars: 3 } });
+assert.equal((await call("GET", "/top?board=levels")).data.top[2].best, 7);
+assert.equal((await call("GET", "/player?pid=zzz")).status, 400);
+assert.equal((await call("GET", "/player?pid=0000000000000000")).status, 404);
+
 // Android asset links: hidden until configured, then served for the TWA package
 const links = async () => worker.fetch(new Request("https://lb.example/.well-known/assetlinks.json"), env);
 assert.equal((await links()).status, 404);

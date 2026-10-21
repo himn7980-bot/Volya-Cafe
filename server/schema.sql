@@ -80,3 +80,17 @@ CREATE TABLE IF NOT EXISTS raid_state (
   week        INTEGER PRIMARY KEY,
   defeated_at INTEGER
 );
+
+-- Player cards: what the game reports about each player's progress, shown when someone taps them
+-- on a leaderboard to compare. pid is an opaque public id (the Telegram id is never exposed).
+CREATE TABLE IF NOT EXISTS profiles (
+  user_id    INTEGER PRIMARY KEY,
+  pid        TEXT    NOT NULL UNIQUE,
+  name       TEXT    NOT NULL,
+  hero       TEXT    NOT NULL DEFAULT 'volya',
+  lvl        INTEGER NOT NULL DEFAULT 0,   -- levels cleared
+  stars      INTEGER NOT NULL DEFAULT 0,
+  data       TEXT    NOT NULL,             -- JSON: combo, kills, bosses, heroes, hlv, games
+  updated_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_profiles_lvl ON profiles (lvl DESC, stars DESC);

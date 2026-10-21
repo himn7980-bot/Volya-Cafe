@@ -29,6 +29,7 @@ printf '%s' "$TELEGRAM_BOT_TOKEN" | $W secret put BOT_TOKEN
 # 4. Webhook secret for payments and /start (kept if you already exported one)
 WEBHOOK_SECRET="${WEBHOOK_SECRET:-$(openssl rand -hex 24)}"
 printf '%s' "$WEBHOOK_SECRET" | $W secret put WEBHOOK_SECRET
+[ -n "${CI:-}" ] && exit 0   # the GitHub workflow connects the bot itself
 echo
 echo "Done. Connect the bot (menu button, payments webhook) with:"
 echo "  TELEGRAM_BOT_TOKEN=\$TELEGRAM_BOT_TOKEN WEBHOOK_SECRET=$WEBHOOK_SECRET ./setup-bot.sh https://volya-leaderboard.<your-subdomain>.workers.dev"
