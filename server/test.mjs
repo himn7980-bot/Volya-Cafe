@@ -68,9 +68,9 @@ assert.equal(r.status, 204); assert.equal(r.cors, "https://himn7980-bot.github.i
 
 // submissions
 r = await call("POST", "/score", { initData: sign(ali), score: 1200, wave: 3, kills: 40, duration: 90 });
-assert.equal(r.status, 200); assert.deepEqual(r.data, { best: 1200, rank: 1, total: 1, improved: true });
+assert.equal(r.status, 200); assert.deepEqual(r.data, { best: 1200, rank: 1, total: 1, improved: true, team: 0 });
 r = await call("POST", "/score", { initData: sign(sara), score: 5000, wave: 6, kills: 120, duration: 200 });
-assert.deepEqual(r.data, { best: 5000, rank: 1, total: 2, improved: true });
+assert.deepEqual(r.data, { best: 5000, rank: 1, total: 2, improved: true, team: 0 });
 r = await call("POST", "/score", { initData: sign(kim), score: 1200, wave: 3, kills: 35, duration: 100 });
 assert.equal(r.data.rank, 2, "ties share a rank");
 
@@ -85,10 +85,10 @@ assert.equal(r.status, 429, "second submit inside 3 s is refused");
 // a lower score later keeps the best; a higher one replaces it
 sqlite.prepare("UPDATE scores SET updated_at = updated_at - 10").run();
 r = await call("POST", "/score", { initData: sign(ali), score: 800, wave: 2, kills: 20, duration: 60 });
-assert.deepEqual(r.data, { best: 1200, rank: 2, total: 3, improved: false });
+assert.deepEqual(r.data, { best: 1200, rank: 2, total: 3, improved: false, team: 0 });
 sqlite.prepare("UPDATE scores SET updated_at = updated_at - 10").run();
 r = await call("POST", "/score", { initData: sign(ali), score: 7000, wave: 8, kills: 200, duration: 300 });
-assert.deepEqual(r.data, { best: 7000, rank: 1, total: 3, improved: true });
+assert.deepEqual(r.data, { best: 7000, rank: 1, total: 3, improved: true, team: 0 });
 assert.equal(sqlite.prepare("SELECT games FROM scores WHERE user_id = 111").get().games, 3);
 
 // leaderboard
@@ -102,28 +102,46 @@ assert.equal(r.data.total, 3);
 r = await call("GET", "/nope");
 assert.equal(r.status, 404);
 
-// team war: best run of the week per player, credited to the hero played
+// community teams: join, earn points from play, weekly race
+r = await call("GET", "/teams");
+assert.equal(r.data.teams.length, 16, "every hero is a team");
+assert.ok(r.data.teams.every((t) => t.total === 0));
+r = await call("POST", "/team/join", { initData: sign(sara), team: "paws" });
+assert.deepEqual(r.data, { team: "paws", switched: false });
+r = await call("POST", "/team/join", { initData: sign(kim), team: "nope" });
+assert.equal(r.status, 400);
+await call("POST", "/team/join", { initData: sign(kim), team: "pengu" });
+r = await call("POST", "/team/join", { initData: sign(kim), team: "paws" });
+assert.equal(r.data.switched, true, "switching is free before earning points");
+await call("POST", "/team/join", { initData: sign(ali), team: "notcoin" });
 sqlite.prepare("UPDATE scores SET updated_at = updated_at - 10").run();
 r = await call("POST", "/score", { initData: sign(sara), score: 6000, wave: 7, kills: 150, duration: 250, hero: "paws" });
-assert.equal(r.status, 200);
+assert.equal(r.data.team, 75, "60 points +25% for playing the team's own hero");
 sqlite.prepare("UPDATE scores SET updated_at = updated_at - 10").run();
-r = await call("POST", "/score", { initData: sign(kim), score: 3000, wave: 5, kills: 90, duration: 200, hero: "paws" });
+r = await call("POST", "/score", { initData: sign(kim), score: 3000, wave: 5, kills: 90, duration: 200, hero: "volya" });
+assert.equal(r.data.team, 30);
 sqlite.prepare("UPDATE scores SET updated_at = updated_at - 10").run();
-r = await call("POST", "/score", { initData: sign(kim), score: 1000, wave: 3, kills: 30, duration: 90, hero: "notreal" });
+r = await call("POST", "/score", { initData: sign(ali), score: 1000, wave: 3, kills: 30, duration: 90, hero: "notreal" });
+assert.equal(r.data.team, 10);
+r = await call("POST", "/team/join", { initData: sign(kim), team: "pengu" });
+assert.equal(r.status, 409, "one switch a week once points are earned");
 r = await call("GET", "/teams");
-assert.equal(r.status, 200);
 const team = Object.fromEntries(r.data.teams.map((t) => [t.hero, t]));
-assert.deepEqual([team.paws.total, team.paws.players], [9000, 2]);
-assert.equal(team.volya.total, 7000 + 5000 + 1200, "unknown heroes count for volya; best per player per hero");
-assert.equal(r.data.teams[0].hero, "volya");
+assert.deepEqual([team.paws.total, team.paws.players, team.paws.members], [105, 2, 2]);
+assert.equal(r.data.teams[0].hero, "paws");
 assert.ok(r.data.endsIn > 0 && r.data.endsIn <= 7 * 86400);
+r = await call("POST", "/team", { initData: sign(kim) });
+assert.deepEqual([r.data.mine.team, r.data.mine.points, r.data.mine.teamPoints, r.data.mine.rank, r.data.mine.canSwitch], ["paws", 30, 105, 1, false]);
+assert.deepEqual(r.data.top.map((e) => [e.name, e.best, !!e.you]), [["Sara", 75, false], ["Kim", 30, true]]);
+r = await call("POST", "/team", { initData: sign({ id: 444, first_name: "New" }) });
+assert.equal(r.data.mine, null);
 
 // daily challenge board
 const today = Math.floor(Date.now() / 86400000);
 r = await call("POST", "/daily", { initData: sign(ali), day: today, score: 900, hero: "teddy" });
-assert.deepEqual(r.data, { best: 900, rank: 1 });
+assert.deepEqual(r.data, { best: 900, rank: 1, team: 60 });
 r = await call("POST", "/daily", { initData: sign(sara), day: today, score: 1500 });
-assert.deepEqual(r.data, { best: 1500, rank: 1 });
+assert.deepEqual(r.data, { best: 1500, rank: 1, team: 60 });
 r = await call("POST", "/daily", { initData: sign(kim), day: today - 5, score: 100 });
 assert.equal(r.status, 400, "old days are closed");
 r = await call("POST", "/daily", { initData: sign(kim), day: today, score: 99_000_000 });
@@ -160,7 +178,7 @@ assert.equal(tgCalls.at(-1).body.reply_markup.inline_keyboard[0][0].web_app.url,
 // players, invites and reminders
 const zoe = { id: 555, first_name: "Zoe", language_code: "fa" };
 r = await call("POST", "/ping", { initData: sign(ali), write: true });
-assert.deepEqual(r.data, { refs: 0 });
+assert.deepEqual(r.data, { refs: 0, team: 0 });
 r = await call("POST", "/ref", { initData: sign(zoe), ref: 111 });
 assert.deepEqual(r.data, { ok: true });
 r = await call("POST", "/ref", { initData: sign(zoe), ref: 111 });
@@ -176,7 +194,7 @@ r = await call("POST", "/ref", { initData: sign(sara), ref: 111 });
 assert.deepEqual(r.data, { ok: false, reason: "not_new" }, "old players can't be claimed as invites");
 for (const id of [601, 602, 603, 604]) await call("POST", "/ref", { initData: sign({ id, first_name: "N" + id }), ref: 111 });
 r = await call("POST", "/ping", { initData: sign(ali) });
-assert.deepEqual(r.data, { refs: 5 });
+assert.deepEqual(r.data, { refs: 5, team: 0 });
 r = await call("POST", "/claim", { initData: sign(ali) });
 assert.deepEqual(r.data.products.sort(), ["ref_bonus", "ref_bonus", "ref_bonus", "ref_bonus", "ref_bonus", "ref_hero"]);
 r = await call("POST", "/claim", { initData: sign(zoe) });
@@ -248,6 +266,28 @@ await call("POST", "/ping", { initData: sign(kim), profile: { lvl: 2, stars: 3 }
 assert.equal((await call("GET", "/top?board=levels")).data.top[2].best, 7);
 assert.equal((await call("GET", "/player?pid=zzz")).status, 400);
 assert.equal((await call("GET", "/player?pid=0000000000000000")).status, 404);
+
+// teams: new levels and stars since the last report earn points; the first report is only a baseline
+r = await call("POST", "/ping", { initData: sign(ali), profile: { lvl: 45, stars: 120, hero: "pengu" } });
+assert.equal(r.data.team, 3 * 20 + 10 * 5);
+r = await call("POST", "/ping", { initData: sign(ali), profile: { lvl: 45, stars: 120 } });
+assert.equal(r.data.team, 0, "no points without new progress");
+// daily cap
+sqlite.prepare("UPDATE team_day SET points = 1990 WHERE user_id = 222").run();
+sqlite.prepare("UPDATE scores SET updated_at = updated_at - 10").run();
+r = await call("POST", "/score", { initData: sign(sara), score: 9000, wave: 9, kills: 200, duration: 300, hero: "paws" });
+assert.equal(r.data.team, 10, "capped at 2000 a day");
+// weekly rewards: last week's ranks pay out once through /claim, the team's top scorer is MVP
+const order = (await call("GET", "/teams")).data.teams.slice(0, 2).map((t) => t.hero);
+assert.deepEqual(order, ["notcoin", "paws"], "Ali's levels + daily + Endless put notcoin ahead");
+sqlite.prepare("UPDATE team_points SET week = week - 1").run();
+const prods = async (u) => (await call("POST", "/claim", { initData: sign(u) })).data.products.filter((x) => x.startsWith("team"));
+assert.deepEqual((await prods(sara)).sort(), ["team_mvp", "team_r2"]);
+assert.deepEqual(await prods(kim), ["team_r2"]);
+assert.deepEqual((await prods(ali)).sort(), ["team_mvp", "team_r1"]);
+assert.deepEqual(await prods(sara), [], "paid once");
+r = await call("POST", "/team", { initData: sign(kim) });
+assert.deepEqual([r.data.last.team, r.data.last.rank, r.data.mine.points, r.data.mine.canSwitch], ["paws", 2, 0, true]);
 
 // Android asset links: hidden until configured, then served for the TWA package
 const links = async () => worker.fetch(new Request("https://lb.example/.well-known/assetlinks.json"), env);

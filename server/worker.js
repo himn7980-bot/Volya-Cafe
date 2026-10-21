@@ -5,7 +5,9 @@
 //
 //   GET  /top?limit=50&uid=<telegram id>  -> { top: [...], total, me }
 //   POST /score { initData, score, wave, kills, duration, hero } -> { best, rank, total, improved }
-//   GET  /teams                            -> this week's team war: { week, endsIn, teams: [{ hero, total, players }] }
+//   GET  /teams                            -> this week's team war: { week, endsIn, teams: [{ hero, total, players, members }] }
+//   POST /team { initData }                -> your team, its rank, top members, last week's result (+ settles rewards)
+//   POST /team/join { initData, team }     -> join a hero's community team (one switch per week)
 //   POST /daily { initData, day, score, hero } / GET /daily?day=&uid= -> daily challenge board
 //   POST /invoice { initData, product }    -> { link } (Telegram Stars invoice)
 //   POST /claim { initData }               -> { products: [...] } paid purchases not yet delivered
@@ -68,6 +70,8 @@ export default {
       if (url.pathname === "/player" && req.method === "GET") return json(await player(env, url), cors);
       if (url.pathname === "/top" && req.method === "GET") return json(await top(env, url), cors);
       if (url.pathname === "/score" && req.method === "POST") return json(await submit(env, await readJson(req)), cors);
+      if (url.pathname === "/team" && req.method === "POST") return json(await teamStatus(env, await readJson(req)), cors);
+      if (url.pathname === "/team/join" && req.method === "POST") return json(await teamJoin(env, await readJson(req)), cors);
       if (url.pathname === "/teams" && req.method === "GET") return json(await teams(env), cors);
       if (url.pathname === "/daily" && req.method === "POST") return json(await submitDaily(env, await readJson(req)), cors);
       if (url.pathname === "/daily" && req.method === "GET") return json(await topDaily(env, url), cors);
@@ -187,23 +191,105 @@ async function submit(env, body) {
        best  = MAX(scores.best, excluded.best)`
   ).bind(user.id, displayName(user), user.username || null, user.language_code || null, score, wave, kills, now, now).run();
 
-  // team war: each player's best run of the week counts for the hero they played
-  const hero = HEROES.includes(body.hero) ? body.hero : "volya";
-  await env.DB.prepare(
-    `INSERT INTO team_scores (week, user_id, hero, best) VALUES (?, ?, ?, ?)
-     ON CONFLICT(week, user_id, hero) DO UPDATE SET best = MAX(team_scores.best, excluded.best)`
-  ).bind(weekOf(now), user.id, hero, score).run();
+  const team = await awardTeam(env, user.id, Math.min(TEAM_PTS.runMax, Math.floor(score / TEAM_PTS.runPer)), body.hero);
 
   const best = Math.max(score, prev ? prev.best : 0);
-  return { best, rank: await rankOf(env, best), total: await total(env), improved: !prev || score > prev.best };
+  return { best, rank: await rankOf(env, best), total: await total(env), improved: !prev || score > prev.best, team };
 }
 
+async function teamTotals(env, week) {
+  const rows = await env.DB.prepare(
+    "SELECT team AS hero, SUM(points) AS total, COUNT(DISTINCT user_id) AS players FROM team_points WHERE week = ? GROUP BY team ORDER BY total DESC, hero ASC"
+  ).bind(week).all();
+  return rows.results || [];
+}
 async function teams(env) {
   const now = nowSec(), week = weekOf(now);
+  const list = await teamTotals(env, week);
+  const mem = await env.DB.prepare("SELECT team, COUNT(*) AS c FROM team_members GROUP BY team").all();
+  const members = Object.fromEntries((mem.results || []).map((r) => [r.team, r.c]));
+  const seen = new Set(list.map((t) => t.hero));
+  // every team is listed, even before it scores
+  for (const h of HEROES) if (!seen.has(h)) list.push({ hero: h, total: 0, players: 0 });
+  list.sort((a, b) => b.total - a.total || (members[b.hero] || 0) - (members[a.hero] || 0));
+  for (const t of list) t.members = members[t.hero] || 0;
+  return { week, endsIn: (week + 1) * 7 * 86400 - 3 * 86400 - now, teams: list };
+}
+
+// ---- Community teams ---------------------------------------------------------
+// Points: Endless runs (score / 100, up to 300), each new level cleared (20) and new star (5),
+// the first daily challenge of the day (60), World Boss damage (1 per 500, up to 200 a hit).
+// Playing as your own team's hero gives +25%. A player can earn at most TEAM_DAY_CAP a day.
+export const TEAM_PTS = { runPer: 100, runMax: 300, level: 20, star: 5, levelMax: 500, daily: 60, raidPer: 500, raidMax: 200, heroBonus: 1.25 };
+export const TEAM_DAY_CAP = 2000;
+// Weekly rewards by final team rank (1st, 2nd, 3rd, everyone else who earned points) + the team's MVP.
+export const TEAM_REWARDS = ["team_r1", "team_r2", "team_r3", "team_r4"];
+async function awardTeam(env, userId, pts, hero) {
+  if (!(pts > 0)) return 0;
+  const m = await env.DB.prepare("SELECT team FROM team_members WHERE user_id = ?").bind(userId).first();
+  if (!m) return 0;
+  if (hero && hero === m.team) pts *= TEAM_PTS.heroBonus;
+  const now = nowSec(), day = dayOf(now);
+  const d = await env.DB.prepare("SELECT points FROM team_day WHERE day = ? AND user_id = ?").bind(day, userId).first();
+  pts = Math.min(Math.floor(pts), Math.max(0, TEAM_DAY_CAP - (d ? d.points : 0)));
+  if (pts <= 0) return 0;
+  await env.DB.prepare(
+    "INSERT INTO team_day (day, user_id, points) VALUES (?, ?, ?) ON CONFLICT(day, user_id) DO UPDATE SET points = team_day.points + excluded.points"
+  ).bind(day, userId, pts).run();
+  await env.DB.prepare(
+    "INSERT INTO team_points (week, user_id, team, points) VALUES (?, ?, ?, ?) ON CONFLICT(week, user_id, team) DO UPDATE SET points = team_points.points + excluded.points"
+  ).bind(weekOf(now), userId, m.team, pts).run();
+  return pts;
+}
+async function myWeekPoints(env, week, userId) {
+  const r = await env.DB.prepare("SELECT COALESCE(SUM(points), 0) AS p FROM team_points WHERE week = ? AND user_id = ?").bind(week, userId).first();
+  return r ? r.p : 0;
+}
+async function teamJoin(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  const team = String(body.team || "");
+  if (!HEROES.includes(team)) throw new HttpError(400, "bad_team");
+  const now = nowSec(), week = weekOf(now);
+  const m = await env.DB.prepare("SELECT team, switched_week FROM team_members WHERE user_id = ?").bind(user.id).first();
+  if (m && m.team === team) return { team, switched: false };
+  // switching is free until you earn points; after that, once a week
+  if (m && m.switched_week >= week && (await myWeekPoints(env, week, user.id)) > 0) throw new HttpError(409, "switch_wait");
+  await env.DB.prepare(
+    `INSERT INTO team_members (user_id, team, name, joined_at, switched_week) VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(user_id) DO UPDATE SET team = excluded.team, name = excluded.name, joined_at = excluded.joined_at, switched_week = excluded.switched_week`
+  ).bind(user.id, team, displayName(user), now, week).run();
+  return { team, switched: !!m };
+}
+// Last week's result for this player: reward by team rank (+ MVP), granted once through /claim.
+async function settleTeam(env, userId, week) {
+  const last = week - 1;
+  const mine = await env.DB.prepare("SELECT team, points FROM team_points WHERE week = ? AND user_id = ? ORDER BY points DESC LIMIT 1").bind(last, userId).first();
+  if (!mine || mine.points <= 0) return null;
+  const totals = await teamTotals(env, last);
+  const rank = totals.findIndex((t) => t.hero === mine.team) + 1;
+  const mvp = await env.DB.prepare("SELECT user_id FROM team_points WHERE week = ? AND team = ? ORDER BY points DESC, user_id ASC LIMIT 1").bind(last, mine.team).first();
+  await grant(env, `team:${last}:${userId}`, userId, TEAM_REWARDS[Math.min(rank, 4) - 1]);
+  if (mvp && mvp.user_id === userId) await grant(env, `mvp:${last}:${userId}`, userId, "team_mvp");
+  return { team: mine.team, rank, points: mine.points, mvp: !!(mvp && mvp.user_id === userId) };
+}
+async function teamStatus(env, body) {
+  const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  const board = await teams(env), week = board.week;
+  const m = await env.DB.prepare("SELECT team, switched_week FROM team_members WHERE user_id = ?").bind(user.id).first();
+  const last = await settleTeam(env, user.id, week);
+  if (!m) return { ...board, mine: null, top: [], last };
+  const points = await myWeekPoints(env, week, user.id);
   const rows = await env.DB.prepare(
-    "SELECT hero, SUM(best) AS total, COUNT(DISTINCT user_id) AS players FROM team_scores WHERE week = ? GROUP BY hero ORDER BY total DESC"
-  ).bind(week).all();
-  return { week, endsIn: (week + 1) * 7 * 86400 - 3 * 86400 - now, teams: rows.results || [] };
+    `SELECT t.user_id, t.points, COALESCE(p.name, m.name, '?') AS name, p.pid, p.hero FROM team_points t
+     LEFT JOIN profiles p ON p.user_id = t.user_id LEFT JOIN team_members m ON m.user_id = t.user_id
+     WHERE t.week = ? AND t.team = ? ORDER BY t.points DESC, t.user_id ASC LIMIT 20`
+  ).bind(week, m.team).all();
+  const top = (rows.results || []).map((r, i) => ({ rank: i + 1, name: r.name, best: r.points, pid: r.pid || undefined, hero: r.hero || undefined, you: r.user_id === user.id || undefined }));
+  const t = board.teams.find((x) => x.hero === m.team);
+  return {
+    ...board, top, last,
+    mine: { team: m.team, points, teamPoints: t ? t.total : 0, rank: board.teams.indexOf(t) + 1, canSwitch: m.switched_week < week || points === 0 }
+  };
 }
 
 async function submitDaily(env, body) {
@@ -222,7 +308,8 @@ async function submitDaily(env, body) {
   ).bind(day, user.id, displayName(user), hero, score, now).run();
   const best = Math.max(score, prev ? prev.best : 0);
   const higher = await env.DB.prepare("SELECT COUNT(*) AS c FROM daily_scores WHERE day = ? AND best > ?").bind(day, best).first();
-  return { best, rank: (higher ? higher.c : 0) + 1 };
+  const team = prev ? 0 : await awardTeam(env, user.id, TEAM_PTS.daily, body.hero);
+  return { best, rank: (higher ? higher.c : 0) + 1, team };
 }
 
 async function topDaily(env, url) {
@@ -272,6 +359,7 @@ async function invoice(env, body) {
 // Paid purchases are stored by the webhook; the game collects them here exactly once.
 async function claim(env, body) {
   const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
+  await settleTeam(env, user.id, weekOf(nowSec()));
   const rows = await env.DB.prepare("SELECT charge_id, product FROM purchases WHERE user_id = ? AND claimed = 0").bind(user.id).all();
   const list = rows.results || [];
   for (const r of list) await env.DB.prepare("UPDATE purchases SET claimed = 1 WHERE charge_id = ?").bind(r.charge_id).run();
@@ -358,12 +446,15 @@ function cleanProfile(p) {
 }
 async function saveProfile(env, user, raw) {
   const p = cleanProfile(raw), { lvl, stars, hero, ...rest } = p;
+  const prev = await env.DB.prepare("SELECT lvl, stars FROM profiles WHERE user_id = ?").bind(user.id).first();
   await env.DB.prepare(
     `INSERT INTO profiles (user_id, pid, name, hero, lvl, stars, data, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(user_id) DO UPDATE SET name = excluded.name, hero = excluded.hero, data = excluded.data,
        updated_at = CASE WHEN excluded.lvl > profiles.lvl OR excluded.stars > profiles.stars THEN excluded.updated_at ELSE profiles.updated_at END,
        lvl = MAX(profiles.lvl, excluded.lvl), stars = MAX(profiles.stars, excluded.stars)`
   ).bind(user.id, await publicId(env, user.id), displayName(user), hero, lvl, stars, JSON.stringify(rest), nowSec()).run();
+  // progress made since the last report (the first report only sets the baseline)
+  return prev ? { lvl: Math.max(0, lvl - prev.lvl), stars: Math.max(0, stars - prev.stars) } : { lvl: 0, stars: 0 };
 }
 async function levelRankOf(env, lvl, stars) {
   const r = await env.DB.prepare("SELECT COUNT(*) AS c FROM profiles WHERE lvl > ? OR (lvl = ? AND stars > ?)").bind(lvl, lvl, stars).first();
@@ -417,9 +508,13 @@ async function touchUser(env, user, write) {
 async function ping(env, body) {
   const user = await verifyInitData(body && body.initData, env.BOT_TOKEN);
   await touchUser(env, user, !!(body && body.write));
-  if (body && body.profile && typeof body.profile === "object") await saveProfile(env, user, body.profile);
+  let team = 0;
+  if (body && body.profile && typeof body.profile === "object") {
+    const gained = await saveProfile(env, user, body.profile);
+    team = await awardTeam(env, user.id, Math.min(TEAM_PTS.levelMax, gained.lvl * TEAM_PTS.level + gained.stars * TEAM_PTS.star));
+  }
   const row = await env.DB.prepare("SELECT refs FROM users WHERE user_id = ?").bind(user.id).first();
-  return { refs: row ? row.refs : 0 };
+  return { refs: row ? row.refs : 0, team };
 }
 
 const grant = (env, chargeId, userId, product) =>
@@ -471,6 +566,7 @@ async function raidHit(env, body) {
      ON CONFLICT(week, user_id) DO UPDATE SET damage = raid_hits.damage + excluded.damage, updated_at = excluded.updated_at`
   ).bind(w.week, user.id, damage, now).run();
   const st = await raidStatus(env, user.id);
+  st.team = await awardTeam(env, user.id, Math.min(TEAM_PTS.raidMax, Math.floor(damage / TEAM_PTS.raidPer)));
   if (st.defeated) await env.DB.prepare("INSERT OR IGNORE INTO raid_state (week, defeated_at) VALUES (?, ?)").bind(w.week, now).run();
   return st;
 }

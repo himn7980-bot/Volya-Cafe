@@ -165,6 +165,20 @@ Until `LEADERBOARD_API` is set, the leaderboard screen explains that it works in
 
 The workflow runs the server tests, creates the D1 database, deploys the Worker (game + API), stores the bot token as a Worker secret, connects the bot (menu button, payments webhook), then writes the server URL into `LEADERBOARD_API` and rebuilds `index.html`, so the GitHub Pages copy goes online too. Run it again after server changes.
 
+### Community teams
+
+Every hero is a meme-coin community team. Players pick a team once (the title screen's team button; a community link `startapp=h_<hero>` puts that team first), then everything they play earns team points for the week:
+
+| Activity | Team points |
+|---|---|
+| Endless run | score ÷ 100, up to 300 |
+| New level cleared / new star | 20 / 5 |
+| First daily challenge of the day | 60 |
+| World Boss damage | 1 per 500, up to 200 a hit |
+| Playing as your team's own hero | +25% |
+
+A player can add at most 2,000 points a day. The team page shows the weekly ranking of all 16 teams, your team's top members (tap one to compare), your own points, members and time left, plus a recruit button that shares the team's link. Switching is free until you earn points, then once a week. When the week ends every member who earned points gets gold by final team rank (1st 1,500 · 2nd 800 · 3rd 400 · others 150) and each team's top scorer gets +500 as MVP, delivered through `/claim`.
+
 ### Leaderboard features
 
 - Tabs: best Endless score, team war, **levels** (levels cleared, then stars) and the daily challenge.

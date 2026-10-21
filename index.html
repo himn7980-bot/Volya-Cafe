@@ -553,6 +553,25 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .lb-name small { color: var(--gold); font-size: 12px; margin-inline-start: 6px; }
 .lb-score { font-weight: 800; font-size: 17px; color: var(--gold); font-variant-numeric: tabular-nums; text-align: end; line-height: 1.1; }
 .lb-score small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
+.team-chip { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: linear-gradient(135deg, #3a2a8a, #1d3a9a); box-shadow: 0 4px 0 #13206b, inset 0 0 0 2px rgba(255,207,61,.55); color: #fff; }
+.team-chip img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--gold); flex: none; }
+.team-chip span { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; text-align: start; }
+.team-chip b { font-size: 16px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.team-chip small { font-size: 12px; font-weight: 700; color: var(--gold); }
+.team-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-height: 48vh; overflow-y: auto; padding: 2px; }
+.team-grid button { appearance: none; border: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 2px 6px; border-radius: 14px; background: rgba(0,0,0,.25); color: #fff; font-family: inherit; min-width: 0; }
+.team-grid button.hint { box-shadow: inset 0 0 0 2px var(--gold); background: rgba(255,207,61,.16); }
+.team-grid img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.team-grid b { font-size: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-grid small { font-size: 11px; color: var(--muted); font-weight: 700; }
+.team-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.team-head img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px var(--gold); }
+.team-head b { display: block; font-size: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-head small { display: block; color: var(--gold); font-weight: 800; }
+.team-pts { text-align: center; } .team-pts b { color: var(--gold); font-size: 22px; } .team-pts small { color: var(--muted); font-size: 11px; }
+.tabs.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#teamList { max-height: 34vh; }
+.btn.off { opacity: .55; }
 #lbTabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 #lbTabs button { font-size: 12px; }
 .lb-row[data-pid] { cursor: pointer; }
@@ -639,6 +658,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
         <button class="btn secondary hero-btn" id="heroBtn" type="button"><img id="heroBtnImg" alt=""><span data-i18n="heroes"></span></button>
         <button class="btn secondary" id="misBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3" fill="currentColor" opacity=".35"/><path d="M8 8.5l1.5 1.5L12 7.5M8 14.5l1.5 1.5 2.5-2.5M14 9h3M14 15h3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="missions"></span><i class="dot" id="misDot" hidden></i></button>
       </div>
+      <button class="btn team-chip" id="teamBtn" type="button"><img id="teamBtnImg" alt=""><span><b id="teamBtnText"></b><small id="teamBtnSub"></small></span></button>
       <div class="btn-row three">
         <button class="btn secondary" id="passBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v4a2 2 0 000 4v4H4v-4a2 2 0 000-4z" fill="currentColor" opacity=".35"/><path d="M4 5h16v4a2 2 0 000 4v4H4v-4a2 2 0 000-4zM14 5v12" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2"/><path d="M8.5 8.5l.8 1.6 1.7.2-1.3 1.2.4 1.7-1.6-.9-1.6.9.4-1.7-1.3-1.2 1.7-.2z" fill="currentColor"/></svg><span data-i18n="seasonPass"></span><i class="dot" id="passDot" hidden></i></button>
         <button class="btn secondary" id="raidBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l-2-5 5 3M19 9l2-5-5 3" fill="currentColor"/><circle cx="12" cy="13" r="8" fill="currentColor" opacity=".35"/><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12l2.5 1.2M16 12l-2.5 1.2M9 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="worldBoss"></span><i class="dot" id="raidDot" hidden></i></button>
@@ -720,6 +740,40 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
       <div class="lb-list" id="lbList"></div>
       <div id="lbMe"></div>
       <button class="btn primary" id="lbDone" type="button"><span data-i18n="done"></span></button>
+    </div>
+  </section>
+
+  <section class="screen center" id="teamScreen" hidden>
+    <div class="card">
+      <h2 class="lb-title"><span data-i18n="teamWar"></span></h2>
+      <div id="teamPick" hidden>
+        <p class="lb-sub" data-i18n="chooseTeam"></p>
+        <div class="team-grid" id="teamGrid"></div>
+      </div>
+      <div id="teamMain" hidden>
+        <div class="team-head">
+          <img id="teamFace" alt="">
+          <div><b id="teamName" dir="auto"></b><small id="teamRank"></small></div>
+          <div class="team-pts"><b id="teamPts">0</b><small data-i18n="teamPoints"></small></div>
+        </div>
+        <div class="stats">
+          <div><small data-i18n="teamYour"></small><b id="teamMine">0</b></div>
+          <div><small>👥</small><b id="teamMembers">0</b></div>
+          <div><small>⏱</small><b id="teamTime">–</b></div>
+        </div>
+        <div class="tabs two" id="teamTabs">
+          <button type="button" data-tab="teams" class="on"><span data-i18n="teamWar"></span></button>
+          <button type="button" data-tab="members"><span data-i18n="topMembers"></span></button>
+        </div>
+        <div class="lb-list" id="teamList"></div>
+        <div class="btn-row">
+          <button class="btn share" id="teamInvite" type="button"><span data-i18n="inviteTeam"></span></button>
+          <button class="btn secondary" id="teamSwitch" type="button"><span data-i18n="switchTeam"></span></button>
+        </div>
+      </div>
+      <p class="lb-note" id="teamNote" hidden></p>
+      <p class="mis-foot" data-i18n="teamHow"></p>
+      <button class="btn primary" id="teamDone" type="button"><span data-i18n="done"></span></button>
     </div>
   </section>
 
@@ -1618,6 +1672,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   const CMP_KEYS = ["compare", "c_level", "c_stars", "c_kills", "c_bosses", "c_lead", "c_tap", "c_them", "c_beat"];
   const STR_CMP = {"en": ["Compare", "Levels cleared", "Stars", "Monsters defeated", "Bosses defeated", "You're ahead in {n}", "Tap a player to compare", "Player", "Can you beat my stats in Volya Gem Defense? 💎"], "fa": ["مقایسه", "مراحل رد شده", "ستاره‌ها", "هیولاهای کشته‌شده", "غول‌های شکست‌خورده", "در {n} مورد جلوتری", "روی هر بازیکن بزن تا مقایسه کنی", "بازیکن", "می‌تونی آمار من رو توی Volya Gem Defense بشکنی؟ 💎"], "ar": ["مقارنة", "المراحل المجتازة", "النجوم", "الوحوش المهزومة", "الزعماء المهزومون", "أنت متقدم في {n}", "اضغط على لاعب للمقارنة", "اللاعب", "هل يمكنك التفوق على إحصائياتي في Volya Gem Defense؟ 💎"], "ru": ["Сравнить", "Пройдено уровней", "Звёзды", "Побеждено монстров", "Побеждено боссов", "Ты впереди в {n}", "Нажми на игрока, чтобы сравнить", "Игрок", "Сможешь побить мою статистику в Volya Gem Defense? 💎"], "uk": ["Порівняти", "Пройдено рівнів", "Зірки", "Переможено монстрів", "Переможено босів", "Ти попереду в {n}", "Натисни на гравця, щоб порівняти", "Гравець", "Зможеш побити мою статистику у Volya Gem Defense? 💎"], "tr": ["Karşılaştır", "Geçilen bölüm", "Yıldız", "Yenilen canavar", "Yenilen boss", "{n} alanda öndesin", "Karşılaştırmak için bir oyuncuya dokun", "Oyuncu", "Volya Gem Defense'te istatistiklerimi geçebilir misin? 💎"], "az": ["Müqayisə et", "Keçilən mərhələ", "Ulduzlar", "Məğlub edilən canavar", "Məğlub edilən boss", "{n} sahədə öndəsən", "Müqayisə üçün oyunçuya toxun", "Oyunçu", "Volya Gem Defense-də statistikamı keçə bilərsən? 💎"], "uz": ["Solishtirish", "O'tilgan bosqichlar", "Yulduzlar", "Yengilgan maxluqlar", "Yengilgan bosslar", "{n} tasida oldindasan", "Solishtirish uchun o'yinchiga bos", "O'yinchi", "Volya Gem Defense'da natijalarimni yenga olasanmi? 💎"], "kk": ["Салыстыру", "Өткен деңгейлер", "Жұлдыздар", "Жеңілген құбыжықтар", "Жеңілген бос", "{n} көрсеткіште алдасың", "Салыстыру үшін ойыншыны бас", "Ойыншы", "Volya Gem Defense-те менің нәтижемді жеңе аласың ба? 💎"], "es": ["Comparar", "Niveles superados", "Estrellas", "Monstruos derrotados", "Jefes derrotados", "Vas por delante en {n}", "Toca a un jugador para comparar", "Jugador", "¿Puedes superar mis estadísticas en Volya Gem Defense? 💎"], "pt": ["Comparar", "Níveis concluídos", "Estrelas", "Monstros derrotados", "Chefes derrotados", "Você está à frente em {n}", "Toque num jogador para comparar", "Jogador", "Consegue superar minhas estatísticas no Volya Gem Defense? 💎"], "fr": ["Comparer", "Niveaux réussis", "Étoiles", "Monstres vaincus", "Boss vaincus", "Tu mènes dans {n}", "Touche un joueur pour comparer", "Joueur", "Tu peux battre mes stats dans Volya Gem Defense ? 💎"], "de": ["Vergleichen", "Geschaffte Level", "Sterne", "Besiegte Monster", "Besiegte Bosse", "Du führst in {n}", "Tippe auf einen Spieler zum Vergleichen", "Spieler", "Schlägst du meine Werte in Volya Gem Defense? 💎"], "it": ["Confronta", "Livelli superati", "Stelle", "Mostri sconfitti", "Boss sconfitti", "Sei avanti in {n}", "Tocca un giocatore per confrontare", "Giocatore", "Riesci a battere le mie statistiche in Volya Gem Defense? 💎"], "nl": ["Vergelijken", "Levels gehaald", "Sterren", "Monsters verslagen", "Bazen verslagen", "Je staat voor in {n}", "Tik op een speler om te vergelijken", "Speler", "Kun jij mijn scores in Volya Gem Defense verslaan? 💎"], "pl": ["Porównaj", "Ukończone poziomy", "Gwiazdki", "Pokonane potwory", "Pokonani bossowie", "Prowadzisz w {n}", "Dotknij gracza, aby porównać", "Gracz", "Pobijesz moje statystyki w Volya Gem Defense? 💎"], "id": ["Bandingkan", "Level selesai", "Bintang", "Monster dikalahkan", "Bos dikalahkan", "Kamu unggul di {n}", "Ketuk pemain untuk membandingkan", "Pemain", "Bisa kalahkan statistikku di Volya Gem Defense? 💎"], "hi": ["तुलना करो", "पार किए लेवल", "सितारे", "हराए गए राक्षस", "हराए गए बॉस", "तुम {n} में आगे हो", "तुलना के लिए किसी खिलाड़ी पर टैप करो", "खिलाड़ी", "क्या तुम Volya Gem Defense में मेरे आँकड़े हरा सकते हो? 💎"], "zh": ["对比", "已通关卡", "星星", "击败怪物", "击败首领", "你领先 {n} 项", "点击玩家进行对比", "玩家", "你能在 Volya Gem Defense 里超过我的数据吗？💎"], "ja": ["比較", "クリアしたレベル", "スター", "倒したモンスター", "倒したボス", "{n} 項目でリード", "プレイヤーをタップして比較", "プレイヤー", "Volya Gem Defense で私の記録を超えられる？💎"], "ko": ["비교", "클리어한 레벨", "별", "처치한 몬스터", "처치한 보스", "{n}개 항목에서 앞서요", "플레이어를 눌러 비교하세요", "플레이어", "Volya Gem Defense에서 내 기록을 넘을 수 있어? 💎"], "vi": ["So sánh", "Màn đã qua", "Sao", "Quái vật đã hạ", "Trùm đã hạ", "Bạn dẫn trước ở {n} mục", "Chạm vào người chơi để so sánh", "Người chơi", "Bạn có vượt được thành tích của mình trong Volya Gem Defense không? 💎"]};
   for (const k in STR_CMP) STR_CMP[k].forEach((v, i) => { STR[k][CMP_KEYS[i]] = v; });
+  const TEAM_KEYS = ["myTeam", "chooseTeam", "switchTeam", "switchWait", "teamPoints", "topMembers", "teamJoined", "teamReward", "teamMvp", "teamPtsGot", "teamHow", "teamYour", "inviteTeam"];
+  const STR_TEAM = {"en": ["My team", "Choose your community team", "Switch team", "You can switch team again next week", "Team points", "Top members", "You joined team {n}! 🎉", "Your team finished #{n} last week! 🏆", "You were your team's MVP! ⭐", "+{n} team points", "Clear levels, earn stars and play Endless, the daily challenge and the World Boss to earn points for your team. Play as your team's hero for +25%. The top 3 teams win gold every week!", "Your points", "Recruit to team"], "fa": ["تیم من", "تیم جامعه‌ات رو انتخاب کن", "تغییر تیم", "هفته بعد دوباره می‌تونی تیم عوض کنی", "امتیاز تیم", "برترین اعضا", "به تیم {n} پیوستی! 🎉", "تیمت هفته پیش رتبه {n} شد! 🏆", "تو MVP تیمت بودی! ⭐", "+{n} امتیاز تیم", "مرحله رد کن، ستاره بگیر و بی‌پایان، چالش روزانه و غول جهانی بازی کن تا برای تیمت امتیاز جمع کنی. با شخصیت تیم خودت بازی کنی ۲۵٪ بیشتر می‌گیری. ۳ تیم برتر هر هفته طلا می‌برن!", "امتیاز تو", "عضوگیری برای تیم"], "ar": ["فريقي", "اختر فريق مجتمعك", "تغيير الفريق", "يمكنك تغيير الفريق مجددًا الأسبوع القادم", "نقاط الفريق", "أفضل الأعضاء", "انضممت إلى فريق {n}! 🎉", "حلّ فريقك في المركز {n} الأسبوع الماضي! 🏆", "كنت أفضل لاعب في فريقك! ⭐", "+{n} نقطة للفريق", "اجتز المراحل واجمع النجوم والعب الوضع اللانهائي والتحدي اليومي والزعيم العالمي لتكسب نقاطًا لفريقك. العب بشخصية فريقك لتحصل على 25% إضافية. أفضل 3 فرق تربح الذهب كل أسبوع!", "نقاطك", "جنّد للفريق"], "ru": ["Моя команда", "Выбери команду своего сообщества", "Сменить команду", "Сменить команду снова можно на следующей неделе", "Очки команды", "Лучшие участники", "Ты в команде {n}! 🎉", "Твоя команда заняла #{n} место на прошлой неделе! 🏆", "Ты был MVP своей команды! ⭐", "+{n} очков команде", "Проходи уровни, собирай звёзды, играй в Бесконечный режим, ежедневный вызов и против Мирового босса — так ты приносишь очки команде. Играй героем своей команды: +25%. Топ-3 команды каждую неделю получают золото!", "Твои очки", "Позвать в команду"], "uk": ["Моя команда", "Обери команду своєї спільноти", "Змінити команду", "Змінити команду знову можна наступного тижня", "Очки команди", "Найкращі учасники", "Ти в команді {n}! 🎉", "Твоя команда посіла #{n} місце минулого тижня! 🏆", "Ти був MVP своєї команди! ⭐", "+{n} очок команді", "Проходь рівні, збирай зірки, грай у Нескінченний режим, щоденний виклик і проти Світового боса — так ти приносиш очки команді. Грай героєм своєї команди: +25%. Топ-3 команди щотижня отримують золото!", "Твої очки", "Покликати в команду"], "tr": ["Takımım", "Topluluk takımını seç", "Takım değiştir", "Takımını gelecek hafta tekrar değiştirebilirsin", "Takım puanı", "En iyi üyeler", "{n} takımına katıldın! 🎉", "Takımın geçen hafta #{n} oldu! 🏆", "Takımının MVP'siydin! ⭐", "+{n} takım puanı", "Bölüm geç, yıldız topla; Sonsuz mod, günlük meydan okuma ve Dünya Boss'u oynayarak takımına puan kazandır. Takımının kahramanıyla oynarsan +%25. İlk 3 takım her hafta altın kazanır!", "Puanların", "Takıma davet et"], "az": ["Komandam", "İcma komandanı seç", "Komandanı dəyiş", "Komandanı gələn həftə yenidən dəyişə bilərsən", "Komanda xalı", "Ən yaxşı üzvlər", "{n} komandasına qoşuldun! 🎉", "Komandan keçən həftə #{n} oldu! 🏆", "Komandanın MVP-si sən idin! ⭐", "+{n} komanda xalı", "Mərhələ keç, ulduz topla; Sonsuz rejim, gündəlik çağırış və Dünya Bossu oynayaraq komandana xal qazandır. Komandanın qəhrəmanı ilə oynasan +25%. İlk 3 komanda hər həftə qızıl qazanır!", "Sənin xalların", "Komandaya dəvət et"], "uz": ["Jamoam", "Hamjamiyat jamoangni tanla", "Jamoani almashtirish", "Jamoani keyingi hafta yana almashtira olasan", "Jamoa ochkolari", "Eng yaxshi a'zolar", "{n} jamoasiga qo'shilding! 🎉", "Jamoang o'tgan hafta #{n} bo'ldi! 🏆", "Sen jamoangning MVP'si bo'lding! ⭐", "+{n} jamoa ochkosi", "Bosqichlarni o't, yulduz yig'; Cheksiz rejim, kunlik sinov va Jahon bossini o'ynab jamoangga ochko yig'. Jamoang qahramoni bilan o'ynasang +25%. Top-3 jamoa har hafta oltin yutadi!", "Sening ochkolaring", "Jamoaga chaqirish"], "kk": ["Командам", "Қауымдастық командаңды таңда", "Команданы ауыстыру", "Команданы келесі аптада қайта ауыстыра аласың", "Команда ұпайы", "Үздік мүшелер", "{n} командасына қосылдың! 🎉", "Командаң өткен аптада #{n} орын алды! 🏆", "Сен командаңның MVP-і болдың! ⭐", "+{n} команда ұпайы", "Деңгейлерден өт, жұлдыз жина; Шексіз режим, күнделікті сынақ және Әлем басын ойнап командаңа ұпай әкел. Командаңның кейіпкерімен ойнасаң +25%. Үздік 3 команда әр апта алтын ұтады!", "Сенің ұпайың", "Командаға шақыру"], "es": ["Mi equipo", "Elige el equipo de tu comunidad", "Cambiar de equipo", "Podrás cambiar de equipo otra vez la próxima semana", "Puntos de equipo", "Mejores miembros", "¡Te uniste al equipo {n}! 🎉", "¡Tu equipo quedó #{n} la semana pasada! 🏆", "¡Fuiste el MVP de tu equipo! ⭐", "+{n} puntos de equipo", "Supera niveles, gana estrellas y juega Infinito, el desafío diario y el Jefe Mundial para sumar puntos a tu equipo. Juega con el héroe de tu equipo para +25%. ¡Los 3 mejores equipos ganan oro cada semana!", "Tus puntos", "Reclutar al equipo"], "pt": ["Meu time", "Escolha o time da sua comunidade", "Trocar de time", "Você poderá trocar de time de novo na próxima semana", "Pontos do time", "Melhores membros", "Você entrou no time {n}! 🎉", "Seu time ficou em #{n} na semana passada! 🏆", "Você foi o MVP do seu time! ⭐", "+{n} pontos para o time", "Passe de nível, ganhe estrelas e jogue o Infinito, o desafio diário e o Chefão Mundial para somar pontos ao seu time. Jogue com o herói do seu time para +25%. Os 3 melhores times ganham ouro toda semana!", "Seus pontos", "Recrutar para o time"], "fr": ["Mon équipe", "Choisis l'équipe de ta communauté", "Changer d'équipe", "Tu pourras changer d'équipe la semaine prochaine", "Points d'équipe", "Meilleurs membres", "Tu as rejoint l'équipe {n} ! 🎉", "Ton équipe a fini #{n} la semaine dernière ! 🏆", "Tu étais le MVP de ton équipe ! ⭐", "+{n} points d'équipe", "Réussis des niveaux, gagne des étoiles et joue en Infini, au défi du jour et contre le Boss mondial pour rapporter des points à ton équipe. Joue avec le héros de ton équipe : +25 %. Les 3 meilleures équipes gagnent de l'or chaque semaine !", "Tes points", "Recruter"], "de": ["Mein Team", "Wähle das Team deiner Community", "Team wechseln", "Du kannst nächste Woche wieder wechseln", "Teampunkte", "Top-Mitglieder", "Du bist Team {n} beigetreten! 🎉", "Dein Team wurde letzte Woche #{n}! 🏆", "Du warst der MVP deines Teams! ⭐", "+{n} Teampunkte", "Schaffe Level, sammle Sterne und spiele Endlos, die Tagesaufgabe und den Weltboss, um Punkte für dein Team zu holen. Mit dem Helden deines Teams gibt es +25 %. Die Top-3-Teams gewinnen jede Woche Gold!", "Deine Punkte", "Fürs Team werben"], "it": ["La mia squadra", "Scegli la squadra della tua community", "Cambia squadra", "Potrai cambiare squadra la prossima settimana", "Punti squadra", "Migliori membri", "Sei entrato nella squadra {n}! 🎉", "La tua squadra è arrivata #{n} la settimana scorsa! 🏆", "Sei stato l'MVP della tua squadra! ⭐", "+{n} punti squadra", "Supera livelli, guadagna stelle e gioca a Infinito, alla sfida giornaliera e contro il Boss mondiale per portare punti alla tua squadra. Gioca con l'eroe della tua squadra per +25%. Le prime 3 squadre vincono oro ogni settimana!", "I tuoi punti", "Recluta in squadra"], "nl": ["Mijn team", "Kies het team van je community", "Van team wisselen", "Volgende week kun je weer wisselen", "Teampunten", "Beste leden", "Je zit nu in team {n}! 🎉", "Je team werd vorige week #{n}! 🏆", "Jij was de MVP van je team! ⭐", "+{n} teampunten", "Haal levels, verdien sterren en speel Eindeloos, de dagelijkse uitdaging en de Wereldbaas om punten voor je team te scoren. Speel met de held van je team voor +25%. De top 3 teams winnen elke week goud!", "Jouw punten", "Werven voor team"], "pl": ["Moja drużyna", "Wybierz drużynę swojej społeczności", "Zmień drużynę", "Drużynę zmienisz ponownie w przyszłym tygodniu", "Punkty drużyny", "Najlepsi członkowie", "Dołączasz do drużyny {n}! 🎉", "Twoja drużyna zajęła #{n} miejsce w zeszłym tygodniu! 🏆", "Byłeś MVP swojej drużyny! ⭐", "+{n} pkt dla drużyny", "Przechodź poziomy, zdobywaj gwiazdki i graj w Nieskończony, wyzwanie dnia i ze Światowym bossem, by zdobywać punkty dla drużyny. Graj bohaterem swojej drużyny: +25%. 3 najlepsze drużyny co tydzień wygrywają złoto!", "Twoje punkty", "Werbuj do drużyny"], "id": ["Timku", "Pilih tim komunitasmu", "Ganti tim", "Kamu bisa ganti tim lagi minggu depan", "Poin tim", "Anggota terbaik", "Kamu bergabung dengan tim {n}! 🎉", "Timmu peringkat #{n} minggu lalu! 🏆", "Kamu MVP timmu! ⭐", "+{n} poin tim", "Selesaikan level, kumpulkan bintang, dan mainkan Tanpa Akhir, tantangan harian, dan Bos Dunia untuk menambah poin timmu. Main dengan pahlawan timmu untuk +25%. 3 tim teratas dapat emas tiap minggu!", "Poinmu", "Rekrut ke tim"], "hi": ["मेरी टीम", "अपनी कम्युनिटी टीम चुनो", "टीम बदलो", "अगले हफ़्ते फिर से टीम बदल सकते हो", "टीम पॉइंट", "टॉप सदस्य", "तुम टीम {n} में शामिल हो गए! 🎉", "तुम्हारी टीम पिछले हफ़्ते #{n} रही! 🏆", "तुम अपनी टीम के MVP थे! ⭐", "+{n} टीम पॉइंट", "लेवल पार करो, सितारे कमाओ और एंडलेस, डेली चैलेंज और वर्ल्ड बॉस खेलकर अपनी टीम के लिए पॉइंट जुटाओ। अपनी टीम के हीरो से खेलो तो +25%। टॉप 3 टीमें हर हफ़्ते सोना जीतती हैं!", "तुम्हारे पॉइंट", "टीम में बुलाओ"], "zh": ["我的战队", "选择你的社区战队", "更换战队", "下周才能再次更换战队", "战队积分", "最佳成员", "你加入了 {n} 战队！🎉", "你的战队上周排名第 {n}！🏆", "你是战队的 MVP！⭐", "+{n} 战队积分", "通关、收集星星，并玩无尽模式、每日挑战和世界首领，为战队赢取积分。使用本战队的英雄可获得 +25%。每周前三名战队赢取金币！", "你的积分", "招募队友"], "ja": ["マイチーム", "コミュニティのチームを選ぼう", "チームを変更", "チームの変更は来週までできません", "チームポイント", "トップメンバー", "チーム {n} に参加した！🎉", "先週チームは {n} 位だった！🏆", "チームのMVPだった！⭐", "+{n} チームポイント", "レベルをクリアし、スターを集め、エンドレス・デイリーチャレンジ・ワールドボスをプレイしてチームにポイントを貢献しよう。チームのヒーローで遊ぶと +25%。毎週トップ3チームにゴールド！", "あなたのポイント", "チームに勧誘"], "ko": ["내 팀", "커뮤니티 팀을 선택하세요", "팀 변경", "다음 주에 다시 팀을 바꿀 수 있어요", "팀 포인트", "최고 멤버", "{n} 팀에 합류했어요! 🎉", "지난주 팀 순위 #{n}! 🏆", "당신이 팀 MVP였어요! ⭐", "+{n} 팀 포인트", "레벨을 깨고 별을 모으고 무한 모드, 일일 도전, 월드 보스를 플레이해 팀 포인트를 모으세요. 팀 영웅으로 플레이하면 +25%. 매주 상위 3팀이 골드를 받아요!", "내 포인트", "팀원 모집"], "vi": ["Đội của tôi", "Chọn đội cộng đồng của bạn", "Đổi đội", "Tuần sau bạn mới đổi đội được", "Điểm đội", "Thành viên hàng đầu", "Bạn đã gia nhập đội {n}! 🎉", "Đội bạn xếp #{n} tuần trước! 🏆", "Bạn là MVP của đội! ⭐", "+{n} điểm đội", "Vượt màn, kiếm sao và chơi Vô tận, thử thách ngày và Trùm Thế giới để kiếm điểm cho đội. Chơi bằng anh hùng của đội được +25%. Top 3 đội nhận vàng mỗi tuần!", "Điểm của bạn", "Chiêu mộ"]};
+  for (const k in STR_TEAM) STR_TEAM[k].forEach((v, i) => { STR[k][TEAM_KEYS[i]] = v; });
   const WHEEL_KEYS = ["luckyWheel", "freeSpin", "spin"];
   const STR_WHEEL = {"en": ["Lucky wheel", "Free spin!", "Spin"], "fa": ["چرخ شانس", "چرخش رایگان!", "بچرخان"], "ar": ["عجلة الحظ", "دورة مجانية!", "أدر"], "ru": ["Колесо удачи", "Бесплатное вращение!", "Крутить"], "uk": ["Колесо удачі", "Безкоштовне обертання!", "Крутити"], "tr": ["Şans çarkı", "Ücretsiz çevirme!", "Çevir"], "az": ["Şans çarxı", "Pulsuz fırlatma!", "Fırlat"], "uz": ["Omad g'ildiragi", "Bepul aylantirish!", "Aylantirish"], "kk": ["Сәттілік дөңгелегі", "Тегін айналдыру!", "Айналдыру"], "es": ["Ruleta de la suerte", "¡Giro gratis!", "Girar"], "pt": ["Roda da sorte", "Giro grátis!", "Girar"], "fr": ["Roue de la chance", "Tour gratuit !", "Tourner"], "de": ["Glücksrad", "Gratis-Dreh!", "Drehen"], "it": ["Ruota della fortuna", "Giro gratis!", "Gira"], "nl": ["Geluksrad", "Gratis draai!", "Draaien"], "pl": ["Koło fortuny", "Darmowy obrót!", "Zakręć"], "id": ["Roda keberuntungan", "Putaran gratis!", "Putar"], "hi": ["किस्मत का पहिया", "मुफ़्त स्पिन!", "घुमाओ"], "zh": ["幸运转盘", "免费转一次！", "转动"], "ja": ["ラッキールーレット", "無料スピン！", "回す"], "ko": ["행운의 룰렛", "무료 스핀!", "돌리기"], "vi": ["Vòng quay may mắn", "Quay miễn phí!", "Quay"]};
   for (const k in STR_WHEEL) STR_WHEEL[k].forEach((v, i) => { STR[k][WHEEL_KEYS[i]] = v; });
@@ -3816,7 +3873,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   // ---- Screens & flow --------------------------------------------------
   let settingsReturn = "title";
   function showScreen(id) {
-    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen", "passScreen", "albumScreen", "raidScreen", "cmpScreen"]) $(s).hidden = s !== id;
+    for (const s of ["titleScreen", "pauseScreen", "overScreen", "settingsScreen", "lbScreen", "recScreen", "mapScreen", "introScreen", "winScreen", "heroScreen", "dailyScreen", "misScreen", "contScreen", "cardScreen", "shopScreen", "wheelScreen", "passScreen", "albumScreen", "raidScreen", "cmpScreen", "teamScreen"]) $(s).hidden = s !== id;
     if (id === "titleScreen") updateGold();
     if (id === "titleScreen") $("playLevel").textContent = tr("level", progress.unlocked);
     hudCache.goals = null;
@@ -3841,6 +3898,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function onBack() {
     if (!$("cmpScreen").hidden) { showScreen(cmpReturn); return; }
+    if (!$("teamScreen").hidden) {
+      if (!$("teamPick").hidden && teamData && teamData.mine) renderTeam(false); else showScreen("titleScreen");
+      return;
+    }
     if (!$("passScreen").hidden || !$("albumScreen").hidden || !$("raidScreen").hidden) showScreen("titleScreen");
     else if (!$("wheelScreen").hidden) { if (!spinning) showScreen("titleScreen"); }
     else if (!$("shopScreen").hidden) showScreen("titleScreen");
@@ -4245,7 +4306,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   async function submitScore(run) {
     if (!canSubmit() || run.score <= 0) return null;
     try {
-      return await api("/score", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ initData: tgInitData() }, run)) });
+      const res = await api("/score", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ initData: tgInitData() }, run)) });
+      if (res) teamGain(res.team);
+      return res;
     } catch (e) { return null; }
   }
   function showRankLine(res) {
@@ -4469,6 +4532,12 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     else if (id === "pass") passState().premium = true;
     else if (id === "ref_bonus") addGold(200);
     else if (id === "raid_reward") addGold(500);
+    else if (/^team_r[1-4]$/.test(id)) {
+      const n = +id.slice(6);
+      addGold([1500, 800, 400, 150][n - 1]);
+      if (n <= 3) setTimeout(() => toast(tr("teamReward", n)), 2600);
+    }
+    else if (id === "team_mvp") { addGold(500); setTimeout(() => toast(tr("teamMvp")), 4200); }
     else if (id === "ref_hero") {
       const locked = HEROES.filter((h) => !heroOpen(h));
       if (locked.length) { const h = pick(locked); progress.gift = [...new Set([].concat(progress.gift || [], h.id))]; saveProgress(); setTimeout(() => toast(tr("heroUnlocked").replace("{n}", h.name)), 2500); }
@@ -4676,7 +4745,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   function submitDaily(sc) {
     if (!canSubmit() || sc <= 0) return;
-    api("/daily", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData: tgInitData(), day: dayNo(), score: sc, hero: HERO.id }) }).catch(() => {});
+    api("/daily", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData: tgInitData(), day: dayNo(), score: sc, hero: HERO.id }) }).then((r) => r && teamGain(r.team)).catch(() => {});
   }
 
 
@@ -4883,6 +4952,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     if (!canSubmit()) return;
     try {
       const r = await post("/ping", { write: !!write, profile: myProfile() });
+      if (r) teamGain(r.team);
       if (r && r.refs) $("inviteNote").textContent = tr("inviteReward") + " · " + tr("friendsJoined", r.refs);
     } catch (e) {}
   }
@@ -4939,7 +5009,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   }
   async function submitRaid() {
     if (!canSubmit() || raidDmg <= 0) return;
-    try { raidInfo = Object.assign(raidInfo || {}, await post("/raid", { damage: Math.round(raidDmg), duration: Math.round(90 - raidT) })); } catch (e) {}
+    try { raidInfo = Object.assign(raidInfo || {}, await post("/raid", { damage: Math.round(raidDmg), duration: Math.round(90 - raidT) })); teamGain(raidInfo.team); } catch (e) {}
   }
 
   // ---- Shareable score card ----
@@ -5084,6 +5154,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const row = document.createElement("div");
     row.className = "lb-row" + (isMe ? " me" : "");
     if (entry.pid || (isMe && !entry.team)) {
+      if (!$("teamScreen").hidden) cmpReturn = "teamScreen";
       row.dataset.pid = entry.pid || "me";
       row.addEventListener("click", clickSfx(() => openCompare(isMe ? null : entry)));
     }
@@ -5127,7 +5198,9 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     const row = lbRow({ rank, name: h.name, best: t.total, team: true }, h === HERO);
     const av = row.querySelector(".avatar"); av.textContent = ""; av.style.background = "#13206b";
     const im = document.createElement("img"); im.src = heroFace(h); im.alt = ""; av.appendChild(im);
-    const sm = document.createElement("small"); sm.textContent = tr("players", t.players); row.querySelector(".lb-name").appendChild(sm);
+    const sm = document.createElement("small"); sm.textContent = "👥 " + fmt(t.members != null ? t.members : t.players); row.querySelector(".lb-name").appendChild(sm);
+    row.style.cursor = "pointer";
+    row.addEventListener("click", clickSfx(() => { if ($("teamScreen").hidden) openTeam(); }));
     return row;
   }
   async function loadTeams() {
@@ -5149,6 +5222,100 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     for (const e of data.top) list.appendChild(lbRow(e, !!e.you));
     if (data.me && !data.top.some((e) => e.you)) $("lbMe").append(lbRow({ rank: data.me.rank, name: tr("you"), best: data.me.best }, true));
   }
+  // ---- Community teams: each hero is a team players join and play for ----
+  let teamData = null, teamTab = "teams", teamHint = null, teamGot = 0, teamGotT = 0;
+  function teamGain(n) {
+    // gather points from one moment into a single toast
+    if (!(n > 0)) return;
+    teamGot += n; clearTimeout(teamGotT);
+    teamGotT = setTimeout(() => {
+      toast(tr("teamPtsGot", teamGot));
+      if (meta.team) { meta.team.pts = (meta.team.pts || 0) + teamGot; renderTeamChip(); }
+      teamGot = 0;
+    }, 900);
+  }
+  function renderTeamChip() {
+    const t = meta.team && heroById(meta.team.id);
+    const h = t || (teamHint && heroById(teamHint)) || HERO;
+    $("teamBtnImg").src = heroFace(h);
+    $("teamBtnText").textContent = t ? t.name : tr("chooseTeam");
+    $("teamBtnSub").textContent = t ? (meta.team.rank ? "#" + fmt(meta.team.rank) + " · " : "") + fmt(meta.team.pts || 0) + " " + tr("teamPoints") : tr("teamWar");
+  }
+  function teamCache(d) {
+    meta.team = d && d.mine ? { id: d.mine.team, rank: d.mine.rank, pts: d.mine.teamPoints } : null;
+    saveMeta(); renderTeamChip();
+  }
+  async function refreshTeam() {
+    if (!API_BASE || !canSubmit()) return null;
+    try { teamData = await post("/team", {}); teamCache(teamData); return teamData; } catch (e) { return null; }
+  }
+  function teamNote(text) { $("teamNote").hidden = !text; $("teamNote").textContent = text || ""; }
+  async function openTeam() {
+    $("teamPick").hidden = true; $("teamMain").hidden = true;
+    showScreen("teamScreen");
+    if (!API_BASE || !canSubmit()) { teamNote(tr("lbOffline")); return; }
+    teamNote(tr("loading"));
+    const d = await refreshTeam();
+    if ($("teamScreen").hidden) return;
+    if (!d) { teamNote(tr("lbError")); return; }
+    teamNote("");
+    renderTeam(!d.mine);
+  }
+  function renderTeam(pick) {
+    const d = teamData;
+    $("teamPick").hidden = !pick; $("teamMain").hidden = pick;
+    if (pick) {
+      const grid = $("teamGrid"); grid.textContent = "";
+      const list = d.teams.slice().sort((a, b) => (b.hero === teamHint) - (a.hero === teamHint));
+      for (const t of list) {
+        const h = heroById(t.hero), b = document.createElement("button");
+        b.type = "button"; if (t.hero === teamHint) b.className = "hint";
+        const im = document.createElement("img"); im.src = heroFace(h); im.alt = "";
+        const nm = document.createElement("b"); nm.textContent = h.name;
+        const sm = document.createElement("small"); sm.textContent = "👥 " + fmt(t.members || 0);
+        b.append(im, nm, sm);
+        b.addEventListener("click", clickSfx(() => joinTeam(t.hero)));
+        grid.appendChild(b);
+      }
+      return;
+    }
+    const m = d.mine, h = heroById(m.team), t = d.teams.find((x) => x.hero === m.team) || {};
+    $("teamFace").src = heroFace(h);
+    $("teamName").textContent = h.name;
+    $("teamRank").textContent = "#" + fmt(m.rank) + " / " + fmt(d.teams.length);
+    $("teamPts").textContent = fmt(m.teamPoints);
+    $("teamMine").textContent = fmt(m.points);
+    $("teamMembers").textContent = fmt(t.members || 0);
+    $("teamTime").textContent = hms(d.endsIn);
+    $("teamSwitch").classList.toggle("off", !m.canSwitch);
+    document.querySelectorAll("#teamTabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === teamTab));
+    const list = $("teamList"); list.textContent = "";
+    if (teamTab === "teams") {
+      d.teams.forEach((x, i) => {
+        const row = lbTeamRow(x, i + 1);
+        row.classList.toggle("me", x.hero === m.team);
+        list.appendChild(row);
+      });
+    } else {
+      if (!d.top.length) { const n = document.createElement("div"); n.className = "lb-note"; n.textContent = tr("noScores"); list.appendChild(n); }
+      for (const e of d.top) list.appendChild(lbRow(e, !!e.you));
+    }
+    const mine = list.querySelector(".me"); if (mine) mine.scrollIntoView({ block: "nearest" });
+  }
+  async function joinTeam(id) {
+    try {
+      await post("/team/join", { team: id });
+      toast(tr("teamJoined").replace("{n}", heroById(id).name)); sfx("charge"); haptic("success");
+      teamTab = "teams";
+      await openTeam();
+    } catch (e) { toast(e && e.status === 409 ? tr("switchWait") : tr("lbError")); }
+  }
+  function switchTeam() {
+    if (!teamData || !teamData.mine) return;
+    if (!teamData.mine.canSwitch) { toast(tr("switchWait")); return; }
+    renderTeam(true);
+  }
+
   // ---- Compare: any player's card next to yours ----
   let lbFirst = null, cmpReturn = "lbScreen";
   function myProfile() {
@@ -5194,7 +5361,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
     // tapping yourself compares you with the leader of the board
     if (!entry) entry = lbFirst && !lbFirst.you ? lbFirst : null;
     if (!entry || !entry.pid) { openRecords("lb"); return; }
-    cmpReturn = "lbScreen";
+    if ($("teamScreen").hidden) cmpReturn = "lbScreen";
     $("cmpList").textContent = ""; $("cmpLead").textContent = tr("loading");
     cmpWho($("cmpThem"), { name: entry.name, hero: entry.hero }, "#" + fmt(entry.rank));
     cmpWho($("cmpMe"), myProfile(), HERO.name);
@@ -6740,6 +6907,11 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   $("albumBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
   $("raidBtn").addEventListener("click", clickSfx(() => openRaid()));
   $("raidFight").addEventListener("click", clickSfx(startRaid));
+  $("teamBtn").addEventListener("click", clickSfx(openTeam));
+  $("teamDone").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
+  $("teamSwitch").addEventListener("click", clickSfx(switchTeam));
+  $("teamInvite").addEventListener("click", clickSfx(() => { const h = heroById(teamData && teamData.mine ? teamData.mine.team : HERO.id); share(tr("heroShare").replace("{n}", h.name), h); }));
+  document.querySelectorAll("#teamTabs button").forEach((b) => b.addEventListener("click", clickSfx(() => { teamTab = b.dataset.tab; renderTeam(false); })));
   $("cmpBack").addEventListener("click", clickSfx(() => showScreen(cmpReturn)));
   $("cmpShare").addEventListener("click", clickSfx(() => share(tr("c_beat"))));
   $("raidBack").addEventListener("click", clickSfx(() => showScreen("titleScreen")));
@@ -6851,18 +7023,20 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
   loadMeta();
   ensureMissions();
   initAds();
-  setTimeout(() => { ping(false).then(sendReferral); claimPurchases(0); }, 1500);
+  setTimeout(() => { ping(false).then(sendReferral).then(refreshTeam); claimPurchases(0); }, 1500);
   {
     // community link: startapp=h_<id> (optionally after ref_<uid>_) unlocks and picks that hero
     const m = /(?:^|_)h_([a-z0-9]+)/.exec(startParam());
     const gifted = m && HEROES.find((h) => h.id === m[1]);
     if (gifted) {
+      teamHint = gifted.id;
       progress.gift = [...new Set([].concat(progress.gift || [], gifted.id))];
       progress.hero = gifted.id;
       saveProgress();
       setTimeout(() => toast(tr("heroUnlocked").replace("{n}", gifted.name)), 900);
     }
     setHero(progress.hero);
+    renderTeamChip();
   }
   buildEnemySprites();
   layout();

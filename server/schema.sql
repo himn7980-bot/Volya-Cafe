@@ -14,15 +14,30 @@ CREATE TABLE IF NOT EXISTS scores (
 );
 CREATE INDEX IF NOT EXISTS idx_scores_best ON scores (best DESC, best_at ASC);
 
--- Team war: each player's best Endless run per week, credited to the hero they played.
-CREATE TABLE IF NOT EXISTS team_scores (
+-- Teams: every hero is a community team. A player joins one and everything they play earns
+-- team points for the week (levels, stars, Endless, daily challenge, World Boss).
+CREATE TABLE IF NOT EXISTS team_members (
+  user_id       INTEGER PRIMARY KEY,
+  team          TEXT    NOT NULL,
+  name          TEXT    NOT NULL,
+  joined_at     INTEGER NOT NULL,
+  switched_week INTEGER NOT NULL      -- week of the last join; one switch per week
+);
+CREATE INDEX IF NOT EXISTS idx_team_members ON team_members (team);
+CREATE TABLE IF NOT EXISTS team_points (
   week    INTEGER NOT NULL,           -- weeks since epoch, starting Monday 00:00 UTC
   user_id INTEGER NOT NULL,
-  hero    TEXT    NOT NULL,
-  best    INTEGER NOT NULL,
-  PRIMARY KEY (week, user_id, hero)
+  team    TEXT    NOT NULL,           -- points stay with the team they were earned for
+  points  INTEGER NOT NULL,
+  PRIMARY KEY (week, user_id, team)
 );
-CREATE INDEX IF NOT EXISTS idx_team_week ON team_scores (week, hero);
+CREATE INDEX IF NOT EXISTS idx_team_points ON team_points (week, team);
+CREATE TABLE IF NOT EXISTS team_day (   -- daily cap per player
+  day     INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  points  INTEGER NOT NULL,
+  PRIMARY KEY (day, user_id)
+);
 
 -- Daily challenge board: best score per player per day.
 CREATE TABLE IF NOT EXISTS daily_scores (
