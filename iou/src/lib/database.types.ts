@@ -15,12 +15,13 @@ export type ProfileRow = {
   default_currency: string;
   digits: DigitsPref;
   calendar: CalendarPref;
+  card_hidden: boolean;
   created_at: string;
   updated_at: string;
 };
 
 export type ProfileUpdate = Partial<
-  Pick<ProfileRow, 'display_name' | 'avatar_path' | 'language' | 'default_currency' | 'digits' | 'calendar'>
+  Pick<ProfileRow, 'display_name' | 'avatar_path' | 'language' | 'default_currency' | 'digits' | 'calendar' | 'card_hidden'>
 >;
 
 export type LoanStatusDb = 'pending' | 'confirmed' | 'disputed' | 'settled' | 'cancelled';
@@ -107,6 +108,28 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      loan_extensions: {
+        Row: {
+          id: string;
+          loan_id: string;
+          proposed_by: string | null;
+          old_due_date: string;
+          new_due_date: string;
+          reason: string;
+          status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+          created_at: string;
+          responded_at: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      card_links: {
+        Row: { token: string; user_id: string; created_at: string; expires_at: string; revoked_at: string | null };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -127,6 +150,13 @@ export type Database = {
       };
       register_push_token: { Args: { p_token: string; p_platform: string }; Returns: undefined };
       unregister_push_token: { Args: { p_token: string }; Returns: undefined };
+      my_trust: { Args: Record<string, never>; Returns: unknown };
+      trust_card_for_loan: { Args: { p_loan_id: string }; Returns: unknown };
+      trust_card_by_token: { Args: { p_token: string }; Returns: unknown };
+      create_card_link: { Args: { p_days: number }; Returns: { token: string; expires_at: string } };
+      revoke_card_link: { Args: { p_token: string }; Returns: undefined };
+      propose_extension: { Args: { p_loan_id: string; p_new_due: string; p_reason: string }; Returns: string };
+      respond_to_extension: { Args: { p_extension_id: string; p_action: 'accept' | 'reject' | 'cancel' }; Returns: string };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

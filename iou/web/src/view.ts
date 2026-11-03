@@ -3,7 +3,7 @@
 
 import type { CalendarSystem } from '../../src/shared/calendars';
 import type { DigitSystem } from '../../src/shared/digits';
-import { formatDate, formatMoney, type FormatContext } from '../../src/shared/format';
+import { formatDate, formatMoney, formatNumber, type FormatContext } from '../../src/shared/format';
 
 export interface LangMeta {
   code: string;
@@ -145,5 +145,58 @@ export function describeRecord(loan: Extract<SharedLoan, { open: true }>, t: T, 
       }),
       note: r.note,
     })),
+  };
+}
+
+/** A trust card as the server sends it (coarse numbers only). */
+export type WebTrustCard =
+  | { error: string }
+  | { error?: undefined; hidden: true; display_name: string }
+  | {
+      error?: undefined;
+      hidden: false;
+      display_name: string;
+      member_since: string;
+      is_new: boolean;
+      score: number | null;
+      level: string | null;
+      on_time_pct: number | null;
+      settled_count: number;
+      counterparties: number;
+      volume_band: string;
+    };
+
+export interface CardView {
+  title: string;
+  headline: string;
+  /** good | bad | neutral, for colour. */
+  tone: 'good' | 'bad' | 'neutral';
+  facts: string[];
+  disclaimer: string;
+}
+
+/** Sentences for a trust card, or null when there is nothing to show. */
+export function describeCard(card: WebTrustCard, t: T, fmt: FormatContext): CardView | null {
+  if (card.error !== undefined) return null;
+  const name = `\u2068${card.display_name}\u2069`;
+  const base = { title: t('trust.cardTitle', { name }), disclaimer: t('trust.disclaimer') };
+  if (card.hidden) return { ...base, headline: t('trust.hidden', { name }), tone: 'neutral', facts: [] };
+  const n = (v: number) => formatNumber(v, fmt);
+  const facts: string[] = [];
+  if (card.on_time_pct !== null) facts.push(t('trust.onTime', { pct: n(card.on_time_pct) }));
+  facts.push(
+    t('trust.settled', { count: n(card.settled_count) }),
+    t('trust.people', { count: n(card.counterparties) }),
+    t('trust.volume', { band: t(`trust.band.${card.volume_band}`) }),
+    t('trust.memberSince', { date: formatDate(card.member_since, fmt) }),
+  );
+  if (card.is_new || card.score === null || !card.level) {
+    return { ...base, headline: t('trust.newUser'), tone: 'neutral', facts };
+  }
+  return {
+    ...base,
+    headline: `${t(`trust.level.${card.level}`)} · ${t('trust.score', { score: n(card.score) })}`,
+    tone: card.level === 'excellent' || card.level === 'good' ? 'good' : card.level === 'fair' ? 'neutral' : 'bad',
+    facts,
   };
 }

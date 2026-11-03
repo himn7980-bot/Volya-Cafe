@@ -40,6 +40,17 @@ export default function Dashboard() {
   const header = (
     <View style={{ gap: space.md, marginBottom: space.md }}>
       <AppText variant="title">{t('dashboard.greeting', { name: profile?.display_name ?? '' })}</AppText>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => router.push('/portfolio')}
+        style={[styles.trust, { backgroundColor: c.primarySoft }]}
+      >
+        <Icon name="ribbon-outline" size={22} color={c.primary} />
+        <AppText variant="label" bold color={c.primary} style={{ flex: 1 }}>
+          {t('portfolio.entry')}
+        </AppText>
+        <Icon name="chevron-forward" size={20} color={c.primary} directional />
+      </Pressable>
       {rejected > 0 ? (
         <Pressable onPress={dismissRejected} accessibilityRole="button" accessibilityHint={t('common.close')}>
           <Banner tone="error" text={t('sync.rejected')} />
@@ -138,6 +149,7 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
+  trust: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: minTapSize, paddingHorizontal: space.md, borderRadius: radius.md },
   tabs: { flexDirection: 'row', borderRadius: radius.md, padding: 4, gap: 4 },
   tab: {
     flex: 1,

@@ -25,7 +25,13 @@
    "reminderTitle": "تذكير من {{name}}",
    "due_todayTitle": "الموعد اليوم",
    "due_todayBody": "موعد سداد {{name}} لمبلغ {{remaining}} هو اليوم.",
-   "due_todayBodyNoApp": "موعد سداد {{name}} لمبلغ {{remaining}} هو اليوم. يمكنك إرسال تذكير له."
+   "due_todayBodyNoApp": "موعد سداد {{name}} لمبلغ {{remaining}} هو اليوم. يمكنك إرسال تذكير له.",
+   "extension_newTitle": "{{name}} يطلب مهلة إضافية",
+   "extension_newBody": "نقل موعد سداد {{amount}} إلى {{date}}؟",
+   "extension_acceptedTitle": "{{name}} وافق",
+   "extension_acceptedBody": "موعد السداد الجديد {{date}}.",
+   "extension_rejectedTitle": "{{name}} رفض",
+   "extension_rejectedBody": "موعد سداد {{amount}} يبقى كما هو."
   },
   "reminders": {
    "button": "إرسال تذكير",
@@ -137,7 +143,13 @@
    "reminderTitle": "{{name}}-এর কাছ থেকে রিমাইন্ডার",
    "due_todayTitle": "আজ ফেরতের দিন",
    "due_todayBody": "{{name}}-এর আজ {{remaining}} ফেরত দেওয়ার কথা।",
-   "due_todayBodyNoApp": "{{name}}-এর আজ {{remaining}} ফেরত দেওয়ার কথা। আপনি তাঁকে রিমাইন্ডার পাঠাতে পারেন।"
+   "due_todayBodyNoApp": "{{name}}-এর আজ {{remaining}} ফেরত দেওয়ার কথা। আপনি তাঁকে রিমাইন্ডার পাঠাতে পারেন।",
+   "extension_newTitle": "{{name}} আরও সময় চান",
+   "extension_newBody": "{{amount}}-এর তারিখ {{date}} করবেন?",
+   "extension_acceptedTitle": "{{name}} রাজি হয়েছেন",
+   "extension_acceptedBody": "নতুন তারিখ {{date}}।",
+   "extension_rejectedTitle": "{{name}} রাজি হননি",
+   "extension_rejectedBody": "{{amount}}-এর তারিখ একই থাকছে।"
   },
   "reminders": {
    "button": "রিমাইন্ডার পাঠান",
@@ -249,7 +261,13 @@
    "reminderTitle": "بیرخستنەوە لە {{name}}ەوە",
    "due_todayTitle": "وادەکە ئەمڕۆیە",
    "due_todayBody": "وادەی گەڕاندنەوەی {{remaining}} لەلایەن {{name}}ەوە ئەمڕۆیە.",
-   "due_todayBodyNoApp": "وادەی گەڕاندنەوەی {{remaining}} لەلایەن {{name}}ەوە ئەمڕۆیە. دەتوانیت بیرخستنەوەیەکی بۆ بنێریت."
+   "due_todayBodyNoApp": "وادەی گەڕاندنەوەی {{remaining}} لەلایەن {{name}}ەوە ئەمڕۆیە. دەتوانیت بیرخستنەوەیەکی بۆ بنێریت.",
+   "extension_newTitle": "{{name}} کاتی زیاتر دەخوازێت",
+   "extension_newBody": "کاتی دانەوەی {{amount}} بگوازرێتەوە بۆ {{date}}؟",
+   "extension_acceptedTitle": "{{name}} ڕازی بوو",
+   "extension_acceptedBody": "کاتی نوێی دانەوە {{date}}ە.",
+   "extension_rejectedTitle": "{{name}} ڕەتی کردەوە",
+   "extension_rejectedBody": "کاتی دانەوەی {{amount}} وەک خۆی دەمێنێتەوە."
   },
   "reminders": {
    "button": "ناردنی بیرخستنەوە",
@@ -361,7 +379,13 @@
    "reminderTitle": "Eine Erinnerung von {{name}}",
    "due_todayTitle": "Heute fällig",
    "due_todayBody": "{{name}} soll heute {{remaining}} zurückzahlen.",
-   "due_todayBodyNoApp": "{{name}} soll heute {{remaining}} zurückzahlen. Du kannst eine Erinnerung senden."
+   "due_todayBodyNoApp": "{{name}} soll heute {{remaining}} zurückzahlen. Du kannst eine Erinnerung senden.",
+   "extension_newTitle": "{{name}} bittet um mehr Zeit",
+   "extension_newBody": "Fälligkeit für {{amount}} auf den {{date}} verschieben?",
+   "extension_acceptedTitle": "{{name}} hat zugestimmt",
+   "extension_acceptedBody": "Neue Fälligkeit: {{date}}.",
+   "extension_rejectedTitle": "{{name}} hat abgelehnt",
+   "extension_rejectedBody": "Die Fälligkeit für {{amount}} bleibt gleich."
   },
   "reminders": {
    "button": "Erinnerung senden",
@@ -473,7 +497,13 @@
    "reminderTitle": "A reminder from {{name}}",
    "due_todayTitle": "Due today",
    "due_todayBody": "{{name}} is due to pay back {{remaining}} today.",
-   "due_todayBodyNoApp": "{{name}} is due to pay back {{remaining}} today. You can send them a reminder."
+   "due_todayBodyNoApp": "{{name}} is due to pay back {{remaining}} today. You can send them a reminder.",
+   "extension_newTitle": "{{name}} asks for more time",
+   "extension_newBody": "Move the due date for {{amount}} to {{date}}?",
+   "extension_acceptedTitle": "{{name}} agreed",
+   "extension_acceptedBody": "The new due date is {{date}}.",
+   "extension_rejectedTitle": "{{name}} declined",
+   "extension_rejectedBody": "The due date for {{amount}} stays the same."
   },
   "reminders": {
    "button": "Send a reminder",
@@ -585,7 +615,13 @@
    "reminderTitle": "Un recordatorio de {{name}}",
    "due_todayTitle": "Vence hoy",
    "due_todayBody": "{{name}} debe devolver {{remaining}} hoy.",
-   "due_todayBodyNoApp": "{{name}} debe devolver {{remaining}} hoy. Puedes enviarle un recordatorio."
+   "due_todayBodyNoApp": "{{name}} debe devolver {{remaining}} hoy. Puedes enviarle un recordatorio.",
+   "extension_newTitle": "{{name}} pide más tiempo",
+   "extension_newBody": "¿Mover la fecha de {{amount}} al {{date}}?",
+   "extension_acceptedTitle": "{{name}} aceptó",
+   "extension_acceptedBody": "La nueva fecha es {{date}}.",
+   "extension_rejectedTitle": "{{name}} rechazó",
+   "extension_rejectedBody": "La fecha de {{amount}} no cambia."
   },
   "reminders": {
    "button": "Enviar recordatorio",
@@ -697,7 +733,13 @@
    "reminderTitle": "یادآوری از طرف {{name}}",
    "due_todayTitle": "موعد امروز است",
    "due_todayBody": "موعد بازپرداخت {{remaining}} از طرف {{name}} امروز است.",
-   "due_todayBodyNoApp": "موعد بازپرداخت {{remaining}} از طرف {{name}} امروز است. می‌توانید برایش یادآوری بفرستید."
+   "due_todayBodyNoApp": "موعد بازپرداخت {{remaining}} از طرف {{name}} امروز است. می‌توانید برایش یادآوری بفرستید.",
+   "extension_newTitle": "{{name}} مهلت بیشتری می‌خواهد",
+   "extension_newBody": "سررسید {{amount}} به {{date}} منتقل شود؟",
+   "extension_acceptedTitle": "{{name}} موافقت کرد",
+   "extension_acceptedBody": "سررسید جدید {{date}} است.",
+   "extension_rejectedTitle": "{{name}} موافقت نکرد",
+   "extension_rejectedBody": "سررسید {{amount}} تغییر نمی‌کند."
   },
   "reminders": {
    "button": "ارسال یادآوری",
@@ -809,7 +851,13 @@
    "reminderTitle": "Un rappel de {{name}}",
    "due_todayTitle": "Échéance aujourd'hui",
    "due_todayBody": "{{name}} doit rembourser {{remaining}} aujourd'hui.",
-   "due_todayBodyNoApp": "{{name}} doit rembourser {{remaining}} aujourd'hui. Vous pouvez lui envoyer un rappel."
+   "due_todayBodyNoApp": "{{name}} doit rembourser {{remaining}} aujourd'hui. Vous pouvez lui envoyer un rappel.",
+   "extension_newTitle": "{{name}} demande plus de temps",
+   "extension_newBody": "Repousser l’échéance de {{amount}} au {{date}} ?",
+   "extension_acceptedTitle": "{{name}} a accepté",
+   "extension_acceptedBody": "La nouvelle échéance est le {{date}}.",
+   "extension_rejectedTitle": "{{name}} a refusé",
+   "extension_rejectedBody": "L’échéance de {{amount}} ne change pas."
   },
   "reminders": {
    "button": "Envoyer un rappel",
@@ -921,7 +969,13 @@
    "reminderTitle": "תזכורת מ{{name}}",
    "due_todayTitle": "היום מועד ההחזרה",
    "due_todayBody": "{{name}} צריך/ה להחזיר היום {{remaining}}.",
-   "due_todayBodyNoApp": "{{name}} צריך/ה להחזיר היום {{remaining}}. אפשר לשלוח תזכורת."
+   "due_todayBodyNoApp": "{{name}} צריך/ה להחזיר היום {{remaining}}. אפשר לשלוח תזכורת.",
+   "extension_newTitle": "{{name}} מבקש/ת זמן נוסף",
+   "extension_newBody": "להזיז את מועד ההחזר של {{amount}} ל-{{date}}?",
+   "extension_acceptedTitle": "{{name}} הסכים/ה",
+   "extension_acceptedBody": "מועד ההחזר החדש הוא {{date}}.",
+   "extension_rejectedTitle": "{{name}} דחה/תה",
+   "extension_rejectedBody": "מועד ההחזר של {{amount}} נשאר כפי שהוא."
   },
   "reminders": {
    "button": "שליחת תזכורת",
@@ -1033,7 +1087,13 @@
    "reminderTitle": "{{name}} की ओर से रिमाइंडर",
    "due_todayTitle": "आज लौटाने का दिन",
    "due_todayBody": "{{name}} को आज {{remaining}} लौटाने हैं।",
-   "due_todayBodyNoApp": "{{name}} को आज {{remaining}} लौटाने हैं। आप उन्हें रिमाइंडर भेज सकते हैं।"
+   "due_todayBodyNoApp": "{{name}} को आज {{remaining}} लौटाने हैं। आप उन्हें रिमाइंडर भेज सकते हैं।",
+   "extension_newTitle": "{{name}} और समय माँग रहे हैं",
+   "extension_newBody": "{{amount}} की तारीख़ {{date}} कर दें?",
+   "extension_acceptedTitle": "{{name}} सहमत हुए",
+   "extension_acceptedBody": "नई तारीख़ {{date}} है।",
+   "extension_rejectedTitle": "{{name}} ने मना किया",
+   "extension_rejectedBody": "{{amount}} की तारीख़ वही रहेगी।"
   },
   "reminders": {
    "button": "रिमाइंडर भेजें",
@@ -1145,7 +1205,13 @@
    "reminderTitle": "Pengingat dari {{name}}",
    "due_todayTitle": "Jatuh tempo hari ini",
    "due_todayBody": "{{name}} harus mengembalikan {{remaining}} hari ini.",
-   "due_todayBodyNoApp": "{{name}} harus mengembalikan {{remaining}} hari ini. Kamu bisa mengirim pengingat."
+   "due_todayBodyNoApp": "{{name}} harus mengembalikan {{remaining}} hari ini. Kamu bisa mengirim pengingat.",
+   "extension_newTitle": "{{name}} meminta waktu tambahan",
+   "extension_newBody": "Pindahkan jatuh tempo {{amount}} ke {{date}}?",
+   "extension_acceptedTitle": "{{name}} setuju",
+   "extension_acceptedBody": "Jatuh tempo baru: {{date}}.",
+   "extension_rejectedTitle": "{{name}} menolak",
+   "extension_rejectedBody": "Jatuh tempo {{amount}} tetap sama."
   },
   "reminders": {
    "button": "Kirim pengingat",
@@ -1257,7 +1323,13 @@
    "reminderTitle": "Um lembrete de {{name}}",
    "due_todayTitle": "Vence hoje",
    "due_todayBody": "{{name}} deve devolver {{remaining}} hoje.",
-   "due_todayBodyNoApp": "{{name}} deve devolver {{remaining}} hoje. Você pode enviar um lembrete."
+   "due_todayBodyNoApp": "{{name}} deve devolver {{remaining}} hoje. Você pode enviar um lembrete.",
+   "extension_newTitle": "{{name}} pede mais tempo",
+   "extension_newBody": "Mudar o vencimento de {{amount}} para {{date}}?",
+   "extension_acceptedTitle": "{{name}} concordou",
+   "extension_acceptedBody": "O novo vencimento é {{date}}.",
+   "extension_rejectedTitle": "{{name}} recusou",
+   "extension_rejectedBody": "O vencimento de {{amount}} continua o mesmo."
   },
   "reminders": {
    "button": "Enviar lembrete",
@@ -1369,7 +1441,13 @@
    "reminderTitle": "Напоминание от {{name}}",
    "due_todayTitle": "Срок сегодня",
    "due_todayBody": "{{name}} должен(на) вернуть {{remaining}} сегодня.",
-   "due_todayBodyNoApp": "{{name}} должен(на) вернуть {{remaining}} сегодня. Вы можете отправить напоминание."
+   "due_todayBodyNoApp": "{{name}} должен(на) вернуть {{remaining}} сегодня. Вы можете отправить напоминание.",
+   "extension_newTitle": "{{name}} просит больше времени",
+   "extension_newBody": "Перенести срок для {{amount}} на {{date}}?",
+   "extension_acceptedTitle": "{{name}} согласен(на)",
+   "extension_acceptedBody": "Новый срок: {{date}}.",
+   "extension_rejectedTitle": "{{name}} отказал(а)",
+   "extension_rejectedBody": "Срок для {{amount}} остаётся прежним."
   },
   "reminders": {
    "button": "Напомнить",
@@ -1481,7 +1559,13 @@
    "reminderTitle": "{{name}} kişisinden hatırlatma",
    "due_todayTitle": "Bugün son gün",
    "due_todayBody": "{{name}} bugün {{remaining}} geri ödemeli.",
-   "due_todayBodyNoApp": "{{name}} bugün {{remaining}} geri ödemeli. Ona bir hatırlatma gönderebilirsiniz."
+   "due_todayBodyNoApp": "{{name}} bugün {{remaining}} geri ödemeli. Ona bir hatırlatma gönderebilirsiniz.",
+   "extension_newTitle": "{{name}} ek süre istiyor",
+   "extension_newBody": "{{amount}} vadesi {{date}} tarihine alınsın mı?",
+   "extension_acceptedTitle": "{{name}} kabul etti",
+   "extension_acceptedBody": "Yeni vade tarihi {{date}}.",
+   "extension_rejectedTitle": "{{name}} reddetti",
+   "extension_rejectedBody": "{{amount}} vadesi aynı kalıyor."
   },
   "reminders": {
    "button": "Hatırlatma gönder",
@@ -1593,7 +1677,13 @@
    "reminderTitle": "{{name}} کی طرف سے یاد دہانی",
    "due_todayTitle": "آج واپسی کا دن ہے",
    "due_todayBody": "{{name}} کو آج {{remaining}} واپس کرنے ہیں۔",
-   "due_todayBodyNoApp": "{{name}} کو آج {{remaining}} واپس کرنے ہیں۔ آپ انہیں یاد دہانی بھیج سکتے ہیں۔"
+   "due_todayBodyNoApp": "{{name}} کو آج {{remaining}} واپس کرنے ہیں۔ آپ انہیں یاد دہانی بھیج سکتے ہیں۔",
+   "extension_newTitle": "{{name}} مزید وقت مانگ رہے ہیں",
+   "extension_newBody": "{{amount}} کی تاریخ {{date}} کر دیں؟",
+   "extension_acceptedTitle": "{{name}} متفق ہو گئے",
+   "extension_acceptedBody": "نئی تاریخ {{date}} ہے۔",
+   "extension_rejectedTitle": "{{name}} نے انکار کیا",
+   "extension_rejectedBody": "{{amount}} کی تاریخ وہی رہے گی۔"
   },
   "reminders": {
    "button": "یاد دہانی بھیجیں",
@@ -1705,7 +1795,13 @@
    "reminderTitle": "来自 {{name}} 的提醒",
    "due_todayTitle": "今天到期",
    "due_todayBody": "{{name}} 今天应还 {{remaining}}。",
-   "due_todayBodyNoApp": "{{name}} 今天应还 {{remaining}}。你可以给对方发个提醒。"
+   "due_todayBodyNoApp": "{{name}} 今天应还 {{remaining}}。你可以给对方发个提醒。",
+   "extension_newTitle": "{{name}}申请延期",
+   "extension_newBody": "将 {{amount}} 的到期日改为 {{date}}？",
+   "extension_acceptedTitle": "{{name}}已同意",
+   "extension_acceptedBody": "新的到期日是 {{date}}。",
+   "extension_rejectedTitle": "{{name}}已拒绝",
+   "extension_rejectedBody": "{{amount}} 的到期日保持不变。"
   },
   "reminders": {
    "button": "发送提醒",

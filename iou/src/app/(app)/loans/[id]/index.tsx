@@ -19,6 +19,7 @@ import {
   useSyncStatus,
 } from '@/features/loans/service';
 import { BalanceBar, CommentSheet, ReminderSheet, RepaymentsSection } from '@/features/loans/repaymentsUI';
+import { CounterpartyCard, ExtensionSection } from '@/features/trust/components';
 import { useFormat } from '@/i18n';
 import { balanceOf } from '@/shared/balance';
 import { todayIso } from '@/shared/calendars';
@@ -63,6 +64,9 @@ export default function LoanDetail() {
   const balance = balanceOf(loan.amountMinor, repayments);
   const iAmLender = loan.lenderId === uid;
   const canRemind = iAmLender && loan.status === 'confirmed' && balance.remaining > 0;
+  // Trust features need both people to have an account.
+  const bothAccounts = !!loan.lenderId && !!loan.borrowerId && !loan.pending;
+  const canExtend = bothAccounts && loan.status === 'confirmed' && !!loan.dueDate && balance.remaining > 0;
   // The reminder greets the borrower: by my label if I wrote the record, else by their profile name.
   const greetName = isCreator ? loan.counterpartyName : name;
 
@@ -172,6 +176,12 @@ export default function LoanDetail() {
             ) : null}
           </View>
         ) : null}
+
+        {canExtend || (bothAccounts && !!loan.dueDate && loan.status === 'confirmed') ? (
+          <ExtensionSection loanId={loan.id} dueDate={loan.dueDate!} userId={uid} name={name} canAsk={canExtend} online={online} />
+        ) : null}
+
+        <CounterpartyCard loanId={loan.id} enabled={bothAccounts && online && loan.status !== 'cancelled'} />
 
         {canRemind ? (
           <Button title={t('reminders.button')} variant="secondary" icon="notifications-outline" onPress={() => setReminding(true)} />

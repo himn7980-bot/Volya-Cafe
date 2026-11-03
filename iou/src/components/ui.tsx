@@ -84,7 +84,7 @@ export function AppText({
 
 // ---------- Icons ----------
 
-type IconName = ComponentProps<typeof Ionicons>['name'];
+export type IconName = ComponentProps<typeof Ionicons>['name'];
 
 /**
  * Icon that flips horizontally in RTL when `directional` (arrows, chevrons,

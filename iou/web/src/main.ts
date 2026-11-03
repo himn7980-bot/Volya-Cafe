@@ -4,7 +4,18 @@
 //
 // Data is only ever inserted with textContent (never innerHTML).
 
-import { describeRecord, formatContextFor, makeT, pickLanguage, type Dict, type LangMeta, type SharedLoan, type T } from './view';
+import {
+  describeCard,
+  describeRecord,
+  formatContextFor,
+  makeT,
+  pickLanguage,
+  type Dict,
+  type LangMeta,
+  type SharedLoan,
+  type T,
+  type WebTrustCard,
+} from './view';
 
 declare const __CONFIG__: {
   supabaseUrl: string;
@@ -60,8 +71,13 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string,
 
 // ---------- State ----------
 
-const token = decodeURIComponent(location.hash.slice(1)).trim();
+const hash = decodeURIComponent(location.hash.slice(1)).trim();
+/** "#card.<token>" is someone's trust card; anything else is a record. */
+const cardMode = hash.startsWith('card.');
+const token = cardMode ? hash.slice(5) : hash;
 let data: SharedLoan | null = null;
+/** The trust card: of the record's writer, or the one the link is for. */
+let trust: WebTrustCard | null = null;
 let lang: LangMeta = config.languages.find((l) => l.code === 'en')!;
 let t: T = (k) => k;
 let mode: 'view' | 'dispute' | 'done' | 'repaymentDone' = 'view';
@@ -104,7 +120,35 @@ function languagePicker() {
   return select;
 }
 
+function trustCard() {
+  if (!trust) return null;
+  const view = describeCard(trust, t, formatContextFor(lang, t));
+  if (!view) return null;
+  return el(
+    'section',
+    { class: `card trust ${view.tone}` },
+    el('p', { class: 'eyebrow' }, view.title),
+    el('h2', {}, view.headline),
+    view.facts.length ? el('ul', { class: 'details' }, ...view.facts.map((f) => el('li', {}, f))) : null,
+    el('p', { class: 'muted small' }, view.disclaimer),
+  );
+}
+
 function installCard() {
+  if (cardMode) {
+    return el(
+      'section',
+      { class: 'card install' },
+      el('h2', {}, t('web.installTitle')),
+      el('p', {}, t('web.installBody')),
+      el(
+        'div',
+        { class: 'stores' },
+        el('a', { class: 'button secondary', href: config.brand.playStoreUrl, rel: 'noopener' }, t('web.getAndroid')),
+        el('a', { class: 'button secondary', href: config.brand.appStoreUrl, rel: 'noopener' }, t('web.getIos')),
+      ),
+    );
+  }
   const claim = `${config.brand.scheme}://claim?token=${encodeURIComponent(token)}`;
   return el(
     'section',
@@ -202,6 +246,19 @@ function render() {
   const main = el('main', {});
   root.replaceChildren(header, main);
 
+  if (cardMode) {
+    if (!trust) {
+      main.append(el('p', { class: 'muted center', role: 'status' }, t('common.loading')));
+      return;
+    }
+    const view = trust.error ? null : trustCard();
+    main.append(
+      view ?? message(t(trust.error === 'expired' ? 'trust.expired' : trust.error === 'rate_limited' ? 'web.rateLimited' : 'trust.notFound')),
+      installCard(),
+    );
+    return;
+  }
+
   if (!data) {
     main.append(el('p', { class: 'muted center', role: 'status' }, t('common.loading')));
     return;
@@ -241,6 +298,8 @@ function render() {
     view.disputed ? el('p', { class: 'disputed' }, view.disputed) : null,
   );
   main.append(card);
+  const writer = trustCard();
+  if (writer) main.append(writer);
   if (notice) main.append(el('p', { class: 'notice', role: 'alert' }, notice));
 
   // An already confirmed record: the visitor (a lender without the app) is
@@ -314,6 +373,15 @@ async function start() {
   // A first guess so the loading text is in a sensible language.
   await setLanguage(pickLanguage(codes, { query: params.get('lang'), stored: savedLanguage(), browser: navigator.languages }));
   render();
+  if (cardMode) {
+    try {
+      trust = /^[0-9a-f]{64}$/.test(token) ? await rpc<WebTrustCard>('trust_card_by_token', { p_token: token }) : { error: 'not_found' };
+    } catch {
+      trust = { error: 'failed' };
+    }
+    render();
+    return;
+  }
   if (!/^[0-9a-f]{64}$/.test(token)) {
     data = { error: 'not_found' };
   } else {
@@ -329,6 +397,15 @@ async function start() {
   const writer = data && !data.error ? data.language : null;
   await setLanguage(pickLanguage(codes, { query: params.get('lang'), stored: savedLanguage(), browser: navigator.languages, writer }));
   render();
+  // Before answering, the visitor can see what kind of payer the writer is.
+  if (data && !data.error && data.open) {
+    try {
+      trust = await rpc<WebTrustCard>('trust_card_by_loan_token', { p_token: token });
+      render();
+    } catch {
+      // Optional: the record works without it.
+    }
+  }
 }
 
 void start();

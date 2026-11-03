@@ -1,6 +1,6 @@
 import en from '../../../src/i18n/locales/en.json';
 import fa from '../../../src/i18n/locales/fa.json';
-import { describeRecord, formatContextFor, makeT, pickLanguage, type LangMeta, type SharedLoan } from '../view';
+import { describeCard, describeRecord, formatContextFor, makeT, pickLanguage, type LangMeta, type SharedLoan } from '../view';
 
 const meta = (code: string, m: typeof en.meta): LangMeta => ({ code, ...m }) as LangMeta;
 
@@ -53,5 +53,28 @@ describe('describeRecord', () => {
     const t = makeT(en, en, {});
     const v = describeRecord({ ...loan, status: 'disputed', dispute_comment: 'It was 400' }, t, formatContextFor(meta('en', en.meta), t));
     expect(v.disputed).toBe("You said: “It was 400”. If it's been fixed, you can confirm it now.");
+  });
+});
+
+describe('describeCard', () => {
+  const t = makeT(en, en, { appName: 'IOU' });
+  const fmt = formatContextFor(meta('en', en.meta), t);
+  const card = {
+    hidden: false as const, display_name: 'Ali', member_since: '2026-01-05', is_new: false, score: 82, level: 'good',
+    on_time_pct: 90, settled_count: 12, counterparties: 5, volume_band: 'medium',
+  };
+  it('shows coarse facts and never amounts', () => {
+    const v = describeCard(card, t, fmt)!;
+    expect(v.headline).toBe('Good payer · 82 out of 100');
+    expect(v.tone).toBe('good');
+    expect(v.facts).toContain('90% paid back on time');
+    expect(v.facts.join(' ')).not.toMatch(/IRR|USD|\$/);
+  });
+  it('treats people without enough history as new, not as bad', () => {
+    expect(describeCard({ ...card, is_new: true, score: null, level: null }, t, fmt)!.headline).toBe('New user, no history yet');
+  });
+  it('shows only the name for a hidden card, nothing for errors', () => {
+    expect(describeCard({ hidden: true, display_name: 'Ali' }, t, fmt)!.facts).toEqual([]);
+    expect(describeCard({ error: 'expired' }, t, fmt)).toBeNull();
   });
 });

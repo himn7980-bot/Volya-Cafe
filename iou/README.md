@@ -387,6 +387,19 @@ record is created, when the benefit is obvious.
 Push needs a development or store build: Expo Go can't receive remote notifications on
 Android.
 
+## Trust score, portfolio and due-date extensions
+
+Everything is computed in Postgres (`supabase/migrations/20261103000001_trust_score.sql`), on demand. The app only shows it.
+
+- **What counts:** only records between two accounts that both confirmed, and repayments the lender confirmed.
+- **Extensions:** either party asks for a later due date (`propose_extension`), the other agrees or declines (`respond_to_extension`). Agreed before the due date: no penalty. Agreed after it: the days late until the agreement still count.
+- **Points:** on time +10, no due date +5, lender +3 when paid back. Late without agreement: -(5 + 1 per day after a 1-day grace), at most -40. A disputed or waiting repayment freezes the penalty for 14 days.
+- **Anti-gaming (positive points only):** the n-th loan with the same person in 12 months counts 0.5^(n-1), at most 30 points from one person; settled within 3 days ×0.3; counterparty younger than 30 days or with no other contacts ×0.5; amount weight is logarithmic (0.5–2). Negative points are never reduced. Everything fades with a 12-month half-life.
+- **Display:** 0–100 (`50 + 50·tanh(raw/40)`) and five levels. Fewer than 3 settled records or 2 different people: "New user", not a low score.
+- **Who sees what:** *My portfolio* (only me) has amounts per currency, counts, a trend and what changed the score. Others see a coarse *trust card* (level, score, on-time %, counts, activity band, member since) and only through a record they share with me (mutual), the record's share link, or a 7-day card link I create and can stop. No search. Cards can be hidden in My portfolio.
+- **Tuning:** all constants live in `public.score_config` (and reference loan sizes in `public.score_currency_ref`); change a row, no deploy needed.
+- **Card links** open the confirmation page as `/c/#card.<token>`.
+
 ## Dashboard, people and export
 
 - **Totals** at the top of the home screen: what others owe you and what you owe, one

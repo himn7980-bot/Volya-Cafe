@@ -17,7 +17,10 @@ export type NotificationKind =
   | 'repayment_disputed'
   | 'settled'
   | 'reminder'
-  | 'due_today';
+  | 'due_today'
+  | 'extension_new'
+  | 'extension_accepted'
+  | 'extension_rejected';
 
 /** Payload written by public.loan_payload() plus event-specific fields. */
 export interface NotificationData {
@@ -32,6 +35,8 @@ export interface NotificationData {
   greet_name?: string | null;
   loan_date?: string;
   borrower_has_app?: boolean;
+  /** Due-date extension requests and answers. */
+  new_due_date?: string;
 }
 
 export type Translate = (key: string, params?: Record<string, string>) => string;
@@ -72,6 +77,7 @@ export function renderNotification(
     remaining: money(d.remaining_minor),
     repayment: money(d.repayment_minor),
     comment: d.comment ?? '',
+    date: d.new_due_date ? formatDate(d.new_due_date, fmt) : '',
   };
   if (kind === 'reminder') {
     return {
