@@ -4,8 +4,8 @@
   "scheme": "iou",
   "iosBundleIdentifier": "app.iou.mobile",
   "androidPackage": "app.iou.mobile",
-  "webBaseUrl": "https://iou.example.com",
+  "webBaseUrl": "https://himn7980-bot.github.io/iou",
   "appStoreUrl": "https://apps.apple.com/app/id0000000000",
-  "playStoreUrl": "https://play.google.com/store/apps/details?id=app.iou.mobile",
+  "playStoreUrl": "https://github.com/himn7980-bot/Volya-Cafe/releases/latest/download/IOU.apk",
   "contactEmail": "privacy@iou.example.com"
 }

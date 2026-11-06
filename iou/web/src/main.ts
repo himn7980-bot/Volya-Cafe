@@ -120,6 +120,9 @@ function languagePicker() {
   return select;
 }
 
+/** No iOS app yet: the placeholder App Store id hides the button. */
+const hasIos = !/id0+$/.test(config.brand.appStoreUrl);
+
 function trustCard() {
   if (!trust) return null;
   const view = describeCard(trust, t, formatContextFor(lang, t));
@@ -145,7 +148,7 @@ function installCard() {
         'div',
         { class: 'stores' },
         el('a', { class: 'button secondary', href: config.brand.playStoreUrl, rel: 'noopener' }, t('web.getAndroid')),
-        el('a', { class: 'button secondary', href: config.brand.appStoreUrl, rel: 'noopener' }, t('web.getIos')),
+        hasIos ? el('a', { class: 'button secondary', href: config.brand.appStoreUrl, rel: 'noopener' }, t('web.getIos')) : null,
       ),
     );
   }
@@ -159,7 +162,7 @@ function installCard() {
       'div',
       { class: 'stores' },
       el('a', { class: 'button secondary', href: config.brand.playStoreUrl, rel: 'noopener' }, t('web.getAndroid')),
-      el('a', { class: 'button secondary', href: config.brand.appStoreUrl, rel: 'noopener' }, t('web.getIos')),
+      hasIos ? el('a', { class: 'button secondary', href: config.brand.appStoreUrl, rel: 'noopener' }, t('web.getIos')) : null,
     ),
     el('a', { class: 'link', href: claim }, t('web.openInApp')),
   );

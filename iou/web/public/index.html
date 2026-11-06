@@ -1,23 +1,52 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>__APP_NAME__</title>
+  <title>__APP_NAME__ — دانلود</title>
+  <meta name="description" content="ثبت قرض‌های دوستانه، تأیید طرف مقابل، یادآوری و امتیاز خوش‌حسابی.">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .hero h1 { font-size: 1.9rem; margin: .2em 0; }
+    .big { display: block; text-decoration: none; font-weight: 700; text-align: center; font-size: 1.15rem; padding: 1em; }
+    ol { padding-inline-start: 1.3em; line-height: 1.9; }
+    .langs { display: grid; gap: 1rem; }
+    [dir=ltr] { text-align: left; }
+  </style>
 </head>
 <body>
   <header><strong class="brand">__APP_NAME__</strong></header>
   <main>
-    <section class="card center">
-      <h1>Money between friends, kept kind</h1>
-      <p>Write down who lent what, let the other person confirm it, and never argue about it again. __APP_NAME__ never moves money.</p>
-      <div class="stores">
-        <a class="button secondary" href="__PLAY_URL__">Google Play</a>
-        <a class="button secondary" href="__APPSTORE_URL__">App Store</a>
-      </div>
+    <section class="card center hero">
+      <h1>حساب قرض‌ها، بدون دلخوری</h1>
+      <p>بنویس به چه کسی قرض دادی یا از چه کسی گرفتی، طرف مقابل تأیید می‌کند و اپ سر موعد یادآوری می‌کند. آدم‌های خوش‌حساب امتیاز می‌گیرند. __APP_NAME__ هیچ پولی جابه‌جا نمی‌کند.</p>
+      <a class="button primary big" href="__PLAY_URL__">⬇ دانلود برای اندروید (APK)</a>
     </section>
+
+    <section class="card">
+      <h2>نصب</h2>
+      <ol>
+        <li>روی دکمهٔ دانلود بزنید و فایل <b>IOU.apk</b> را باز کنید.</li>
+        <li>اگر گوشی پرسید «نصب از منابع ناشناس»، اجازه بدهید.</li>
+        <li><b>نصب</b> را بزنید و با شماره موبایل وارد شوید؛ کد ورود در <b>تلگرام</b> می‌آید.</li>
+      </ol>
+    </section>
+
+    <div class="langs">
+      <section class="card" lang="ar" dir="rtl">
+        <h2>العربية</h2>
+        <p>سجّل القروض بين الأصدقاء، يؤكدها الطرف الآخر، ويذكّركم التطبيق بموعد السداد. التطبيق لا ينقل أي أموال.</p>
+        <p>اضغط زر التحميل، افتح <b>IOU.apk</b>، اسمح بالتثبيت من مصادر غير معروفة إذا طُلب، ثم سجّل الدخول برقم هاتفك (يصلك الرمز في تيليغرام).</p>
+      </section>
+      <section class="card" lang="en" dir="ltr">
+        <h2>English</h2>
+        <p>Record loans between friends, let the other person confirm, and get reminders. The app never moves money.</p>
+        <p>Tap download, open <b>IOU.apk</b>, allow installing from unknown sources if asked, then sign in with your phone number (the code arrives in Telegram).</p>
+      </section>
+    </div>
+
+    <p class="muted small center"><a href="privacy.html">Privacy</a></p>
   </main>
 </body>
 </html>

@@ -55,6 +55,15 @@ template = "Your code is {{ .Code }}"
 15555550100 = "123456"
 989121234567 = "123456"
 
+# Codes are delivered in Telegram (supabase/functions/send-sms), not by SMS.
+[auth.hook.send_sms]
+enabled = false # turn on in the dashboard: Authentication -> Hooks -> Send SMS
+uri = "https://vikgqzehhwparfjumsut.supabase.co/functions/v1/send-sms"
+secrets = "env(SEND_SMS_HOOK_SECRET)"
+
+[functions.send-sms]
+verify_jwt = false
+
 [auth.sms.twilio]
 enabled = false
 account_sid = ""
