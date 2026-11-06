@@ -21,7 +21,8 @@
     "saved": "Tersimpan",
     "optional": "Opsional",
     "somethingWrong": "Ada yang salah. Silakan coba lagi.",
-    "offline": "Kamu sedang offline. Perubahan akan disinkronkan saat kembali online."
+    "offline": "Kamu sedang offline. Perubahan akan disinkronkan saat kembali online.",
+    "openSettings": "Buka pengaturan"
   },
   "onboarding": {
     "chooseLanguage": "Pilih bahasamu",

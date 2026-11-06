@@ -21,7 +21,8 @@
     "saved": "Kaydedildi",
     "optional": "İsteğe bağlı",
     "somethingWrong": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
-    "offline": "Çevrimdışısınız. Değişiklikler bağlantı gelince eşitlenecek."
+    "offline": "Çevrimdışısınız. Değişiklikler bağlantı gelince eşitlenecek.",
+    "openSettings": "Ayarları aç"
   },
   "onboarding": {
     "chooseLanguage": "Dilinizi seçin",

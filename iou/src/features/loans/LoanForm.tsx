@@ -1,4 +1,4 @@
-import { Contact } from 'expo-contacts';
+import { Contact, requestPermissionsAsync as requestContactsPermission } from 'expo-contacts';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,7 @@ import { AppText, Banner, Button, Icon, Screen, TextField } from '@/components/u
 import { normalizePhone } from '@/features/auth/auth';
 import { currencyName, useFormat, usePrefs } from '@/i18n';
 import { todayIso } from '@/shared/calendars';
+import { explainDenied } from '@/shared/permissions';
 import { formatMoney } from '@/shared/format';
 import { minorToDecimalString, parseAmount } from '@/shared/money';
 import { validateDraft, type Direction, type LoanDraft } from '@/shared/loans';
@@ -62,6 +63,12 @@ export function LoanForm({ initial, existingPhotoUri, editing, submitLabel, onSu
 
   async function pickContact() {
     try {
+      // Shows the system "Allow access to contacts?" dialog the first time.
+      const perm = await requestContactsPermission();
+      if (!perm.granted) {
+        explainDenied(t('loans.pickContact'), t('loans.contactsPermission'));
+        return;
+      }
       const contact = await Contact.presentPicker();
       if (!contact) return;
       const fullName = (await contact.getFullName()).trim();
@@ -70,7 +77,7 @@ export function LoanForm({ initial, existingPhotoUri, editing, submitLabel, onSu
       const first = numbers.find((p) => p.number)?.number;
       if (first) setPhone(normalizePhone(first) ?? first);
     } catch {
-      Alert.alert(t('loans.pickContact'), t('loans.contactsPermission'));
+      explainDenied(t('loans.pickContact'), t('loans.contactsPermission'));
     }
   }
 
@@ -80,7 +87,7 @@ export function LoanForm({ initial, existingPhotoUri, editing, submitLabel, onSu
         ? await ImagePicker.requestCameraPermissionsAsync()
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert(t('loans.photo'), t('profile.photoPermission'));
+      explainDenied(t('loans.photo'), t('profile.photoPermission'));
       return;
     }
     const options: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.6 };

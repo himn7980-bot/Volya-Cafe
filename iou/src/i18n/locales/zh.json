@@ -21,7 +21,8 @@
     "saved": "已保存",
     "optional": "可选",
     "somethingWrong": "出了点问题，请重试。",
-    "offline": "当前处于离线状态。恢复联网后会自动同步更改。"
+    "offline": "当前处于离线状态。恢复联网后会自动同步更改。",
+    "openSettings": "打开设置"
   },
   "onboarding": {
     "chooseLanguage": "选择语言",

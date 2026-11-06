@@ -21,7 +21,8 @@
     "saved": "Enregistré",
     "optional": "Facultatif",
     "somethingWrong": "Un problème est survenu. Veuillez réessayer.",
-    "offline": "Vous êtes hors ligne. Les modifications seront synchronisées dès le retour de la connexion."
+    "offline": "Vous êtes hors ligne. Les modifications seront synchronisées dès le retour de la connexion.",
+    "openSettings": "Ouvrir les réglages"
   },
   "onboarding": {
     "chooseLanguage": "Choisissez votre langue",

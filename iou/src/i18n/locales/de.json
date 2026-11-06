@@ -21,7 +21,8 @@
     "saved": "Gespeichert",
     "optional": "Optional",
     "somethingWrong": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
-    "offline": "Du bist offline. Änderungen werden synchronisiert, sobald du wieder online bist."
+    "offline": "Du bist offline. Änderungen werden synchronisiert, sobald du wieder online bist.",
+    "openSettings": "Einstellungen öffnen"
   },
   "onboarding": {
     "chooseLanguage": "Wähle deine Sprache",

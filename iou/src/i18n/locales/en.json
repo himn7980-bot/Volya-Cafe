@@ -21,7 +21,8 @@
     "saved": "Saved",
     "optional": "Optional",
     "somethingWrong": "Something went wrong. Please try again.",
-    "offline": "You're offline. Changes will sync when you're back online."
+    "offline": "You're offline. Changes will sync when you're back online.",
+    "openSettings": "Open settings"
   },
   "onboarding": {
     "chooseLanguage": "Choose your language",

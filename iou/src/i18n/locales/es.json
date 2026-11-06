@@ -21,7 +21,8 @@
     "saved": "Guardado",
     "optional": "Opcional",
     "somethingWrong": "Algo salió mal. Inténtalo de nuevo.",
-    "offline": "Estás sin conexión. Los cambios se sincronizarán cuando vuelvas a estar en línea."
+    "offline": "Estás sin conexión. Los cambios se sincronizarán cuando vuelvas a estar en línea.",
+    "openSettings": "Abrir ajustes"
   },
   "onboarding": {
     "chooseLanguage": "Elige tu idioma",

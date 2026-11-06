@@ -9,6 +9,7 @@ import { useSyncStatus } from '@/features/loans/service';
 import { useAvatarUrl, useChangeAvatar, useProfile, useRemoveAvatar, useUpdateProfile } from '@/features/profile/api';
 import { currencyName, usePrefs } from '@/i18n';
 import { space } from '@/theme';
+import { explainDenied } from '@/shared/permissions';
 
 export default function Profile() {
   const { t } = useTranslation();
@@ -36,7 +37,7 @@ export default function Profile() {
 
   async function pickPhoto() {
     const result = await changeAvatar.mutateAsync(profile!.avatar_path).catch(() => null);
-    if (result === 'denied') Alert.alert(t('profile.photo'), t('profile.photoPermission'));
+    if (result === 'denied') explainDenied(t('profile.photo'), t('profile.photoPermission'));
   }
 
   function confirmSignOut() {
