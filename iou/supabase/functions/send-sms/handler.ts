@@ -9,9 +9,11 @@ export interface HookPayload {
 
 const enc = new TextEncoder();
 
-function b64ToBytes(b64: string): Uint8Array {
+function b64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
   const bin = atob(b64);
-  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 function bytesToB64(bytes: ArrayBuffer): string {
